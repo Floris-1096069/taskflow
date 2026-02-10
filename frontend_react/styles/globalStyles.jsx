@@ -34,6 +34,8 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f5f5f5',
+    alignSelf: 'center',
+    width: '20%',
   },
   card: {
     backgroundColor: '#fff',
@@ -69,6 +71,8 @@ export const globalStyles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     backgroundColor: '#fff',
+    alignSelf: 'center',
+    width: '80%',
   },
 
   // Web-specific styles (for PWA)
