@@ -23,7 +23,17 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./public/favicon.png",
+      "build": {
+        "pwa": true
+      },
+      "name": "frontend_react",
+      "shortName": "Taskflow",
+      "startUrl": "/",
+      "display": "standalone",
+      "themeColor": "#ffffff",
+      "backgroundColor": "#ffffff",
+      "description": "Warehouse ticketing and to do list."
     }
   }
 }
