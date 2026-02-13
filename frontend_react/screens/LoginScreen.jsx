@@ -13,13 +13,15 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={[globalStyles.container, { justifyContent: 'center' }]}>
+    <View style={[globalStyles.webContainer]}>
       <Text style={[globalStyles.title, { textAlign: 'center', marginBottom: 30 }]}>
         Taskflow Login
       </Text>
 
-      <View style={{ width: '100%', maxWidth: 400 }}>
-        <Text style={globalStyles.subtitle}>Username</Text>
+      <View>
+        <Text style={[globalStyles.subtitle, { textAlign: 'center'}]}>
+          Username
+        </Text>
         <TextInput
           style={globalStyles.input}
           placeholder="Enter username"
@@ -28,7 +30,7 @@ export default function LoginScreen({ navigation }) {
           autoCapitalize="none"
         />
 
-        <Text style={[globalStyles.subtitle, { marginTop: 10 }]}>
+        <Text style={[globalStyles.subtitle, { textAlign: 'center'}]}>
           Password
         </Text>
         <TextInput
@@ -40,7 +42,7 @@ export default function LoginScreen({ navigation }) {
         />
 
         <Pressable
-          style={[globalStyles.button, { marginTop: 20 }]}
+          style={[globalStyles.button]}
           onPress={handleLogin}
         >
           <Text style={globalStyles.buttonText}>Login</Text>
