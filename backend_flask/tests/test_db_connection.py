@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
 from dotenv import load_dotenv
 from backend_flask.src.ORM.models import Base, User, Role, Status, Task, TaskProblem
+from backend_flask.src.ORM.database_manager import DatabaseManager
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -13,30 +14,17 @@ class TestPostgresConnection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up the PostgreSQL database connection and create tables."""
-        cls.db_url = DATABASE_URL
-        if not cls.db_url:
-            raise ValueError("DATABASE_URL environment variable not set.")
-
-        #create engine with PostgreSQL URL
-        cls.engine = create_engine(cls.db_url, echo=True)
-        cls.Session = sessionmaker(bind=cls.engine)
-
-        #create all tables
-        Base.metadata.create_all(bind=cls.engine)
+        cls.db_manager = DatabaseManager(DATABASE_URL, echo=True)
 
     @classmethod
     def tearDownClass(cls):
         """Drop all tables after tests (optional: comment out if you want to keep data)."""
-        Base.metadata.drop_all(bind=cls.engine)
-        cls.engine.dispose()
+        cls.db_manager.dispose()
 
     def setUp(self):
         """Create a new session and reset the database for each test."""
-        self.session = self.Session()
-        #drop all tables
-        Base.metadata.drop_all(bind=self.engine)
-        #recreate all tables
-        Base.metadata.create_all(bind=self.engine)
+        self.db_manager.recreate_db()
+        self.session = next(self.db_manager.get_db())
 
     def tearDown(self):
         """Rollback and close the session after each test."""
@@ -51,7 +39,7 @@ class TestPostgresConnection(unittest.TestCase):
             self.fail(f"PostgreSQL connection failed: {e}")
 
     def test_tables_exist(self):
-        inspector = inspect(self.engine)
+        inspector = inspect(self.db_manager.engine)
         tables = inspector.get_table_names()
         expected_tables = ["users", "roles", "status", "tasks", "taskproblems", "tags", "tasktags"]
         for table in expected_tables:
