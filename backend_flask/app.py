@@ -5,9 +5,9 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
-from backend_flask.src.API.auth_api import auth_api
-from backend_flask.src.API.problem_api import problem_api
-from backend_flask.src.API.task_api import task_api
+from backend_flask.src.API.auth_api import AuthApi
+from backend_flask.src.API.problem_api import ProblemApi
+from backend_flask.src.API.task_api import TaskApi
 
 
 def create_app():
