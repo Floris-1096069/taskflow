@@ -18,7 +18,7 @@ class TestPostgresConnection(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Drop all tables after tests (optional: comment out if you want to keep data)."""
+        """Drop all tables after tests."""
         cls.db_manager.dispose()
 
     def setUp(self):
@@ -172,10 +172,10 @@ class TestPostgresConnection(unittest.TestCase):
         self.assertEqual(len(user.created_tasks), 1)
         self.assertEqual(user.created_tasks[0].name, "Relationship Task")
 
-        #test Task ↔ Status relationship
+        #test Task - Status relationship
         self.assertEqual(task.status.status, "open")
 
-        #test Task ↔ TaskProblem relationship
+        #test Task - TaskProblem relationship
         problem = TaskProblem(
             task_id=task.task_id,
             user_id=user.user_id,
