@@ -19,52 +19,39 @@ class User(Base):
     delegated_tasks = relationship("Task", foreign_keys="Task.delegated_to", back_populates="assignee")
     task_problems = relationship("TaskProblem", back_populates="user")
 
+    _db_manager = DatabaseManager()
 
     @classmethod
-    def get_user(cls, db_manager: DatabaseManager, username: str = ""):
-        with db_manager.get_db() as db:
+    def get_user(cls, username: str = ""):
+        with cls._db_manager.get_db() as db:
             if username != "":
-                user = db.query(User).filter_by(username=username).one_or_none()
-
-                return user if user else None
-
-            else:
-                return None
-
+                user = db.query(cls).filter_by(username=username).one_or_none()
+                return user
+            return None
 
     @classmethod
-    def authenticate(cls, db_manager: DatabaseManager, user_id: int, password: str):
-        db = next(db_manager.get_db())
-        try:
-            user = db.query(User).filter_by(user_id=user_id).one_or_none()
+    def authenticate(cls, user_id: int, password: str) -> bool:
+        with cls._db_manager.get_db() as db:
+            user = db.query(cls).filter_by(user_id=user_id).one_or_none()
             if not user:
                 return False
-
-            return bool(check_password_hash(user.password_hash, password))
-
-        finally:
-            db.close()
-
+            return check_password_hash(user.password_hash, password)
 
     @classmethod
-    def create_user(cls, db_manager: DatabaseManager, username: str, password: str, role_id: int):
-        with db_manager.get_db() as db:
-            #check if email or username already exists
-            if db.query(User).filter((User.username == username)).one_or_none():
+    def create_user(cls, username: str, password: str, role_id: int):
+        with cls._db_manager.get_db() as db:
+            if db.query(cls).filter(cls.username == username).one_or_none():
                 return None
 
-            #hash the password and create the user
             hashed_password = generate_password_hash(password)
-            new_user = User(
+            new_user = cls(
                 username=username,
                 password_hash=hashed_password,
                 role_id=role_id
             )
             db.add(new_user)
             db.commit()
-
-            #return the newly created user
-            return db.query(User).filter_by(username=username).one_or_none()
+            return db.query(cls).filter_by(username=username).one_or_none()
 
 
 class Role(Base):
