@@ -40,7 +40,7 @@ class User(Base):
             if not user:
                 return False
 
-            return bool(user.password_hash == check_password_hash(password))
+            return bool(check_password_hash(user.password_hash, password))
 
         finally:
             db.close()
