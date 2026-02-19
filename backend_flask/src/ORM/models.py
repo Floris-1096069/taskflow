@@ -21,6 +21,7 @@ class User(Base):
 
     _db_manager = DatabaseManager()
 
+
     @classmethod
     def get_user(cls, username: str = ""):
         with cls._db_manager.get_db() as db:
@@ -29,6 +30,7 @@ class User(Base):
                 return user
             return None
 
+
     @classmethod
     def authenticate(cls, user_id: int, password: str) -> bool:
         with cls._db_manager.get_db() as db:
@@ -36,6 +38,7 @@ class User(Base):
             if not user:
                 return False
             return check_password_hash(user.password_hash, password)
+
 
     @classmethod
     def create_user(cls, username: str, password: str, role_id: int):
