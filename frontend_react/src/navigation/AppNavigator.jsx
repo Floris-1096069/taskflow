@@ -1,31 +1,19 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {NavigationContainer} from "@react-navigation/native";
-
-//import screens
-import LoginScreen from '../screens/LoginScreen';
-import TaskListScreen from '../screens/TaskListScreen';
-
-
-const Stack = createNativeStackNavigator();
+import { NavigationContainer } from '@react-navigation/native';
+import useAuth from '../hooks/useAuth';
+import AuthStack from './AuthStack';
+import AppStack from './AppStack';
+import {ActivityIndicator} from "react-native-web";
 
 export default function AppNavigator() {
+  const { isLoggedIn, loading } = useAuth();
+
+  if (loading) {
+    return <ActivityIndicator size="large" />;
+  }
+
   return (
     <NavigationContainer>
-    <Stack.Navigator initialRouteName="Login">
-
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ title: 'Login' }}
-        />
-
-      <Stack.Screen
-          name="TaskList"
-          component={TaskListScreen}
-          options={{title: 'Tasks'}}
-      />
-
-    </Stack.Navigator>
+      {isLoggedIn ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 }
