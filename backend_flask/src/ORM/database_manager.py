@@ -1,13 +1,19 @@
+import os
+
+from flask.cli import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from backend_flask.src.ORM.models import Base
 
+load_dotenv()
+
 class DatabaseManager:
-    def __init__(self, database_url: str, echo: bool = False):
-        self.engine = create_engine(database_url, echo=echo)
+    def __init__(self, echo: bool = False):
+        self.engine = create_engine(os.getenv("DATABASE_URL"), echo=echo)
         self.SessionLocal = scoped_session(
             sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         )
+
 
     def get_db(self):
         db = self.SessionLocal()
@@ -16,9 +22,11 @@ class DatabaseManager:
         finally:
             db.close()
 
+
     def recreate_db(self):
         Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
+
 
     def dispose(self):
         self.SessionLocal.remove()

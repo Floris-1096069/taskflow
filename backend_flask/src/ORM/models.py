@@ -1,6 +1,8 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, Time, DateTime
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, declarative_base
+from backend_flask.src.ORM.database_manager import DatabaseManager
+from werkzeug.security import generate_password_hash, check_password_hash
 
 Base = declarative_base()
 
@@ -12,10 +14,57 @@ class User(Base):
     password_hash = Column(String(256), nullable=False)
     role_id = Column(Integer, ForeignKey("roles.role_id"), nullable=False)
 
-    role= relationship("Role", back_populates="users")
+    role = relationship("Role", back_populates="users")
     created_tasks = relationship("Task", foreign_keys="Task.created_by", back_populates="creator")
     delegated_tasks = relationship("Task", foreign_keys="Task.delegated_to", back_populates="assignee")
     task_problems = relationship("TaskProblem", back_populates="user")
+
+
+    @classmethod
+    def get_user(cls, db_manager: DatabaseManager, username: str = ""):
+        with db_manager.get_db() as db:
+            if username != "":
+                user = db.query(User).filter_by(username=username).one_or_none()
+
+                return user if user else None
+
+            else:
+                return None
+
+
+    @classmethod
+    def authenticate(cls, db_manager: DatabaseManager, user_id: int, password: str):
+        db = next(db_manager.get_db())
+        try:
+            user = db.query(User).filter_by(user_id=user_id).one_or_none()
+            if not user:
+                return False
+
+            return bool(user.password_hash == check_password_hash(password))
+
+        finally:
+            db.close()
+
+
+    @classmethod
+    def create_user(cls, db_manager: DatabaseManager, username: str, password: str, role_id: int):
+        with db_manager.get_db() as db:
+            #check if email or username already exists
+            if db.query(User).filter((User.username == username)).one_or_none():
+                return None
+
+            #hash the password and create the user
+            hashed_password = generate_password_hash(password)
+            new_user = User(
+                username=username,
+                password_hash=hashed_password,
+                role_id=role_id
+            )
+            db.add(new_user)
+            db.commit()
+
+            #return the newly created user
+            return db.query(User).filter_by(username=username).one_or_none()
 
 
 class Role(Base):
