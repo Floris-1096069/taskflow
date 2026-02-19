@@ -2,38 +2,26 @@
   "expo": {
     "name": "frontend_react",
     "slug": "frontend_react",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
-    },
     "web": {
       "favicon": "./public/favicon.png",
-      "build": {
-        "pwa": true
-      },
       "name": "frontend_react",
       "shortName": "Taskflow",
       "startUrl": "/",
+      "scope": "/",
       "display": "standalone",
       "themeColor": "#ffffff",
       "backgroundColor": "#ffffff",
-      "description": "Warehouse ticketing and to do list."
+      "description": "Warehouse ticketing and to do list.",
+      "offline": true
     }
   }
 }
