@@ -1,11 +1,15 @@
 import os
 import unittest
-from sqlalchemy import create_engine, text, inspect
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import text, inspect
 from sqlalchemy.exc import OperationalError
 from dotenv import load_dotenv
-from backend_flask.src.ORM.models import Base, User, Role, Status, Task, TaskProblem
-from backend_flask.src.ORM.database_manager import DatabaseManager
+from backend_flask.src.ORM.models import Base, TaskProblem
+from backend_flask.src.db.ORM.Role import Role
+from backend_flask.src.db.ORM.User import User
+from backend_flask.src.db.ORM.Status import Status
+from backend_flask.src.db.ORM.Task import Task
+from backend_flask.src.db.ORM.TaskProblem import TaskProblem
+from backend_flask.src.db.database_manager import DatabaseManager
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")

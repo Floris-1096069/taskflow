@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token
 
-from backend_flask.src.ORM.models import User
+from backend_flask.src.db.ORM.User import User
 
 auth_api = Blueprint(
     'auth_api',
