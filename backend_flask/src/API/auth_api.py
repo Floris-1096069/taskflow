@@ -3,6 +3,7 @@ from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token
 
 from backend_flask.src.db.ORM.User import User
+from backend_flask.src.db.ORM.Role import Role
 
 auth_api = Blueprint(
     'auth_api',
@@ -37,11 +38,15 @@ def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    role_id = data.get('role')
 
-    if not username or not password:
-        return jsonify({"message": "Missing username or password"}), 401
+    if not username or not password or not role_id:
+        return jsonify({"message": "Missing username, password or role"}), 400
 
-    user = User.create_user(username=username, password=password, role_id=1)
+    if not Role.get_role(role_id):
+        return jsonify({"message": "Role doesn't exist"}), 404
+
+    user = User.create_user(username=username, password=password, role_id=role_id)
 
     if not user:
         return jsonify({"message": "User already exists"}), 409
