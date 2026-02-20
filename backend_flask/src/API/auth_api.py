@@ -24,7 +24,6 @@ def login():
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    #check if the password is correct
     if not User.authenticate(user.user_id, password):
         return jsonify({"message": "Invalid credentials"}), 401
 
@@ -42,7 +41,6 @@ def register():
     if not username or not password:
         return jsonify({"message": "Missing username or password"}), 401
 
-    #create the user
     user = User.create_user(username=username, password=password, role_id=1)
 
     if not user:
