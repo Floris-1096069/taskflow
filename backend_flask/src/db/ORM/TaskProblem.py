@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from backend_flask.src.db.database_manager import Base
+from backend_flask.src.db.ORM import Base
 
 
 class TaskProblem(Base):

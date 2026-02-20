@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from backend_flask.src.db.database_manager import DatabaseManager
 from werkzeug.security import generate_password_hash, check_password_hash
-from backend_flask.src.db.database_manager import Base
+from backend_flask.src.db.ORM import Base
 
 
 class User(Base):
