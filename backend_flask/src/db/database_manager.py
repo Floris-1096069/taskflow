@@ -30,6 +30,7 @@ class DatabaseManager:
         Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
 
+
     def dispose(self):
         self.SessionLocal.remove()
         self.engine.dispose()

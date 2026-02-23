@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from backend_flask.src.db.ORM.TaskProblem import TaskProblem
+from backend_flask.src.db.ORM.User import User
+from backend_flask.src.db.ORM.enums import RoleEnum
 
 
 problem_api = Blueprint(
@@ -31,6 +33,14 @@ def create_task_problem():
 @problem_api.get("/task/<int:task_id>")
 @jwt_required()
 def get_problems_by_task(task_id):
+    user_id = get_jwt_identity()
+
+    user_role = User.get_role(user_id)
+
+    if user_role not in {RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.TEAMLEIDER}:
+        return jsonify({"error": "Unauthorized"}), 403
+
+
     problems = TaskProblem.get_by_task_id(task_id)
     return jsonify([problem.to_dict() for problem in problems])
 

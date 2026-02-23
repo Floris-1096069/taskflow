@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from backend_flask.src.db.database_manager import DatabaseManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from backend_flask.src.db.ORM import Base
+from backend_flask.src.db.ORM.enums import RoleEnum
+
 
 
 class User(Base):
@@ -20,16 +22,26 @@ class User(Base):
 
     _db_manager = DatabaseManager()
 
+    @classmethod
+    def get_role(cls, user_id: int):
+        with cls._db_manager.get_db() as db:
+            user = db.query(cls).filter(cls.user_id == user_id).one_or_none()
+            if user:
+                return RoleEnum(user.role_id)
+            return None
+
 
     @classmethod
-    def get_user(cls, username: str = ""):
+    def get_user(cls, user_id: int = None, username: str = ""):
         with cls._db_manager.get_db() as db:
-
-            if username != "":
+            if user_id is not None:
+                user = db.query(cls).filter_by(user_id=user_id).one_or_none()
+                return user
+            elif username != "":
                 user = db.query(cls).filter_by(username=username).one_or_none()
                 return user
-
-            return None
+            else:
+                return None
 
 
     @classmethod
