@@ -26,6 +26,7 @@ class DatabaseManager:
         finally:
             db.close()
 
+
     def recreate_db(self):
         Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
