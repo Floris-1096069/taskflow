@@ -8,7 +8,7 @@ class Role(Base):
     __tablename__ = "roles"
 
     role_id = Column(Integer, primary_key=True, nullable=False, autoincrement=False)
-    name = Column(String(50), unique=True, nullable=False)
+    name = Column(String(20), unique=True, nullable=False)
 
     users = relationship("User", back_populates="role")
 
