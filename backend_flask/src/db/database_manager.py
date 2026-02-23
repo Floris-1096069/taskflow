@@ -1,5 +1,5 @@
 import os
-from flask.cli import load_dotenv
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 
@@ -26,11 +26,9 @@ class DatabaseManager:
         finally:
             db.close()
 
-
     def recreate_db(self):
         Base.metadata.drop_all(bind=self.engine)
         Base.metadata.create_all(bind=self.engine)
-
 
     def dispose(self):
         self.SessionLocal.remove()
