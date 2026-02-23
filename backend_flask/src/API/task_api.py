@@ -4,7 +4,6 @@ from flask_cors import cross_origin
 
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
-from backend_flask.src.db.ORM.enums import RoleEnum
 
 
 task_api = Blueprint(

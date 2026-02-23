@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+
 from backend_flask.src.db.ORM import Base
 from backend_flask.src.db.database_manager import DatabaseManager
 
@@ -33,10 +34,12 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).all()
 
+
     @classmethod
     def get_by_delegated_to(cls, user_id: int):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.delegated_to == user_id).all()
+
 
     def to_dict(self):
         return {

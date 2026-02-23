@@ -5,6 +5,7 @@ from flask_jwt_extended import create_access_token
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Role import Role
 
+
 auth_api = Blueprint(
     'auth_api',
     __name__,
