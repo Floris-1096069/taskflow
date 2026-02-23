@@ -2,6 +2,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from backend_flask.src.db.ORM import Base
+from backend_flask.src.db.database_manager import DatabaseManager
 
 
 class Task(Base):
@@ -24,3 +25,30 @@ class Task(Base):
     assignee = relationship("User", foreign_keys=[delegated_to], back_populates="delegated_tasks")
     tags = relationship("Tag", secondary="tasktags", back_populates="tasks")
     task_problems = relationship("TaskProblem", back_populates="task")
+
+    _db_manager = DatabaseManager()
+
+    @classmethod
+    def get_all(cls):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).all()
+
+    @classmethod
+    def get_by_delegated_to(cls, user_id: int):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).filter(cls.delegated_to == user_id).all()
+
+    def to_dict(self):
+        return {
+            "task_id": self.task_id,
+            "name": self.name,
+            "description": self.description,
+            "creation_time": self.creation_time.isoformat(),
+            "update_time": self.update_time.isoformat(),
+            "archived": self.archived,
+            "priority": self.priority,
+            "status_id": self.status_id,
+            "delegated_to": self.delegated_to,
+            "created_by": self.created_by,
+            "updated_by": self.updated_by,
+        }
