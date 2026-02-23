@@ -17,6 +17,11 @@ task_api = Blueprint(
 @cross_origin()
 @jwt_required()
 def get_all_tasks():
+    user_id = get_jwt_identity()
+
+    if not User.is_authorized(user_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
     tasks = Task.get_all()
 
     return jsonify([task.to_dict() for task in tasks])
