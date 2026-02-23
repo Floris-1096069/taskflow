@@ -24,6 +24,7 @@ def create_task_problem():
         return jsonify({"error": "task_id and content are required"}), 400
 
     problem = TaskProblem.create(task_id, user_id, content)
+
     if not problem:
         return jsonify({"error": "Task is not in 'problem' status"}), 403
 
@@ -35,11 +36,8 @@ def create_task_problem():
 def get_problems_by_task(task_id):
     user_id = get_jwt_identity()
 
-    user_role = User.get_role(user_id)
-
-    if user_role not in {RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.TEAMLEIDER}:
+    if not User.is_authorized(user_id):
         return jsonify({"error": "Unauthorized"}), 403
-
 
     problems = TaskProblem.get_by_task_id(task_id)
     return jsonify([problem.to_dict() for problem in problems])

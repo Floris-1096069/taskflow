@@ -32,6 +32,17 @@ class User(Base):
 
 
     @classmethod
+    def is_authorized(cls, user_id: int):
+        user_role = cls.get_role(user_id)
+
+        if user_role not in {RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.TEAMLEIDER}:
+            return False
+
+        else:
+            return True
+
+
+    @classmethod
     def get_user(cls, user_id: int = None, username: str = ""):
         with cls._db_manager.get_db() as db:
             if user_id is not None:
