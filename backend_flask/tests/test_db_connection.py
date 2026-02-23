@@ -10,8 +10,7 @@ from backend_flask.src.db.ORM.Tag import Tag
 from backend_flask.src.db.ORM.TaskTag import TaskTag
 from backend_flask.src.db.ORM.TaskProblem import TaskProblem
 from backend_flask.src.db.database_manager import DatabaseManager
-
-
+    
 class TestPostgresConnection(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -25,7 +24,7 @@ class TestPostgresConnection(unittest.TestCase):
 
     def setUp(self):
         """Create a new session and reset the database for each test."""
-        self.db_manager.recreate_db()
+        self.db_manager.recreate_db()  # This will initialize roles
         self.session = next(self.db_manager.get_db())
 
     def tearDown(self):
@@ -49,38 +48,30 @@ class TestPostgresConnection(unittest.TestCase):
 
     def test_orm_insert_and_query_user(self):
         """Test ORM insert and query operations for User."""
-        #create and add a role
-        role = Role(role="test_role")
-        self.session.add(role)
-        self.session.commit()
-
-        #create and add a user
-        user = User(username="test_user", password_hash="hashed_password", role_id=role.role_id)
+        # Use the pre-populated role (e.g., admin with role_id=1)
+        user = User(username="test_user", password_hash="hashed_password", role_id=1)  # role_id=1 for admin
         self.session.add(user)
         self.session.commit()
 
-        #query the user
+        # Query the user
         queried_user = self.session.query(User).filter_by(username="test_user").first()
         self.assertIsNotNone(queried_user, "User not found in PostgreSQL.")
         self.assertEqual(queried_user.username, "test_user")
-        self.assertEqual(queried_user.role.role, "test_role")  # Test relationship
+        self.assertEqual(queried_user.role.name, "admin")  # Test relationship
 
     def test_orm_insert_and_query_task(self):
         """Test ORM insert and query operations for Task."""
-        #create and add a status
-        status = Status(status="open")
+        # Create and add a status
+        status = Status(name="open")
         self.session.add(status)
         self.session.commit()
 
-        #create and add a role and user
-        role = Role(role="test_role")
-        self.session.add(role)
-        self.session.commit()
-        user = User(username="test_user", password_hash="hashed_password", role_id=role.role_id)
+        # Use the pre-populated role (e.g., manager with role_id=2)
+        user = User(username="test_user", password_hash="hashed_password", role_id=2)  # role_id=2 for manager
         self.session.add(user)
         self.session.commit()
 
-        #create and add a task
+        # Create and add a task
         task = Task(
             name="Test Task",
             description="This is a test task.",
@@ -93,27 +84,24 @@ class TestPostgresConnection(unittest.TestCase):
         self.session.add(task)
         self.session.commit()
 
-        #query the task
+        # Query the task
         queried_task = self.session.query(Task).filter_by(name="Test Task").first()
         self.assertIsNotNone(queried_task, "Task not found in PostgreSQL.")
-        self.assertEqual(queried_task.status.status, "open")  # Test relationship
+        self.assertEqual(queried_task.status.name, "open")  # Test relationship
 
     def test_orm_insert_and_query_task_problem(self):
         """Test ORM insert and query operations for TaskProblem."""
-        #create and add a status
-        status = Status(status="problem")
+        # Create and add a status
+        status = Status(name="problem")
         self.session.add(status)
         self.session.commit()
 
-        #create and add a role and user
-        role = Role(role="test_role")
-        self.session.add(role)
-        self.session.commit()
-        user = User(username="test_user", password_hash="hashed_password", role_id=role.role_id)
+        # Use the pre-populated role (e.g., teamleider with role_id=3)
+        user = User(username="test_user", password_hash="hashed_password", role_id=3)  # role_id=3 for teamleider
         self.session.add(user)
         self.session.commit()
 
-        #create and add a task
+        # Create and add a task
         task = Task(
             name="Problem Task",
             description="This task has a problem.",
@@ -126,7 +114,7 @@ class TestPostgresConnection(unittest.TestCase):
         self.session.add(task)
         self.session.commit()
 
-        #create and add a task problem
+        # Create and add a task problem
         problem = TaskProblem(
             task_id=task.task_id,
             user_id=user.user_id,
@@ -135,29 +123,24 @@ class TestPostgresConnection(unittest.TestCase):
         self.session.add(problem)
         self.session.commit()
 
-        #query the problem
+        # Query the problem
         queried_problem = self.session.query(TaskProblem).filter_by(task_id=task.task_id).first()
         self.assertIsNotNone(queried_problem, "TaskProblem not found in PostgreSQL.")
         self.assertEqual(queried_problem.user.username, "test_user")  # Test relationship
 
     def test_orm_relationships(self):
         """Test ORM relationships between models."""
-        #create and add a role
-        role = Role(role="test_role")
-        self.session.add(role)
-        self.session.commit()
-
-        #create and add a user
-        user = User(username="test_user", password_hash="hashed_password", role_id=role.role_id)
+        # Use the pre-populated role (e.g., scanmedewerkerplus with role_id=4)
+        user = User(username="test_user", password_hash="hashed_password", role_id=4)  # role_id=4 for scanmedewerkerplus
         self.session.add(user)
         self.session.commit()
 
-        #create and add a status
-        status = Status(status="open")
+        # Create and add a status
+        status = Status(name="open")
         self.session.add(status)
         self.session.commit()
 
-        #create and add a task
+        # Create and add a task
         task = Task(
             name="Relationship Task",
             description="This task tests relationships.",
@@ -170,14 +153,14 @@ class TestPostgresConnection(unittest.TestCase):
         self.session.add(task)
         self.session.commit()
 
-        #test User ↔ Task relationship
+        # Test User ↔ Task relationship
         self.assertEqual(len(user.created_tasks), 1)
         self.assertEqual(user.created_tasks[0].name, "Relationship Task")
 
-        #test Task - Status relationship
-        self.assertEqual(task.status.status, "open")
+        # Test Task - Status relationship
+        self.assertEqual(task.status.name, "open")
 
-        #test Task - TaskProblem relationship
+        # Test Task - TaskProblem relationship
         problem = TaskProblem(
             task_id=task.task_id,
             user_id=user.user_id,
@@ -187,7 +170,6 @@ class TestPostgresConnection(unittest.TestCase):
         self.session.commit()
         self.assertEqual(len(task.task_problems), 1)
         self.assertEqual(task.task_problems[0].content, "Test problem")
-
 
 if __name__ == "__main__":
     unittest.main()

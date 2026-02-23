@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey
-from backend_flask.src.db.ORM import Base
+from backend_flask.src.db.base import Base
 
 
 class TaskTag(Base):

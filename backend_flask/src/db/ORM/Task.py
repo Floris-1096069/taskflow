@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 
-from backend_flask.src.db.ORM import Base
+from backend_flask.src.db.base import Base
 from backend_flask.src.db.database_manager import DatabaseManager
 
 

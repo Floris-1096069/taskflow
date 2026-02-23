@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from backend_flask.src.db.database_manager import DatabaseManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from backend_flask.src.db.ORM import Base
+from backend_flask.src.db.base import Base
 from backend_flask.src.db.ORM.enums import RoleEnum
 
 
@@ -24,21 +24,23 @@ class User(Base):
 
     @classmethod
     def get_role(cls, user_id: int):
-        with cls._db_manager.get_db() as db:
-
-            user = db.query(cls).filter(cls.user_id == user_id).one_or_none()
+        db = next(cls._db_manager.get_db())
+        try:
+            user = db.query(cls).filter_by(user_id=user_id).first()
 
             if user:
                 return RoleEnum(user.role_id)
 
             return None
 
+        finally:
+            db.close()
 
     @classmethod
     def is_authorized(cls, user_id: int):
         user_role = cls.get_role(user_id)
 
-        if not user_role:
+        if user_role is None:
             return False
 
         return user_role in {RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.TEAMLEIDER}
