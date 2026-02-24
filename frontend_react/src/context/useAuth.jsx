@@ -5,7 +5,7 @@ export default function useAuth() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+  useEffect(() => {
     const checkToken = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
@@ -19,7 +19,16 @@ export default function useAuth() {
     checkToken();
   }, []);
 
-      const logout = async () => {
+  const login = async (token) => {
+    try {
+      await AsyncStorage.setItem('token', token);
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error('Failed to save token:', error);
+    }
+  };
+
+  const logout = async () => {
     try {
       await AsyncStorage.removeItem('token');
       setIsLoggedIn(false);
@@ -28,5 +37,5 @@ export default function useAuth() {
     }
   };
 
-  return { isLoggedIn, loading, logout };
+  return { isLoggedIn, loading, login, logout };
 }

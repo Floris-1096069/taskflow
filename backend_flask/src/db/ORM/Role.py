@@ -12,30 +12,14 @@ class Role(Base):
 
     users = relationship("User", back_populates="role")
 
-    Admin = RoleEnum.ADMIN.value
-    Manager = RoleEnum.MANAGER.value
-    Teamleider = RoleEnum.TEAMLEIDER.value
-    Scanmedewerkerplus = RoleEnum.SCANMEDEWERKERPLUS.value
-    Scanmedewerker = RoleEnum.SCANMEDEWERKER.value
-
 
     @classmethod
-    def initialize_roles(cls, db):
-        for role in RoleEnum:
-            existing_role = db.query(cls).filter_by(role_id=role.value).one_or_none()
-            if not existing_role:
-                new_role = cls(role_id=role.value, role=role.name)
-                db.add(new_role)
-        db.commit()
-
-
-    @classmethod
-    def get_role(cls, role_id: int):
+    def get_role(cls, role_id: int, _db_manager: DatabaseManager):
         if not role_id:
             return None
 
         if not isinstance(role_id, int):
             return None
 
-        with cls._db_manager.get_db() as db:
+        with _db_manager.get_db() as db:
             return db.query(cls).filter_by(role_id=role_id).first()

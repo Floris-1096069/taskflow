@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token
 
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Role import Role
+from backend_flask.src.db.database_manager import DatabaseManager
 
 
 auth_api = Blueprint(
@@ -11,7 +12,7 @@ auth_api = Blueprint(
     __name__,
     url_prefix='/api/auth',
 )
-
+_db_manager = DatabaseManager()
 @auth_api.post("")
 @cross_origin()
 def login():
@@ -39,12 +40,18 @@ def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    role_id = data.get('role')
+    role_id = data.get('role_id')
 
     if not username or not password or not role_id:
         return jsonify({"message": "Missing username, password or role"}), 400
 
-    if not Role.get_role(role_id):
+    try:
+        role_id = int(role_id)
+
+    except ValueError:
+        return jsonify({"message": "role_id must be an integer"}), 401
+
+    if not Role.get_role(role_id, _db_manager):
         return jsonify({"message": "Role doesn't exist"}), 404
 
     user = User.create_user(username=username, password=password, role_id=role_id)
