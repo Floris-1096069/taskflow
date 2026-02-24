@@ -69,6 +69,13 @@ export const globalStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  errorText: {
+    marginTop: 15,
+    color: colours.error,
+    fontSize: 16,
+    textAlign: 'center',
+  },
+
   //Inputs
   input: {
     borderWidth: 1,

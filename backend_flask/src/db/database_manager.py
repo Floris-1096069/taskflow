@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
+from contextlib import contextmanager
 
 from .base import Base
 from .ORM import *  # noqa: F401
@@ -17,13 +18,11 @@ class DatabaseManager:
             sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         )
 
-
+    @contextmanager
     def get_db(self):
         db = self.SessionLocal()
-
         try:
             yield db
-
         finally:
             db.close()
 
