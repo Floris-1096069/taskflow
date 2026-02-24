@@ -30,7 +30,6 @@ class DatabaseManager:
 
     def recreate_db(self):
         with self.engine.connect() as conn:
-            # Drop tables in reverse order of foreign key dependencies
             conn.execute(text("DROP TABLE IF EXISTS taskproblems CASCADE;"))
             conn.execute(text("DROP TABLE IF EXISTS tasktags CASCADE;"))
             conn.execute(text("DROP TABLE IF EXISTS tasks CASCADE;"))
@@ -43,7 +42,7 @@ class DatabaseManager:
         Base.metadata.create_all(bind=self.engine)
 
         with self.engine.connect() as conn:
-            # Insert fixed roles with their IDs
+            #insert fixed roles with their IDs
             roles = [
                 {"role_id": 1, "name": "admin"},
                 {"role_id": 2, "name": "manager"},
