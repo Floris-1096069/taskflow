@@ -28,10 +28,16 @@ export default function useAuth() {
     }
   };
 
-  const logout = async () => {
+  const logout = async (navigation) => {
     try {
       await AsyncStorage.removeItem('token');
       setIsLoggedIn(false);
+      if (navigation) {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'Login'}],
+        });
+      }
     } catch (error) {
       console.error('Failed to logout:', error);
     }

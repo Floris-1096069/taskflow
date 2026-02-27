@@ -2,13 +2,13 @@ import React from 'react';
 import {View, Text, Pressable} from 'react-native';
 
 import globalStyles from '../styles/globalStyles';
+import Header from '../components/Header';
 
 export default function TaskListScreen({ navigation }) {
   return (
     <View style={[globalStyles.webContainer]}>
-      <Text style={[globalStyles.title, { textAlign: 'center', marginBottom: 30 }]}>
-          To Do:
-      </Text>
+        <Header title="To Do List" navigation={navigation}/>
+
       <Pressable
           style={[globalStyles.button]}
 

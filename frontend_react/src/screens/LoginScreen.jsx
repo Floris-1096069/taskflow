@@ -85,12 +85,6 @@ export default function LoginScreen({ navigation }) {
         {errorMessage ? (
           <Text style={globalStyles.errorText}>{errorMessage}</Text>
         ) : null}
-
-        <Pressable style={{ marginTop: 20 }} onPress={() => navigation.navigate('Register')}>
-          <Text style={{ textAlign: 'center', color: 'blue' }}>
-            Need to create an account? Register here
-          </Text>
-        </Pressable>
       </View>
     </View>
   );

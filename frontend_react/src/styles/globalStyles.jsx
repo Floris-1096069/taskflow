@@ -88,6 +88,42 @@ export const globalStyles = StyleSheet.create({
     width: '50%',
   },
 
+  //for header backbutton
+  backButton: {
+    padding: 5,
+    position: 'absolute',
+    left: 10,
+    zIndex: 1,
+  },
+
+  backButtonText: {
+    color: colours.white,
+    fontSize: 16,
+  },
+
+  logoutButton: {
+    padding: 5,
+    position: 'absolute',
+    right: 10,
+    zIndex: 1,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+
+  registerButton: {
+    padding: 5,
+    position: 'absolute',
+    right: 70,
+    zIndex: 1,
+  },
+
+  registerButtonText: {
+    color: colours.white,
+    fontSize: 16,
+  },
+
   //Web-specific styles (for PWA)
   webContainer: {
     maxWidth: 800,

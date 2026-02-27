@@ -124,14 +124,6 @@ export default function RegisterScreen({ navigation }) {
         </Text>
       ) : null}
 
-        <Pressable
-          style={{ marginTop: 20 }}
-          onPress={() => navigation.navigate('Login')}
-        >
-          <Text style={{ textAlign: 'center', color: 'blue' }}>
-            Already have an account? Login here
-          </Text>
-        </Pressable>
       </View>
     </View>
   );
