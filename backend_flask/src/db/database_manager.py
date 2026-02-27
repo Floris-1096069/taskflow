@@ -4,6 +4,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from contextlib import contextmanager
 
+
+
 from backend_flask.src.db.base import Base
 
 load_dotenv()
@@ -42,8 +44,8 @@ class DatabaseManager:
             #insert fixed roles with their IDs
             roles = [
                 {"role_id": 1, "name": "Admin"},
-                {"role_id": 2, "name": "Manager"},
-                {"role_id": 3, "name": "Teamleider"},
+                {"role_id": 2, "name": "Teamleider"},
+                {"role_id": 3, "name": "Binnenkomend"},
                 {"role_id": 4, "name": "Scanmedewerkerplus"},
                 {"role_id": 5, "name": "Scanmedewerker"},
             ]
@@ -75,10 +77,35 @@ class DatabaseManager:
 
             db.commit()
 
+    def ensure_admin_user(self):
+        from backend_flask.src.db.ORM.User import User
+        from backend_flask.src.db.ORM.Role import Role
+        from werkzeug.security import generate_password_hash
+
+        with self.get_db() as db:
+            admin_role = db.query(Role).filter_by(name="Admin").first()
+            if not admin_role:
+                raise ValueError("Admin role does not exist. Run `init_roles` first.")
+
+            admin_user = db.query(User).filter_by(role_id=admin_role.role_id).first()
+
+            if not admin_user:
+                admin_user = User(
+                    username="admin",
+                    password_hash=generate_password_hash("123"),
+                    role_id=admin_role.role_id,
+                )
+                db.add(admin_user)
+                db.commit()
+                print("Created default admin user: admin/123")
+            else:
+                print("Admin user already exists.")
+
 
     def create_all(self):
         Base.metadata.create_all(bind=self.engine)
         self.init_roles()
+        self.ensure_admin_user()
 
 
     def dispose(self):
