@@ -43,7 +43,7 @@ class User(Base):
         if user_role is None:
             return False
 
-        return user_role in {RoleEnum.ADMIN, RoleEnum.MANAGER, RoleEnum.TEAMLEIDER}
+        return user_role in {RoleEnum.ADMIN, RoleEnum.TEAMLEIDER}
 
 
     @classmethod
