@@ -3,6 +3,7 @@ import {View, Text, TextInput, Pressable, useColorScheme} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 import getGlobalStyles from '../styles/globalStyles';
+import Header from "../components/Header";
 
 const roles = [
   { id: 1, name: 'Admin' },
@@ -64,9 +65,9 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={[globalStyles.webContainer]}>
-      <Text style={[globalStyles.title, { textAlign: 'center', marginBottom: 30 }]}>
-        Taskflow Register
-      </Text>
+      <Header title="Add new account" navigation={navigation}
+      showBackButton={true}
+      showRegisterButton={false}/>
 
       <View>
         <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>

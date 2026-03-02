@@ -34,6 +34,7 @@ export const getGlobalStyles = (colorScheme) => {
       fontWeight: 'bold',
       color: colours.text,
       marginBottom: 10,
+      textAlign: "center",
     },
     subtitle: {
       fontSize: 18,
@@ -98,7 +99,7 @@ export const getGlobalStyles = (colorScheme) => {
       marginBottom: 20,
       backgroundColor: colours.white,
       alignSelf: 'center',
-      width: '50%',
+      width: '90%',
     },
 
     // Header buttons
