@@ -5,11 +5,11 @@ import { Picker } from '@react-native-picker/picker';
 import globalStyles from '../styles/globalStyles';
 
 const roles = [
-  { id: 1, name: 'admin' },
-  { id: 2, name: 'manager' },
-  { id: 3, name: 'teamleider' },
-  { id: 4, name: 'scanmedewerkerplus' },
-  { id: 5, name: 'scanmedewerker' },
+  { id: 1, name: 'Admin' },
+  { id: 2, name: 'Teamleider' },
+  { id: 3, name: 'Binnenkomend' },
+  { id: 4, name: 'Scanmedewerkerplus' },
+  { id: 5, name: 'Scanmedewerker' },
 ];
 
 

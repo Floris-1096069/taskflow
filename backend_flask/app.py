@@ -1,9 +1,10 @@
 import os
-
+import warnings
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from jwt import InsecureKeyLengthWarning
 
 from backend_flask.src.API.auth_api import auth_api
 from backend_flask.src.API.task_api import task_api
@@ -24,12 +25,11 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'secret')
     app.config['FRONTEND_URL'] = frontend_url
+    warnings.filterwarnings("ignore", category=InsecureKeyLengthWarning)
 
     #CORS configuration
-    CORS(app, supports_credentials=True, origins = [
-    localhostfront_url,
-    frontend_url
-    ])
+    #SET UP ORIGINS FROM ENV IN PROD!
+    CORS(app, supports_credentials=True, origins = "*")
 
     #initialize extensions
     JWTManager(app)

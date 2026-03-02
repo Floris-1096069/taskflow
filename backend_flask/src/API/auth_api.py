@@ -16,9 +16,15 @@ _db_manager = DatabaseManager()
 @auth_api.post("")
 @cross_origin()
 def login():
+    print("Request received from:", request.remote_addr)
+    print("Request headers:", request.headers)
+    print("Request data:", request.get_json())
+
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+
+
 
     if not username or not password:
         return jsonify({"message": "Missing email or password"}), 403

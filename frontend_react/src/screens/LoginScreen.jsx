@@ -20,7 +20,7 @@ export default function LoginScreen({ navigation }) {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth', {
+      const response = await fetch('http://172.20.10.2:5000/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
