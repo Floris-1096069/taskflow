@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, useColorScheme } from 'react-native';
 import { useAuthContext } from '../context/AuthContext';
-import globalStyles from '../styles/globalStyles';
+import getGlobalStyles from '../styles/globalStyles';
 
 const Header = ({ title, navigation, showBackButton = false, showRegisterButton = true }) => {
   const { isLoggedIn, logout } = useAuthContext();
+  const colorScheme = useColorScheme();
+  const globalStyles = getGlobalStyles(colorScheme);
 
   const handleLogout = () => {
     logout(navigation);

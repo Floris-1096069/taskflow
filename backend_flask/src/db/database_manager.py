@@ -58,7 +58,6 @@ class DatabaseManager:
 
     def init_roles(self):
         from backend_flask.src.db.ORM.Role import Role
-        """Ensure all predefined roles exist in the database."""
         with self.get_db() as db:
             existing_role_ids = {role.role_id for role in db.query(Role).all()}
 
@@ -74,6 +73,7 @@ class DatabaseManager:
                 if role_data["role_id"] not in existing_role_ids:
                     new_role = Role(role_id=role_data["role_id"], name=role_data["name"])
                     db.add(new_role)
+                    print(f'Added new role: {new_role}')
 
             db.commit()
 

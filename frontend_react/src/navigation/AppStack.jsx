@@ -12,13 +12,13 @@ export default function AppStack() {
     <Stack.Screen
         name="TaskList"
         component={TaskListScreen}
-        options={{ title: 'Tasks' }}
+        options={{ title: 'Tasks', headerShown: false }}
     />
 
     <Stack.Screen
         name="Register"
         component={RegisterScreen}
-        options={{ title: 'Register' }}
+        options={{ title: 'Register', headerShown: false }}
     />
 
     </Stack.Navigator>

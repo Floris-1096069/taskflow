@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import {View, Text, TextInput, Pressable, useColorScheme} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-import globalStyles from '../styles/globalStyles';
+import getGlobalStyles from '../styles/globalStyles';
 
 const roles = [
   { id: 1, name: 'Admin' },
@@ -20,6 +20,8 @@ export default function RegisterScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const colorScheme = useColorScheme();
+  const globalStyles = getGlobalStyles(colorScheme);
 
   const handleRegister = async () => {
     if (!username || !password || !role) {
@@ -32,7 +34,7 @@ export default function RegisterScreen({ navigation }) {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch('http://172.20.10.2:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

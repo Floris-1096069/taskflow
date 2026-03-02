@@ -1,135 +1,148 @@
 import { StyleSheet } from 'react-native';
 
-const colours = {
-
-    primary: '#3498db',
-    secondary: '#2ecc71',
-    background: '#f5f5f5',
-    text: '#333',
-    lighttext: '#555',
-    border: "#ddd",
-    white: '#fff',
-    black: '#000',
-    error: '#e74c3c',
+const lightColors = {
+  primary: '#3498db',
+  secondary: '#2ecc71',
+  background: '#f5f5f5',
+  text: '#333',
+  lighttext: '#555',
+  border: '#ddd',
+  white: '#fff',
+  black: '#000',
+  error: '#e74c3c',
 };
 
-export const globalStyles = StyleSheet.create({
-  //Text styles
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colours.text,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: colours.lighttext,
-    marginBottom: 5,
-  },
-  bodyText: {
-    fontSize: 16,
-    color: colours.text,
-    lineHeight: 24,
-  },
+const darkColors = {
+  primary: '#3498db',
+  secondary: '#2ecc71',
+  background: '#121212',
+  text: '#fff',
+  lighttext: '#ccc',
+  border: '#444',
+  white: '#000',
+  black: '#fff',
+  error: '#e74c3c',
+};
 
-  //Containers
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: colours.background,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  card: {
-    backgroundColor: colours.white,
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: colours.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
+export const getGlobalStyles = (colorScheme) => {
+  const colours = colorScheme === 'dark' ? lightColors : darkColors;
 
-  //Buttons
-  button: {
-    backgroundColor: colours.primary,
-    padding: 12,
-    borderRadius: 5,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '60%',
-    marginTop: 10  ,
-  },
-  buttonText: {
-    color: colours.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  return StyleSheet.create({
+    // Text styles
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colours.text,
+      marginBottom: 10,
+    },
+    subtitle: {
+      fontSize: 18,
+      color: colours.lighttext,
+      marginBottom: 5,
+    },
+    bodyText: {
+      fontSize: 16,
+      color: colours.text,
+      lineHeight: 24,
+    },
 
-  errorText: {
-    marginTop: 15,
-    color: colours.error,
-    fontSize: 16,
-    textAlign: 'center',
-  },
+    // Containers
+    container: {
+      padding: 20,
+      backgroundColor: colours.background,
+      alignSelf: 'center',
+      width: '100%',
+    },
+    card: {
+      backgroundColor: colours.white,
+      borderRadius: 8,
+      padding: 15,
+      marginBottom: 15,
+      shadowColor: colours.black,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
 
-  //Inputs
-  input: {
-    borderWidth: 1,
-    borderColor: colours.border,
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-    backgroundColor: colours.white,
-    alignSelf: 'center',
-    width: '50%',
-  },
+    // Buttons
+    button: {
+      backgroundColor: colours.primary,
+      padding: 12,
+      borderRadius: 5,
+      alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '60%',
+      marginTop: 10,
+    },
+    buttonText: {
+      color: colours.white,
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
 
-  //for header backbutton
-  backButton: {
-    padding: 5,
-    position: 'absolute',
-    left: 10,
-    zIndex: 1,
-  },
+    errorText: {
+      marginTop: 15,
+      color: colours.error,
+      fontSize: 16,
+      textAlign: 'center',
+    },
 
-  backButtonText: {
-    color: colours.white,
-    fontSize: 16,
-  },
+    // Inputs
+    input: {
+      borderWidth: 1,
+      borderColor: colours.border,
+      borderRadius: 5,
+      padding: 10,
+      marginBottom: 20,
+      backgroundColor: colours.white,
+      alignSelf: 'center',
+      width: '50%',
+    },
 
-  logoutButton: {
-    padding: 5,
-    position: 'absolute',
-    right: 10,
-    zIndex: 1,
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
+    // Header buttons
+    backButton: {
+      padding: 5,
+      position: 'absolute',
+      left: 10,
+      zIndex: 1,
+    },
+    backButtonText: {
+      color: colours.text,
+      fontSize: 16,
+    },
+    logoutButton: {
+      padding: 5,
+      position: 'absolute',
+      right: 10,
+      zIndex: 1,
+    },
+    logoutButtonText: {
+      color: colours.text,
+      fontSize: 16,
+    },
+    registerButton: {
+      padding: 5,
+      position: 'absolute',
+      right: 70,
+      zIndex: 1,
+    },
+    registerButtonText: {
+      color: colours.text,
+      fontSize: 16,
+    },
 
-  registerButton: {
-    padding: 5,
-    position: 'absolute',
-    right: 70,
-    zIndex: 1,
-  },
+    // Web-specific styles (for PWA)
+    webContainer: {
+      flex: 1,
+      flexDirection: 'column',
+      maxWidth: 800,
+      alignSelf: 'center',
+      width: '100%',
+      alignItems: 'center',
+    },
+  });
+};
 
-  registerButtonText: {
-    color: colours.white,
-    fontSize: 16,
-  },
-
-  //Web-specific styles (for PWA)
-  webContainer: {
-    maxWidth: 800,
-    alignSelf: 'center',
-    width: '100%',
-  },
-});
-
-export default globalStyles;
+export default getGlobalStyles;

@@ -17,7 +17,7 @@
       "shortName": "Taskflow",
       "startUrl": "/",
       "scope": "/",
-      "display": "standalone",
+      "display": "fullscreen",
       "themeColor": "#ffffff",
       "backgroundColor": "#ffffff",
       "description": "Warehouse ticketing and to do list.",
