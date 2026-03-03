@@ -51,12 +51,12 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={[globalStyles.webContainer]}>
-      <Text style={[globalStyles.title, { textAlign: 'center', marginBottom: 30 }]}>
+      <Text style={[globalStyles.title,]}>
         Taskflow Login
       </Text>
 
-      <View>
-        <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>
+      <View style={[globalStyles.container]}>
+        <Text style={[globalStyles.subtitle,]}>
           Username
         </Text>
         <TextInput
@@ -67,7 +67,7 @@ export default function LoginScreen({ navigation }) {
           autoCapitalize="none"
         />
 
-        <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>
+        <Text style={[globalStyles.subtitle,]}>
           Password
         </Text>
         <TextInput

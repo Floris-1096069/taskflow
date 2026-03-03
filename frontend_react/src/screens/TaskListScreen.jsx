@@ -9,21 +9,20 @@ export default function TaskListScreen({ navigation }) {
   const globalStyles = getGlobalStyles(colorScheme);
   return (
     <View style={[globalStyles.webContainer]}>
-        <Header title="To Do List" navigation={navigation}/>
 
-      <Pressable
-          style={[globalStyles.button]}
+      <Header title="To Do List" navigation={navigation}/>
 
-        >
-          <Text style={globalStyles.buttonText}>Taak 1</Text>
-        </Pressable>
-        <Pressable
-          style={[globalStyles.button]}
+    <View style={globalStyles.container}>
 
-        >
-          <Text style={globalStyles.buttonText}>Taak 2</Text>
-        </Pressable>
+      <Pressable style={[globalStyles.button]}>
+        <Text style={globalStyles.buttonText}>Taak 1</Text>
+      </Pressable>
 
+      <Pressable style={[globalStyles.button]}>
+        <Text style={globalStyles.buttonText}>Taak 2</Text>
+      </Pressable>
+
+    </View>
     </View>
   );
 }

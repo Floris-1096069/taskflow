@@ -28,32 +28,38 @@ export const getGlobalStyles = (colorScheme) => {
   const colours = colorScheme === 'dark' ? lightColors : darkColors;
 
   return StyleSheet.create({
-    // Text styles
+    //text styles
     title: {
       fontSize: 24,
       fontWeight: 'bold',
       color: colours.text,
-      marginBottom: 10,
       textAlign: "center",
+      marginHorizontal: 40,
     },
+
     subtitle: {
       fontSize: 18,
       color: colours.lighttext,
       marginBottom: 5,
     },
+
     bodyText: {
       fontSize: 16,
       color: colours.text,
       lineHeight: 24,
     },
 
-    // Containers
+    //containers
     container: {
-      padding: 20,
-      backgroundColor: colours.background,
-      alignSelf: 'center',
-      width: '100%',
+    paddingTop: 20,
+    backgroundColor: colours.background,
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    position: 'relative',
     },
+
     card: {
       backgroundColor: colours.white,
       borderRadius: 8,
@@ -66,7 +72,7 @@ export const getGlobalStyles = (colorScheme) => {
       elevation: 2,
     },
 
-    // Buttons
+    //buttons
     button: {
       backgroundColor: colours.primary,
       padding: 12,
@@ -77,6 +83,7 @@ export const getGlobalStyles = (colorScheme) => {
       width: '60%',
       marginTop: 10,
     },
+
     buttonText: {
       color: colours.white,
       fontSize: 16,
@@ -90,7 +97,7 @@ export const getGlobalStyles = (colorScheme) => {
       textAlign: 'center',
     },
 
-    // Inputs
+    //inputs
     input: {
       borderWidth: 1,
       borderColor: colours.border,
@@ -102,43 +109,63 @@ export const getGlobalStyles = (colorScheme) => {
       width: '90%',
     },
 
-    // Header buttons
+    //header styling
+    headerContainer: {
+      backgroundColor: colours.background,
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+    },
+
+    headerTitle: {
+      fontWeight: 'bold',
+      color: colours.text,
+    },
+
     backButton: {
       padding: 5,
       position: 'absolute',
       left: 10,
       zIndex: 1,
     },
+
     backButtonText: {
       color: colours.text,
       fontSize: 16,
     },
+
     logoutButton: {
       padding: 5,
       position: 'absolute',
       right: 10,
       zIndex: 1,
     },
+
     logoutButtonText: {
       color: colours.text,
       fontSize: 16,
     },
+
     registerButton: {
       padding: 5,
       position: 'absolute',
       right: 70,
       zIndex: 1,
     },
+
     registerButtonText: {
       color: colours.text,
       fontSize: 16,
     },
 
-    // Web-specific styles (for PWA)
+    //web-specific styles (for PWA)
     webContainer: {
       flex: 1,
+      maxWidth:"800",
+      justifyContent: 'flex-start',
       flexDirection: 'column',
-      maxWidth: 800,
       alignSelf: 'center',
       width: '100%',
       alignItems: 'center',

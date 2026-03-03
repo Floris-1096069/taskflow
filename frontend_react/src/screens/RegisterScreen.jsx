@@ -65,7 +65,7 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={[globalStyles.webContainer]}>
-      <Header title="Add new account" navigation={navigation}
+      <Header title="Add account" navigation={navigation}
       showBackButton={true}
       showRegisterButton={false}/>
 

@@ -74,6 +74,8 @@ class DatabaseManager:
                     new_role = Role(role_id=role_data["role_id"], name=role_data["name"])
                     db.add(new_role)
                     print(f'Added new role: {new_role}')
+                else:
+                    print(f'{role_data} already in database')
 
             db.commit()
 
