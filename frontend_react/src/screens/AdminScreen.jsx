@@ -23,6 +23,13 @@ export default function AdminScreen({ navigation }) {
         <Text style={globalStyles.buttonText}>Add new account</Text>
     </Pressable>
 
+    <Pressable
+        onPress={() => navigation.navigate('TagScreen')}
+        style={[globalStyles.button]}
+        >
+        <Text style={globalStyles.buttonText}>Manage Tags</Text>
+    </Pressable>
+
     </View>
     </View>
   );

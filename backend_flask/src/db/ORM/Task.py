@@ -40,6 +40,19 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.delegated_to == user_id).all()
 
+    @classmethod
+    def get_filtered(cls, **filters):
+        with cls._db_manager.get_db() as db:
+            query = db.query(cls)
+            if 'delegated_to' in filters:
+                query = query.filter(cls.delegated_to == filters['delegated_to'])
+            if 'archived' in filters:
+                query = query.filter(cls.archived == filters['archived'])
+            if 'priority' in filters:
+                query = query.filter(cls.priority == filters['priority'])
+            # Add more filters as needed
+            return query.all()
+
 
     def to_dict(self):
         return {

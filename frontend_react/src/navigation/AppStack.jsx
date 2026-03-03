@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TaskListScreen from '../screens/TaskListScreen';
 import RegisterScreen from "../screens/RegisterScreen";
 import AdminScreen from '../screens/AdminScreen';
+import TagScreen from "../screens/ManageTagScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,11 @@ export default function AppStack() {
       options={{ title: 'Admin', headerShown: false }}
     />
 
+    <Stack.Screen
+      name="TagScreen"
+      component={TagScreen}
+      options={{ title: 'Manage Tags', headerShown: false }}
+    />
     </Stack.Navigator>
   );
 }

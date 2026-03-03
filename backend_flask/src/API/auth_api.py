@@ -39,7 +39,6 @@ def login():
     access_token = create_access_token(identity=str(user.user_id))
     return jsonify({
         "token": access_token,
-        "userId": user.user_id,
         "role": user.role.role_id
     }), 200
 

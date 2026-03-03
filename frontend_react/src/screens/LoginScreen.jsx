@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }) {
         return;
       }
 
-      await login(data.token, data.userId.toString(), data.role.toString());
+      await login(data.token, data.role.toString());
       navigation.navigate('TaskList');
     } catch (error) {
       setErrorMessage(error.message || 'An error occurred');

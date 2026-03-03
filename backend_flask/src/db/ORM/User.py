@@ -23,27 +23,20 @@ class User(Base):
     _db_manager = DatabaseManager()
 
     @classmethod
-    def get_role(cls, user_id: int):
-        db = next(cls._db_manager.get_db())
-        try:
-            user = db.query(cls).filter_by(user_id=user_id).first()
-
-            if user:
-                return RoleEnum(user.role_id)
-
-            return None
-
-        finally:
-            db.close()
+    def get_role(cls, user_id):
+        with cls._db_manager.get_db() as db:
+            user = db.query(cls).filter(cls.user_id == user_id).first()
+            return user.role_id if user else None
 
     @classmethod
-    def is_authorized(cls, user_id: int):
-        user_role = cls.get_role(user_id)
-
-        if user_role is None:
+    def is_authorized(cls, user_id):
+        role = cls.get_role(user_id)
+        if role == '1':
+            return True
+        if role == '2':
+            return True
+        else:
             return False
-
-        return user_role in {RoleEnum.ADMIN, RoleEnum.TEAMLEIDER}
 
     @classmethod
     def get_user(cls, user_id: int = None, username: str = ""):
