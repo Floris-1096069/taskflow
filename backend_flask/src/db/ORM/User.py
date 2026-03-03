@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, joinedload
 from backend_flask.src.db.database_manager import DatabaseManager
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -45,19 +45,16 @@ class User(Base):
 
         return user_role in {RoleEnum.ADMIN, RoleEnum.TEAMLEIDER}
 
-
     @classmethod
     def get_user(cls, user_id: int = None, username: str = ""):
         with cls._db_manager.get_db() as db:
-
+            query = db.query(cls)
             if user_id is not None:
-                user = db.query(cls).filter_by(user_id=user_id).one_or_none()
+                user = query.options(joinedload(cls.role)).filter_by(user_id=user_id).one_or_none()
                 return user
-
             elif username != "":
-                user = db.query(cls).filter_by(username=username).one_or_none()
+                user = query.options(joinedload(cls.role)).filter_by(username=username).one_or_none()
                 return user
-
             else:
                 return None
 

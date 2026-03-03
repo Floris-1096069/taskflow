@@ -107,7 +107,7 @@ class DatabaseManager:
     def create_all(self):
         Base.metadata.create_all(bind=self.engine)
         self.init_roles()
-        self.ensure_admin_user()
+        #self.ensure_admin_user()
 
 
     def dispose(self):

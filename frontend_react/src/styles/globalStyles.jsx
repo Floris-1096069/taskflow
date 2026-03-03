@@ -137,7 +137,7 @@ export const getGlobalStyles = (colorScheme) => {
     },
 
     logoutButton: {
-      padding: 5,
+      padding: 1,
       position: 'absolute',
       right: 10,
       zIndex: 1,
@@ -149,9 +149,9 @@ export const getGlobalStyles = (colorScheme) => {
     },
 
     registerButton: {
-      padding: 5,
+      padding: 1,
       position: 'absolute',
-      right: 70,
+      right: 35,
       zIndex: 1,
     },
 

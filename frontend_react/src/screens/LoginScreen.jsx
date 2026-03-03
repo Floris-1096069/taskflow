@@ -34,13 +34,14 @@ export default function LoginScreen({ navigation }) {
       });
 
       const data = await response.json();
+      console.log('Backend response:', data);
 
       if (!response.ok) {
         setErrorMessage(data.message || 'Login failed');
         return;
       }
 
-      await login(data.token);
+      await login(data.token, data.userId.toString(), data.role.toString());
       navigation.navigate('TaskList');
     } catch (error) {
       setErrorMessage(error.message || 'An error occurred');
