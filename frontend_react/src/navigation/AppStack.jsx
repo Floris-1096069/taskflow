@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import TaskListScreen from '../screens/TaskListScreen';
 import RegisterScreen from "../screens/RegisterScreen";
+import AdminScreen from '../screens/AdminScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,12 @@ export default function AppStack() {
         name="Register"
         component={RegisterScreen}
         options={{ title: 'Register', headerShown: false }}
+    />
+
+    <Stack.Screen
+      name="AdminScreen"
+      component={AdminScreen}
+      options={{ title: 'Admin', headerShown: false }}
     />
 
     </Stack.Navigator>

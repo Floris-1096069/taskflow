@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, useColorScheme, Dimensions } from 'react-
 import { useAuthContext } from '../context/AuthContext';
 import getGlobalStyles from '../styles/globalStyles';
 
-const Header = ({ title, navigation, showBackButton = false, showRegisterButton = true }) => {
+const Header = ({ title, navigation, showBackButton = false, showAdminButton = true }) => {
   const { isLoggedIn, logout } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
@@ -43,13 +43,13 @@ const Header = ({ title, navigation, showBackButton = false, showRegisterButton 
 
     {isLoggedIn && (
       <>
-      {showRegisterButton && (
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}
+      {showAdminButton && (
+        <TouchableOpacity onPress={() => navigation.navigate('AdminScreen')}
           style={[globalStyles.registerButton,
           { right: isSmallScreen ? 80 : 70, top: isSmallScreen ? 25 : 18 }]}>
 
             <Text style={[globalStyles.registerButtonText, { fontSize: isSmallScreen ? 14 : 16 }]}>
-              Add Account
+              Administrative Tools
             </Text>
         </TouchableOpacity>
     )}
