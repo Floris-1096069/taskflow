@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 
 from backend_flask.src.db.base import Base
 from backend_flask.src.db.database_manager import DatabaseManager
+from backend_flask.src.db.ORM.TaskTag import TaskTag
 
 
 class Task(Base):
@@ -29,6 +30,7 @@ class Task(Base):
 
     _db_manager = DatabaseManager()
 
+
     @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
@@ -50,8 +52,33 @@ class Task(Base):
                 query = query.filter(cls.archived == filters['archived'])
             if 'priority' in filters:
                 query = query.filter(cls.priority == filters['priority'])
-            # Add more filters as needed
             return query.all()
+
+
+    @classmethod
+    def create(cls, name, description, priority, status_id, delegated_to, created_by, tag_ids=None):
+        with cls._db_manager.get_db() as db:
+            new_task = cls(
+                name=name,
+                description=description,
+                priority=priority,
+                status_id=status_id,
+                delegated_to=delegated_to,
+                created_by=created_by,
+                updated_by=created_by,
+            )
+            db.add(new_task)
+            db.commit()
+            db.refresh(new_task)
+
+            #associate tags if provided
+            if tag_ids:
+                for tag_id in tag_ids:
+                    task_tag = TaskTag(task_id=new_task.task_id, tag_id=tag_id)
+                    db.add(task_tag)
+                db.commit()
+
+            return new_task
 
 
     def to_dict(self):

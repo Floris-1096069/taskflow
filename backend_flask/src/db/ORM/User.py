@@ -22,21 +22,23 @@ class User(Base):
 
     _db_manager = DatabaseManager()
 
+
     @classmethod
     def get_role(cls, user_id):
-        with cls._db_manager.get_db() as db:
-            user = db.query(cls).filter(cls.user_id == user_id).first()
-            return user.role_id if user else None
+        try:
+            with cls._db_manager.get_db() as db:
+                user = db.query(cls).filter(cls.user_id == user_id).first()
+                return user.role_id if user else None
+        except Exception as e:
+            print(f"Error fetching role for user {user_id}: {e}")
+            return None
+
 
     @classmethod
     def is_authorized(cls, user_id):
         role = cls.get_role(user_id)
-        if role == '1':
-            return True
-        if role == '2':
-            return True
-        else:
-            return False
+        return role in {RoleEnum.ADMIN, RoleEnum.TEAMLEIDER}
+
 
     @classmethod
     def get_user(cls, user_id: int = None, username: str = ""):

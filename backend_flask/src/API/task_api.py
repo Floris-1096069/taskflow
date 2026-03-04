@@ -5,7 +5,6 @@ from flask_cors import cross_origin
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Tag import Tag
-from backend_flask.src.db.ORM.TaskTag import TaskTag
 from backend_flask.src.db.database_manager import DatabaseManager
 
 
@@ -86,37 +85,21 @@ def get_tasks_by_delegated_user_id(delegated_id):
 @jwt_required()
 def create_task():
     user_id = get_jwt_identity()
-
-    if not User.is_authorized(user_id):
-        return jsonify({"error": "Unauthorized"}), 403
-
     data = request.get_json()
     required_fields = ['name', 'priority', 'status_id', 'delegated_to']
+
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
-    #create the task
-    new_task = Task(
+    new_task = Task.create(
         name=data['name'],
         description=data.get('description', ''),
         priority=data['priority'],
         status_id=data['status_id'],
         delegated_to=data['delegated_to'],
         created_by=user_id,
-        updated_by=user_id,
+        tag_ids=data.get('tag_ids', []),
     )
-
-    with _db_manager.get_db() as db:
-        db.add(new_task)
-        db.commit()
-        db.refresh(new_task)
-
-        #associate tags if provided
-        if 'tag_ids' in data and data['tag_ids']:
-            for tag_id in data['tag_ids']:
-                task_tag = TaskTag(task_id=new_task.task_id, tag_id=tag_id)
-                db.add(task_tag)
-            db.commit()
 
     return jsonify(new_task.to_dict()), 201
 
@@ -141,9 +124,12 @@ def create_tag():
     if not data or 'name' not in data:
         return jsonify({"error": "Tag name is required"}), 400
 
-    with Tag._db_manager.get_db() as db:
-        new_tag = Tag(name=data['name'])
-        db.add(new_tag)
-        db.commit()
-        db.refresh(new_tag)
-    return jsonify(new_tag.to_dict()), 201
+    try:
+        new_tag = Tag.create(name=data['name'])
+        return jsonify(new_tag.to_dict()), 201
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+    except Exception as e:
+        return jsonify({"error": "Failed to create tag"}), 500
