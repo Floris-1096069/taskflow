@@ -29,6 +29,7 @@ class User(Base):
             with cls._db_manager.get_db() as db:
                 user = db.query(cls).filter(cls.user_id == user_id).first()
                 return user.role_id if user else None
+
         except Exception as e:
             print(f"Error fetching role for user {user_id}: {e}")
             return None
@@ -44,12 +45,15 @@ class User(Base):
     def get_user(cls, user_id: int = None, username: str = ""):
         with cls._db_manager.get_db() as db:
             query = db.query(cls)
+
             if user_id is not None:
                 user = query.options(joinedload(cls.role)).filter_by(user_id=user_id).one_or_none()
                 return user
+
             elif username != "":
                 user = query.options(joinedload(cls.role)).filter_by(username=username).one_or_none()
                 return user
+
             else:
                 return None
 
