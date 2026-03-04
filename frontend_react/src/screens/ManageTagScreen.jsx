@@ -1,28 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Pressable, useColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAuthContext} from "../context/AuthContext";
 
 
 import getGlobalStyles from '../styles/globalStyles';
 import Header from '../components/Header';
-
-const fetchWithAuth = async (url, options = {}) => {
-  const token = await AsyncStorage.getItem('token');
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  return fetch(url, { ...options, headers });
-};
 
 export default function ManageTagScreen({ navigation }) {
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
   const [tags, setTags] = useState([]);
   const [newTagName, setNewTagName] = useState('');
+  const { fetchWithAuth } = useAuthContext();
 
 
   useEffect(() => {

@@ -37,6 +37,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const fetchWithAuth = async (url, options = {}) => {
+    const currentToken = await AsyncStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    if (currentToken) {
+      headers.Authorization = `Bearer ${currentToken}`;
+    }
+    return fetch(url, { ...options, headers });
+  };
+
   const login = async (newToken) => {
     try {
       await AsyncStorage.setItem('token', newToken);
@@ -70,6 +82,7 @@ export const AuthProvider = ({ children }) => {
     getRole,
     login,
     logout,
+    fetchWithAuth,
   };
 
   return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
