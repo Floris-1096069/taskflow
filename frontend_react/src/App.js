@@ -1,4 +1,3 @@
-import { View, StyleSheet } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './context/AuthContext';
 import { useEffect } from 'react';

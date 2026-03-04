@@ -97,7 +97,7 @@ export const getGlobalStyles = (colorScheme) => {
       textAlign: 'center',
     },
 
-    //inputs
+    //input fields
     input: {
       borderWidth: 1,
       borderColor: colours.border,

@@ -5,6 +5,7 @@ import RegisterScreen from "../screens/RegisterScreen";
 import AdminScreen from '../screens/AdminScreen';
 import TagScreen from "../screens/ManageTagScreen";
 
+
 const Stack = createNativeStackNavigator();
 
 export default function AppStack() {

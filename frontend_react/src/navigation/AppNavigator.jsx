@@ -1,8 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native';
+import {ActivityIndicator} from "react-native-web";
+
+import { useAuthContext } from '../context/AuthContext';
 import AuthStack from './AuthStack';
 import AppStack from './AppStack';
-import {ActivityIndicator} from "react-native-web";
-import { useAuthContext } from '../context/AuthContext';
+
 
 export default function AppNavigator() {
   const { isLoggedIn, loading } = useAuthContext();
@@ -10,6 +12,7 @@ export default function AppNavigator() {
   if (loading) {
     return <ActivityIndicator size="large" />;
   }
+
 
   return (
     <NavigationContainer>

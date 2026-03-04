@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Pressable, useColorScheme } from 'react-native';
 import {useAuthContext} from "../context/AuthContext";
 
-
 import getGlobalStyles from '../styles/globalStyles';
 import Header from '../components/Header';
+
 
 export default function ManageTagScreen({ navigation }) {
   const colorScheme = useColorScheme();

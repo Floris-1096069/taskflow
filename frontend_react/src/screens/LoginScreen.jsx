@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import {View, Text, TextInput, Pressable, useColorScheme} from 'react-native';
+
 import { useAuthContext } from '../context/AuthContext';
 import getGlobalStyles from '../styles/globalStyles';
+
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -11,6 +13,7 @@ export default function LoginScreen({ navigation }) {
   const { login } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
+
 
   const handleLogin = async () => {
     if (!username || !password) {

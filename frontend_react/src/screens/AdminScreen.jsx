@@ -4,9 +4,12 @@ import {View, Text, Pressable, useColorScheme} from 'react-native';
 import getGlobalStyles from '../styles/globalStyles';
 import Header from '../components/Header';
 
+
 export default function AdminScreen({ navigation }) {
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
+
+
   return (
     <View style={[globalStyles.webContainer]}>
 

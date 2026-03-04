@@ -24,6 +24,7 @@ export default function RegisterScreen({ navigation }) {
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
 
+
   const handleRegister = async () => {
     if (!username || !password || !role) {
       setErrorMessage('Please fill in all fields');
