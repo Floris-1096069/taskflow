@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Picker, Button, ActivityIndicator } from 'react-native';
 
+import {useAuthContext} from "../context/AuthContext";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -12,6 +13,7 @@ const TaskList = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { fetchWithAuth } = useAuthContext();
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -23,7 +25,7 @@ const TaskList = () => {
           query.append(key, value);
         }
       });
-      const response = await fetch(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
+      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
       const data = await response.json();
       setTasks(data);
     } catch (err) {

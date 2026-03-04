@@ -11,13 +11,23 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(null);
+  const [username, setUsername] = useState(null);
 
   useEffect(() => {
     const checkToken = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        setToken(token);
-        setIsLoggedIn(!!token);
+        if (token) {
+          setToken(token);
+          setIsLoggedIn(true);
+          // Decode the token to get the username
+          try {
+            const decodedToken = jwtDecode(token);
+            setUsername(decodedToken.username || decodedToken.sub); // Use 'username' or 'sub' (subject) claim
+          } catch (error) {
+            console.error('Failed to decode token:', error);
+          }
+        }
       } catch (error) {
         console.error('Failed to check token:', error);
       } finally {
@@ -55,6 +65,12 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('token', newToken);
       setToken(newToken);
       setIsLoggedIn(true);
+      try {
+        const decodedToken = jwtDecode(newToken);
+        setUsername(decodedToken.username || decodedToken.sub);
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+      }
     } catch (error) {
       console.error('Failed to save token:', error);
     }
@@ -65,6 +81,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.removeItem('token');
       setToken(null);
       setIsLoggedIn(false);
+      setUsername(null);
       if (navigation) {
         navigation.reset({
           index: 0,
@@ -80,6 +97,7 @@ export const AuthProvider = ({ children }) => {
     isLoggedIn,
     loading,
     token,
+    username,
     getRole,
     login,
     logout,

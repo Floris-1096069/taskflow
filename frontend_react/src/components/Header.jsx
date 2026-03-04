@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, useColorScheme, Dimensions } from 'react-native';
-import { AuthProvider, useAuthContext } from '../context/AuthContext';
+import { useAuthContext } from '../context/AuthContext';
 import getGlobalStyles from '../styles/globalStyles';
 
 const Header = ({ title, navigation, showBackButton = false, showAdminButton = true }) => {
-  const { isLoggedIn, logout, getRole } = useAuthContext();
+  const { isLoggedIn, logout, getRole, username } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
   const screenWidth = Dimensions.get('window').width;
@@ -46,6 +46,10 @@ const Header = ({ title, navigation, showBackButton = false, showAdminButton = t
     </Text>
 
     {isLoggedIn && (
+        <Text style={globalStyles.registerButtonText}>
+          Welcome, {username}
+        </Text>
+        )}
       <>
       {showAdminButton && isAuthorized && (
         <TouchableOpacity onPress={() => navigation.navigate('AdminScreen')}
@@ -66,7 +70,7 @@ const Header = ({ title, navigation, showBackButton = false, showAdminButton = t
             </Text>
         </TouchableOpacity>
       </>
-    )}
+    )
     </View>
   );
 };

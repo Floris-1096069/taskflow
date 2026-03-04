@@ -4,6 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 
 import getGlobalStyles from '../styles/globalStyles';
 import Header from "../components/Header";
+import {useAuthContext} from "../context/AuthContext";
 
 const roles = [
   { id: 1, name: 'Admin' },
@@ -23,6 +24,7 @@ export default function RegisterScreen({ navigation }) {
   const [successMessage, setSuccessMessage] = useState('');
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
+  const { fetchWithAuth } = useAuthContext();
 
 
   const handleRegister = async () => {
@@ -36,7 +38,7 @@ export default function RegisterScreen({ navigation }) {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('http://172.20.10.2:5000/api/auth/register', {
+      const response = await fetchWithAuth('http://172.20.10.2:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
