@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
+
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './context/AuthContext';
-import { useEffect } from 'react';
+
 
 export default function App() {
   useEffect(() => {
