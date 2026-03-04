@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
         if (token) {
           setToken(token);
           setIsLoggedIn(true);
-          // Decode the token to get the username
           try {
             const decodedToken = jwtDecode(token);
             setUsername(decodedToken.username || decodedToken.sub); // Use 'username' or 'sub' (subject) claim
