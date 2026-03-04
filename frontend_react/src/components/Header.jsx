@@ -1,14 +1,17 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, useColorScheme, Dimensions } from 'react-native';
-import { useAuthContext } from '../context/AuthContext';
+import { AuthProvider, useAuthContext } from '../context/AuthContext';
 import getGlobalStyles from '../styles/globalStyles';
 
 const Header = ({ title, navigation, showBackButton = false, showAdminButton = true }) => {
-  const { isLoggedIn, logout, role } = useAuthContext();
+  const { isLoggedIn, logout, getRole } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
   const screenWidth = Dimensions.get('window').width;
   const isSmallScreen = screenWidth < 400;
+
+
+  const role = getRole();
   const isAuthorized = role === '1' || role === '2';
 
 

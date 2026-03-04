@@ -36,11 +36,11 @@ def login():
     if not User.authenticate(user.user_id, password):
         return jsonify({"message": "Invalid credentials"}), 401
 
-    access_token = create_access_token(identity=str(user.user_id))
-    return jsonify({
-        "token": access_token,
-        "role": user.role.role_id
-    }), 200
+    access_token = create_access_token(
+        identity=str(user.user_id),
+        additional_claims={"role": User.role.role_id}
+    )
+    return jsonify({"token": access_token,}), 200
 
 
 @auth_api.post("/register")

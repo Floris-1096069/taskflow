@@ -95,7 +95,7 @@ def create_task():
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
 
-    # Create the task
+    #create the task
     new_task = Task(
         name=data['name'],
         description=data.get('description', ''),
@@ -111,7 +111,7 @@ def create_task():
         db.commit()
         db.refresh(new_task)
 
-        # Associate tags if provided
+        #associate tags if provided
         if 'tag_ids' in data and data['tag_ids']:
             for tag_id in data['tag_ids']:
                 task_tag = TaskTag(task_id=new_task.task_id, tag_id=tag_id)
@@ -120,12 +120,14 @@ def create_task():
 
     return jsonify(new_task.to_dict()), 201
 
+
 @task_api.get("/tags")
 @cross_origin()
 @jwt_required()
 def get_all_tags():
     tags = Tag.get_all()
     return jsonify([tag.to_dict() for tag in tags])
+
 
 @task_api.post("/tags")
 @cross_origin()
