@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
           setIsLoggedIn(true);
           try {
             const decodedToken = jwtDecode(token);
-            setUsername(decodedToken.username || decodedToken.sub); // Use 'username' or 'sub' (subject) claim
+            setUsername(decodedToken.username || decodedToken.sub);
           } catch (error) {
             console.error('Failed to decode token:', error);
           }
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) return null;
     try {
       const decodedToken = jwtDecode(token);
+      console.log(decodedToken.role);
       return decodedToken.role;
     } catch (error) {
       console.error('Failed to decode token:', error);

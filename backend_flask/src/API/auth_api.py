@@ -34,9 +34,11 @@ def login():
     if not User.authenticate(user.user_id, password):
         return jsonify({"message": "Invalid credentials"}), 401
 
+
     access_token = create_access_token(
         identity=str(user.user_id),
-        additional_claims={"role": User.role.role_id}
+        additional_claims={"role": User.get_role(user.user_id),
+                           "username": user.username}
     )
     return jsonify({"token": access_token,}), 200
 
