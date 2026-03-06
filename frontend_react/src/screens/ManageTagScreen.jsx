@@ -10,7 +10,7 @@ export default function ManageTagScreen({ navigation }) {
 
   return (
     <View style={[globalStyles.webContainer]}>
-      <Header title="Manage Tags" navigation={navigation}
+      <Header navigation={navigation}
       showBackButton={true}
       showAdminButton={false}/>
       <TagManager onBack={() => navigation.navigate('TaskList')} />

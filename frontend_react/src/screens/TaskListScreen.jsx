@@ -14,7 +14,9 @@ export default function TaskListScreen({ navigation }) {
   return (
     <View style={[globalStyles.webContainer]}>
 
-      <Header title="To Do List" navigation={navigation}/>
+      <Header title="To Do List" navigation={navigation}
+      showBackButton={false}
+      showAdminButton={true}/>
 
     <View style={globalStyles.container}>
 

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, useColorScheme, Dimensions } from 'react-
 import { useAuthContext } from '../context/AuthContext';
 import getGlobalStyles from '../styles/globalStyles';
 
-const Header = ({ title, navigation, showBackButton = false, showAdminButton = true }) => {
+const Header = ({ navigation, showBackButton = false, showAdminButton = true }) => {
   const { isLoggedIn, logout, getRole, username } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
@@ -30,19 +30,6 @@ const Header = ({ title, navigation, showBackButton = false, showAdminButton = t
         <Text style={globalStyles.backButtonText}>← Back</Text>
       </TouchableOpacity>
     )}
-
-    <Text
-      style={[
-        globalStyles.headerTitle,
-        {
-          textAlign: 'left',
-          fontSize: isSmallScreen ? 18 : 20,
-          marginLeft: showBackButton ? 0 : 67, // Adjust margin if back button is hidden
-        },
-      ]}
-    >
-      {title}
-    </Text>
 
     {isLoggedIn && (
       <View style={globalStyles.headerButtonContainer}>

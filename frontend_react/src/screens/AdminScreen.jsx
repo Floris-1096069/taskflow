@@ -13,11 +13,12 @@ export default function AdminScreen({ navigation }) {
   return (
     <View style={[globalStyles.webContainer]}>
 
-      <Header title="Admin Tools" navigation={navigation}
+      <Header navigation={navigation}
       showBackButton={true}
       showAdminButton={false}/>
 
     <View style={globalStyles.container}>
+        <Text style={[globalStyles.title]}>Administrative Tools</Text>
 
     <Pressable
         onPress={() => navigation.navigate('Register')}

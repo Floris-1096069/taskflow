@@ -71,6 +71,9 @@ export default function TagManager({ onBack }) {
 
     return (
         <View style={{ flex: 1 }}>
+            <Text style={[globalStyles.title]}>
+                Manage Tags
+            </Text>
             <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>
                 Add new tag
             </Text>

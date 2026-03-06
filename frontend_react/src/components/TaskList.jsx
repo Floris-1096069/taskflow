@@ -63,6 +63,9 @@ const TaskList = () => {
     <View style={globalStyles.container}>
 
       <View style={globalStyles.filterContainer}>
+        <Text style={[globalStyles.title]}>
+          To Do List
+        </Text>
 
         <Picker
           selectedValue={filters.priority}
