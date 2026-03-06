@@ -12,7 +12,7 @@ const Header = ({ title, navigation, showBackButton = false, showAdminButton = t
 
 
   const role = getRole();
-  const isAuthorized = role === '1' || role === '2';
+  const isAuthorized = String(role) === '1' || String(role) === '2';
 
 
   const handleLogout = () => {
@@ -21,58 +21,54 @@ const Header = ({ title, navigation, showBackButton = false, showAdminButton = t
 
 
   return (
-    <View style={[globalStyles.headerContainer, { height: isSmallScreen ? 70 : 60 }]}>
+  <View style={[globalStyles.headerContainer, { height: isSmallScreen ? 70 : 60 }]}>
     {showBackButton && (
-      <TouchableOpacity onPress={() => navigation.goBack()}
-      style={[globalStyles.backButton, { top: isSmallScreen ? 25 : 18 }]}>
-
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={globalStyles.backButton}
+      >
         <Text style={globalStyles.backButtonText}>← Back</Text>
       </TouchableOpacity>
     )}
 
     <Text
-        style={[
-          globalStyles.headerTitle,
-          {
-            fontSize: isSmallScreen ? 18 : 20,
-            textAlign: isSmallScreen ? 'left' : 'center',
-            paddingLeft: isSmallScreen ? 20 : 0,
-            marginLeft: isSmallScreen && showBackButton ? 123 : 0,
-            flex: 1,
-          },
-        ]}
-      >
+      style={[
+        globalStyles.headerTitle,
+        {
+          textAlign: 'left',
+          fontSize: isSmallScreen ? 18 : 20,
+          marginLeft: showBackButton ? 0 : 67, // Adjust margin if back button is hidden
+        },
+      ]}
+    >
       {title}
     </Text>
 
     {isLoggedIn && (
+      <View style={globalStyles.headerButtonContainer}>
         <Text style={globalStyles.registerButtonText}>
-          Welcome, {username}
+          Welcome, {username}  |
         </Text>
-        )}
-      <>
-      {showAdminButton && isAuthorized && (
-        <TouchableOpacity onPress={() => navigation.navigate('AdminScreen')}
-          style={[globalStyles.registerButton,
-          { right: isSmallScreen ? 70 : 80, top: isSmallScreen ? 25 : 18 }]}>
-
+        {showAdminButton && isAuthorized && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AdminScreen')}
+            style={globalStyles.registerButton}
+          >
             <Text style={[globalStyles.registerButtonText, { fontSize: isSmallScreen ? 14 : 16 }]}>
-              Administrative Tools
+              Administrative Tools  |
             </Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={globalStyles.logoutButton}
+        >
+          <Text style={[globalStyles.logoutButtonText, { fontSize: isSmallScreen ? 14 : 16 }]}>
+            Logout
+          </Text>
         </TouchableOpacity>
+      </View>
     )}
-
-        <TouchableOpacity onPress={handleLogout} style={[globalStyles.logoutButton,
-          { top: isSmallScreen ? 25 : 18 }]}>
-
-            <Text style={[globalStyles.logoutButtonText, { fontSize: isSmallScreen ? 14 : 16 }]}>
-              Logout
-            </Text>
-        </TouchableOpacity>
-      </>
-    )
-    </View>
-  );
-};
-
+  </View>
+)}
 export default Header;

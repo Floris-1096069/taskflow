@@ -45,7 +45,10 @@ export default function LoginScreen({ navigation }) {
       }
 
       await login(data.token);
-      navigation.navigate('TaskList');
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Tasklist'}],
+      });
     } catch (error) {
       setErrorMessage(error.message || 'An error occurred');
     } finally {

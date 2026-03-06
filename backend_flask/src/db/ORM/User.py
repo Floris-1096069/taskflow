@@ -38,7 +38,7 @@ class User(Base):
     @classmethod
     def is_authorized(cls, user_id):
         role = cls.get_role(user_id)
-        return role in {RoleEnum.ADMIN, RoleEnum.TEAMLEIDER}
+        return role in {RoleEnum.ADMIN.value, RoleEnum.TEAMLEIDER.value}
 
 
     @classmethod

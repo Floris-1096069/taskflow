@@ -38,6 +38,20 @@ class Tag(Base):
             db.rollback()
             raise e
 
+    @classmethod
+    def delete(cls, tag_id):
+        try:
+            with cls._db_manager.get_db() as db:
+                tag = db.query(cls).filter(cls.tag_id == tag_id).first()
+                if not tag:
+                    raise ValueError("Tag doesn't exist")
+
+                db.delete(tag)
+                db.commit()
+        except Exception as e:
+            db.rollback()
+            raise e
+
 
     def to_dict(self):
         return {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Picker, Button, ActivityIndicator } from 'react-native';
-
+import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
+import getGlobalStyles from "../styles/globalStyles";
 import {useAuthContext} from "../context/AuthContext";
 
 const TaskList = () => {
@@ -14,6 +14,8 @@ const TaskList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { fetchWithAuth } = useAuthContext();
+  const colorScheme = useColorScheme();
+  const globalStyles = getGlobalStyles(colorScheme);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -41,7 +43,7 @@ const TaskList = () => {
 
   if (loading && tasks.length === 0) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={globalStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
         <Text>Loading tasks...</Text>
       </View>
@@ -50,16 +52,18 @@ const TaskList = () => {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {error}</Text>
-        <Button title="Retry" onPress={fetchTasks} />
+      <View style={globalStyles.errorContainer}>
+        <Text style={globalStyles.errorText}>Error: {error}</Text>
+        <Pressable title="Retry" onPress={fetchTasks} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.filterContainer}>
+    <View style={globalStyles.container}>
+
+      <View style={globalStyles.filterContainer}>
+
         <Picker
           selectedValue={filters.priority}
           onValueChange={(itemValue) => setFilters({...filters, priority: itemValue})}>
@@ -68,18 +72,22 @@ const TaskList = () => {
           <Picker.Item label="Medium" value={2} />
           <Picker.Item label="High" value={3} />
         </Picker>
-        <Button title="Apply Filters" onPress={fetchTasks} />
+
+        <Pressable style={globalStyles.button} title="Apply Filters" onPress={fetchTasks}>
+          <Text style={globalStyles.buttonText}> Apply Filters</Text>
+        </Pressable>
+
       </View>
 
       {loading && tasks.length > 0 ? (
-        <ActivityIndicator size="small" color="#0000ff" style={styles.refreshIndicator} />
+        <ActivityIndicator size="small" color="#0000ff" style={globalStyles.refreshIndicator} />
       ) : null}
 
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.task_id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.taskItem}>
+          <View style={globalStyles.taskItem}>
             <Text>{item.name}</Text>
             <Text>Priority: {item.priority}</Text>
             <Text>Status: {item.status_id}</Text>
@@ -88,7 +96,7 @@ const TaskList = () => {
         )}
         ListEmptyComponent={
           !loading ? (
-            <View style={styles.emptyContainer}>
+            <View style={globalStyles.emptyContainer}>
               <Text>No tasks found.</Text>
             </View>
           ) : null
@@ -98,15 +106,5 @@ const TaskList = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  filterContainer: { marginBottom: 16 },
-  taskItem: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { color: 'red', marginBottom: 16 },
-  refreshIndicator: { marginVertical: 8 },
-  emptyContainer: { padding: 16, alignItems: 'center' },
-});
 
 export default TaskList;

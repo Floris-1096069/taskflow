@@ -133,3 +133,16 @@ def create_tag():
 
     except Exception as e:
         return jsonify({"error": "Failed to create tag"}), 500
+
+
+@task_api.delete("/tags/<int:tag_id>")
+@cross_origin()
+@jwt_required()
+def delete_tag(tag_id):
+    try:
+        Tag.delete(tag_id)
+        return jsonify({"message": "Tag deleted successfully"})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": "Failed to delete tag"}), 500

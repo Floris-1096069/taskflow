@@ -34,13 +34,11 @@ export const getGlobalStyles = (colorScheme) => {
       fontWeight: 'bold',
       color: colours.text,
       textAlign: "center",
-      marginHorizontal: 40,
     },
 
     subtitle: {
       fontSize: 18,
       color: colours.lighttext,
-      marginBottom: 5,
     },
 
     bodyText: {
@@ -75,13 +73,13 @@ export const getGlobalStyles = (colorScheme) => {
     //buttons
     button: {
       backgroundColor: colours.primary,
-      padding: 12,
-      borderRadius: 5,
-      alignSelf: 'center',
+      width: 200,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 4,
       alignItems: 'center',
       justifyContent: 'center',
-      width: '60%',
-      marginTop: 10,
+      marginVertical: 4,
     },
 
     buttonText: {
@@ -91,19 +89,34 @@ export const getGlobalStyles = (colorScheme) => {
     },
 
     errorText: {
-      marginTop: 15,
       color: colours.error,
       fontSize: 16,
       textAlign: 'center',
+      marginBottom: 5,
+    },
+
+    deleteButton: {
+      backgroundColor: colours.error,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: 4,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 8,
+    },
+
+    deleteButtonText: {
+      color: colours.white,
     },
 
     //input fields
     input: {
+      marginVertical: 7,
       borderWidth: 1,
       borderColor: colours.border,
       borderRadius: 5,
-      padding: 10,
-      marginBottom: 20,
+      paddingVertical: 7,
+      paddingHorizontal: 7,
       backgroundColor: colours.white,
       alignSelf: 'center',
       width: '90%',
@@ -115,20 +128,26 @@ export const getGlobalStyles = (colorScheme) => {
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
-      position: 'relative',
+      justifyContent: 'flex-start',
+      paddingHorizontal: 10,
+    },
+
+    headerButtonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
     },
 
     headerTitle: {
       fontWeight: 'bold',
       color: colours.text,
+      flex: 1,
+      textAlign: 'center',
     },
 
     backButton: {
       padding: 5,
-      position: 'absolute',
-      left: 10,
-      zIndex: 1,
+      marginRight: 10,
     },
 
     backButtonText: {
@@ -138,9 +157,6 @@ export const getGlobalStyles = (colorScheme) => {
 
     logoutButton: {
       padding: 1,
-      position: 'absolute',
-      right: 10,
-      zIndex: 1,
     },
 
     logoutButtonText: {
@@ -150,9 +166,6 @@ export const getGlobalStyles = (colorScheme) => {
 
     registerButton: {
       padding: 1,
-      position: 'absolute',
-      right: 35,
-      zIndex: 1,
     },
 
     registerButtonText: {
@@ -160,10 +173,29 @@ export const getGlobalStyles = (colorScheme) => {
       fontSize: 16,
     },
 
+    //tasklist styles
+    filterContainer: { marginBottom: 16 },
+    taskItem: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    refreshIndicator: { marginVertical: 8 },
+    emptyContainer: { padding: 16, alignItems: 'center' },
+
+    //taglist styling
+    tagItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+},
+
     //web-specific styles (for PWA)
     webContainer: {
       flex: 1,
-      maxWidth:"800",
+      maxWidth:800,
       justifyContent: 'flex-start',
       flexDirection: 'column',
       alignSelf: 'center',
