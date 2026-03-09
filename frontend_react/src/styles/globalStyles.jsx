@@ -50,13 +50,7 @@ export const getGlobalStyles = (colorScheme) => {
     //containers
     container: {
     flex: 1,
-    paddingTop: 20,
     backgroundColor: colours.background,
-    width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    position: 'relative',
     },
 
 
@@ -240,7 +234,16 @@ export const getGlobalStyles = (colorScheme) => {
     },
 
     //tasklist styles
-    filterContainer: { marginBottom: 16 },
+    filterContainer: {
+      width: '100%',
+      padding: 10,
+      backgroundColor: colours.background,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+
     taskItem: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
