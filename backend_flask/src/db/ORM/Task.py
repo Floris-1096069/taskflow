@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, joinedload
 
 from backend_flask.src.db.base import Base
 from backend_flask.src.db.database_manager import DatabaseManager
@@ -34,18 +34,18 @@ class Task(Base):
     @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).all()
+            return db.query(cls).options(joinedload(cls.tags)).all()
 
 
     @classmethod
     def get_by_delegated_to(cls, user_id: int):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).filter(cls.delegated_to == user_id).all()
+            return db.query(cls).options(joinedload(cls.tags)).filter(cls.delegated_to == user_id).all()
 
     @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
-            query = db.query(cls)
+            query = db.query(cls).options(joinedload(cls.tags))
             if 'delegated_to' in filters:
                 query = query.filter(cls.delegated_to == filters['delegated_to'])
             if 'archived' in filters:
@@ -53,7 +53,6 @@ class Task(Base):
             if 'priority' in filters:
                 query = query.filter(cls.priority == filters['priority'])
             return query.all()
-
 
     @classmethod
     def create(cls, name, description, priority, status_id, delegated_to, created_by, tag_ids=None):
@@ -71,12 +70,12 @@ class Task(Base):
             db.commit()
             db.refresh(new_task)
 
-            #associate tags if provided
             if tag_ids:
                 for tag_id in tag_ids:
                     task_tag = TaskTag(task_id=new_task.task_id, tag_id=tag_id)
                     db.add(task_tag)
                 db.commit()
+                db.refresh(new_task)
 
             return new_task
 
@@ -93,7 +92,7 @@ class Task(Base):
     @classmethod
     def update(cls, task_id, **kwargs):
         with cls._db_manager.get_db() as db:
-            task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
+            task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
             if not task:
                 raise ValueError("Task not found")
 
@@ -109,6 +108,12 @@ class Task(Base):
             return task
 
     def to_dict(self):
+        try:
+            tags = [tag.to_dict() for tag in self.tags] if hasattr(self, 'tags') and self.tags else []
+        except Exception as e:
+            print(f"Error serializing tags: {e}")
+            tags = []
+
         return {
             "task_id": self.task_id,
             "name": self.name,
@@ -121,4 +126,5 @@ class Task(Base):
             "delegated_to": self.delegated_to,
             "created_by": self.created_by,
             "updated_by": self.updated_by,
+            "tags": tags,
         }

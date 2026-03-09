@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
+import TagSelector from "./TagSelector";
 
 const AddTask = ({ visible, onClose, onTaskCreated }) => {
   const [newTask, setNewTask] = useState({
@@ -10,7 +11,9 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
     priority: 1,
     status_id: 1,
     delegated_to: null,
+    tag_ids:[],
   });
+
   const { fetchWithAuth } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
@@ -33,6 +36,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
         priority: 1,
         status_id: 1,
         delegated_to: null,
+        tag_ids: [],
       });
       onClose();
     } catch (error) {
@@ -86,6 +90,13 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
             onChangeText={(text) => setNewTask({...newTask, delegated_to: text})}
             keyboardType="numeric"
           />
+
+          <TagSelector
+            selectedTagIds={newTask.tag_ids}
+            onTagsSelected={(tagIds) => setNewTask({...newTask, tag_ids: tagIds})}
+          />
+
+
           <Pressable
             style={globalStyles.button}
             onPress={handleCreateTask}

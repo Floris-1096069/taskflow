@@ -255,6 +255,29 @@ export const getGlobalStyles = (colorScheme) => {
     borderBottomColor: '#ccc',
 },
 
+    tagPickerContainer: {
+      marginBottom: 10,
+    },
+
+    selectedTagItem: {
+      backgroundColor: colours.primary,
+    },
+
+    tagsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      marginTop: 5,
+    },
+
+    tag: {
+      backgroundColor: '#e0e0e0',
+      padding: 5,
+      borderRadius: 5,
+      marginRight: 5,
+      marginBottom: 5,
+    },
+
     //web-specific styles (for PWA)
     webContainer: {
       flex: 1,

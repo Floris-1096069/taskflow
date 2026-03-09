@@ -162,6 +162,18 @@ const TaskList = ()=> {
             <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
             <Text>Created by: {getUsername(item.created_by)}</Text>
             <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
+            <View style={globalStyles.tagsContainer}>
+            <Text>Tags: </Text>
+              {item.tags && item.tags.length > 0 ? (
+                item.tags.map((tag) => (
+              <View key={tag.tag_id} style={globalStyles.tag}>
+                <Text>{tag.name}</Text>
+              </View>
+          ))
+        ) : (
+          <Text>No tags</Text>
+        )}
+      </View>
             {isAuthorized && (
             <ManageTask
               task={item}
