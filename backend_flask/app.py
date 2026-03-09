@@ -9,6 +9,7 @@ from jwt import InsecureKeyLengthWarning
 from backend_flask.src.API.auth_api import auth_api
 from backend_flask.src.API.task_api import task_api
 from backend_flask.src.API.problem_api import problem_api
+from backend_flask.src.API.user_api import user_api
 from backend_flask.src.db.database_manager import DatabaseManager
 
 
@@ -38,6 +39,7 @@ def create_app():
     app.register_blueprint(auth_api)
     app.register_blueprint(problem_api)
     app.register_blueprint(task_api)
+    app.register_blueprint(user_api)
 
     #configure database
     db_manager = DatabaseManager()

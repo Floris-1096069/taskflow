@@ -36,6 +36,12 @@ class User(Base):
 
 
     @classmethod
+    def get_all(cls):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).all()
+
+
+    @classmethod
     def is_authorized(cls, user_id):
         role = cls.get_role(user_id)
         return role in {RoleEnum.ADMIN.value, RoleEnum.TEAMLEIDER.value}
@@ -88,3 +94,11 @@ class User(Base):
             db.add(new_user)
             db.commit()
             return db.query(cls).filter_by(username=username).one_or_none()
+
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "username": self.username,
+            "role_id": self.role_id,
+        }

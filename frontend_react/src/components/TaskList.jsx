@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
-import {useAuthContext} from "../context/AuthContext";
+import { useAuthContext } from "../context/AuthContext";
+import AddTask from './AddTask';
+import ManageTask from './ManageTask';
 
-const TaskList = () => {
+const TaskList = ()=> {
   const [tasks, setTasks] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [statuses, setStatuses] = useState([]);
   const [filters, setFilters] = useState({
     archived: false,
     priority: null,
@@ -12,10 +16,16 @@ const TaskList = () => {
     status_id: null,
   });
   const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [statusesLoading, setStatusesLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { fetchWithAuth } = useAuthContext();
+  const { fetchWithAuth, getRole } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const role = getRole();
+  const isAuthorized = String(role) === '1' || String(role) === '2';
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -37,9 +47,47 @@ const TaskList = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
+      const data = await response.json();
+      setUsers(data);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const fetchStatuses = async () => {
+    setStatusesLoading(true);
+    try {
+      const response = await fetchWithAuth('http://172.20.10.2:5000/api/task/status');
+      const data = await response.json();
+      setStatuses(data);
+    } catch (err) {
+      console.error('Error fetching statuses:', err);
+    } finally {
+      setStatusesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
+    fetchUsers();
+    fetchStatuses();
   }, [filters]);
+
+  const getUsername = (userId) => {
+    const user = users.find(u => u.user_id === userId);
+    return user ? user.username : 'Unknown';
+  };
+
+  const getStatusName = (statusId) => {
+    const status = statuses.find(s => s.status_id === statusId);
+    return status ? status.name : 'Unknown';
+  };
 
   if (loading && tasks.length === 0) {
     return (
@@ -54,33 +102,49 @@ const TaskList = () => {
     return (
       <View style={globalStyles.errorContainer}>
         <Text style={globalStyles.errorText}>Error: {error}</Text>
-        <Pressable title="Retry" onPress={fetchTasks} />
+        <Pressable onPress={fetchTasks}>
+          <Text>Retry</Text>
+        </Pressable>
       </View>
     );
   }
 
   return (
     <View style={globalStyles.container}>
-
       <View style={globalStyles.filterContainer}>
         <Text style={[globalStyles.title]}>
           To Do List
         </Text>
 
+        <Pressable
+          style={globalStyles.button}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={globalStyles.buttonText}>Create New Task</Text>
+        </Pressable>
+
         <Picker
-          selectedValue={filters.priority}
-          onValueChange={(itemValue) => setFilters({...filters, priority: itemValue})}>
-          <Picker.Item label="Any Priority" value={null} />
+          selectedValue={filters.priority !== null ? filters.priority : undefined}
+          onValueChange={(itemValue) => setFilters({ ...filters, priority: itemValue })}
+        >
+          <Picker.Item label="Any Priority" value={undefined} />
           <Picker.Item label="Low" value={1} />
           <Picker.Item label="Medium" value={2} />
           <Picker.Item label="High" value={3} />
         </Picker>
 
-        <Pressable style={globalStyles.button} title="Apply Filters" onPress={fetchTasks}>
-          <Text style={globalStyles.buttonText}> Apply Filters</Text>
+        <Pressable style={globalStyles.button} onPress={fetchTasks}>
+          <Text style={globalStyles.buttonText}>Apply Filters</Text>
         </Pressable>
-
       </View>
+
+      <AddTask
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onTaskCreated={(newTask) => {
+          setTasks([...tasks, newTask]);
+        }}
+      />
 
       {loading && tasks.length > 0 ? (
         <ActivityIndicator size="small" color="#0000ff" style={globalStyles.refreshIndicator} />
@@ -91,10 +155,25 @@ const TaskList = () => {
         keyExtractor={(item) => item.task_id.toString()}
         renderItem={({ item }) => (
           <View style={globalStyles.taskItem}>
-            <Text>{item.name}</Text>
+            <Text style={globalStyles.taskName}>{item.name}</Text>
+            <Text>Description: {item.description}</Text>
             <Text>Priority: {item.priority}</Text>
-            <Text>Status: {item.status_id}</Text>
-            <Text>Assigned to: {item.delegated_to}</Text>
+            <Text>Status: {getStatusName(item.status_id)}</Text>
+            <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
+            <Text>Created by: {getUsername(item.created_by)}</Text>
+            <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
+            {isAuthorized && (
+            <ManageTask
+              task={item}
+              onUpdate={(updatedTask) => {
+                setTasks(tasks.map(t => t.task_id === updatedTask.task_id ? updatedTask : t));
+              }}
+              onDelete={(taskId) => {
+                setTasks(tasks.filter(t => t.task_id !== taskId));
+              }}
+              isAdmin={role === 'Admin'}
+            />
+                )}
           </View>
         )}
         ListEmptyComponent={
@@ -108,6 +187,5 @@ const TaskList = () => {
     </View>
   );
 };
-
 
 export default TaskList;

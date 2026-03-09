@@ -5,6 +5,7 @@ from flask_cors import cross_origin
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Tag import Tag
+from backend_flask.src.db.ORM.Status import Status
 from backend_flask.src.db.database_manager import DatabaseManager
 
 
@@ -104,6 +105,52 @@ def create_task():
     return jsonify(new_task.to_dict()), 201
 
 
+@task_api.put("/update/<int:task_id>")
+@cross_origin()
+@jwt_required()
+def update_task(task_id):
+    try:
+        user_id = get_jwt_identity()
+        if not User.is_authorized(user_id):
+            return jsonify({"error": "Unauthorized"}), 403
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        data.pop('task_id', None)
+
+        if 'priority' in data and isinstance(data['priority'], str):
+            data['priority'] = int(data['priority'])
+
+        updated_task = Task.update(task_id, **data)
+        return jsonify(updated_task.to_dict()), 200
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        print("Unexpected error:", str(e))
+        return jsonify({"error": "Failed to update task"}), 500
+
+
+@task_api.delete("/delete/<int:task_id>")
+@cross_origin()
+@jwt_required()
+def delete_task(task_id):
+    user_id = get_jwt_identity()
+    if not User.is_authorized(user_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        Task.delete(task_id)
+        return jsonify({"message": "Task deleted successfully"})
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": "Failed to delete task"}), 500
+
+
+
 @task_api.get("/tags")
 @cross_origin()
 @jwt_required()
@@ -133,6 +180,14 @@ def create_tag():
 
     except Exception as e:
         return jsonify({"error": "Failed to create tag"}), 500
+
+
+@task_api.get("/status")
+@cross_origin()
+@jwt_required()
+def get_all_statuses():
+    statuses = Status.get_all()
+    return jsonify([status.to_dict() for status in statuses])
 
 
 @task_api.delete("/tags/<int:tag_id>")

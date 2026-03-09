@@ -58,17 +58,80 @@ export const getGlobalStyles = (colorScheme) => {
     position: 'relative',
     },
 
-    card: {
-      backgroundColor: colours.white,
-      borderRadius: 8,
-      padding: 15,
-      marginBottom: 15,
-      shadowColor: colours.black,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
+    modalContainer: {
+    paddingTop: 20,
+    backgroundColor: colours.background,
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    position: 'relative',
     },
+
+
+    taskActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+    },
+
+    editButton: {
+    backgroundColor: colours.secondary,
+    padding: 8,
+    borderRadius: 4,
+    marginRight: 8,
+    },
+
+  modalContent: {
+    backgroundColor: colorScheme === 'dark' ? '#333' : '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalButtonContainer:{
+    paddingTop: 20,
+    backgroundColor: colours.background,
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    position: 'relative',
+    },
+
+  confirmModal: {
+    position: 'absolute',
+    top: '40%',
+    left: '10%',
+    right: '10%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    zIndex: 1000,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+
+
+
+  card: {
+    backgroundColor: colours.white,
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: colours.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 
     //buttons
     button: {

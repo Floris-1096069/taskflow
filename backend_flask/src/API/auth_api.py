@@ -13,6 +13,7 @@ auth_api = Blueprint(
     url_prefix='/api/auth',
 )
 _db_manager = DatabaseManager()
+
 @auth_api.post("")
 @cross_origin()
 def login():

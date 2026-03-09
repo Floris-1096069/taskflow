@@ -18,7 +18,7 @@ class Task(Base):
     archived = Column(Boolean, default=False)
     priority = Column(Integer, nullable=False)
     status_id = Column(Integer, ForeignKey("status.status_id"), nullable=False)
-    delegated_to = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    delegated_to = Column(Integer, ForeignKey("users.user_id"), nullable=True)
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     updated_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
 
@@ -80,6 +80,33 @@ class Task(Base):
 
             return new_task
 
+    @classmethod
+    def delete(cls, task_id):
+        with cls._db_manager.get_db() as db:
+            task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
+            if not task:
+                raise ValueError("Task not found")
+
+            db.delete(task)
+            db.commit()
+
+    @classmethod
+    def update(cls, task_id, **kwargs):
+        with cls._db_manager.get_db() as db:
+            task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
+            if not task:
+                raise ValueError("Task not found")
+
+            for key, value in kwargs.items():
+                if hasattr(task, key):
+                    setattr(task, key, value)
+
+            task.update_time = datetime.now()
+
+            db.commit()
+            db.refresh(task)
+
+            return task
 
     def to_dict(self):
         return {

@@ -79,6 +79,30 @@ class DatabaseManager:
 
             db.commit()
 
+
+    def init_statuses(self):
+        from backend_flask.src.db.ORM.Status import Status
+        with self.get_db() as db:
+            existing_status_ids = {status.status_id for status in db.query(Status).all()}
+
+            statuses_to_create = [
+                {"status_id": 1, "name": "To Do"},
+                {"status_id": 2, "name": "In Progress"},
+                {"status_id": 3, "name": "Done"},
+                {"status_id": 4, "name": "Problem"},
+            ]
+
+            for status_data in statuses_to_create:
+                if status_data["status_id"] not in existing_status_ids:
+                    new_status = Status(status_id=status_data["status_id"], name=status_data["name"])
+                    db.add(new_status)
+                    print(f'Added new status: {new_status}')
+                else:
+                    print(f'Status {status_data} already in database')
+
+            db.commit()
+
+
     def ensure_admin_user(self):
         from backend_flask.src.db.ORM.User import User
         from backend_flask.src.db.ORM.Role import Role
@@ -107,7 +131,8 @@ class DatabaseManager:
     def create_all(self):
         Base.metadata.create_all(bind=self.engine)
         self.init_roles()
-        #self.ensure_admin_user()
+        self.init_statuses()
+        self.ensure_admin_user()
 
 
     def dispose(self):
