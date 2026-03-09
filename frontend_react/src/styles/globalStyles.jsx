@@ -49,6 +49,7 @@ export const getGlobalStyles = (colorScheme) => {
 
     //containers
     container: {
+    flex: 1,
     paddingTop: 20,
     backgroundColor: colours.background,
     width: '100%',
@@ -57,6 +58,8 @@ export const getGlobalStyles = (colorScheme) => {
     justifyContent: 'flex-start',
     position: 'relative',
     },
+
+
 
     modalContainer: {
     paddingTop: 20,
@@ -271,7 +274,7 @@ export const getGlobalStyles = (colorScheme) => {
     },
 
     tag: {
-      backgroundColor: '#e0e0e0',
+      backgroundColor: colours.white,
       padding: 5,
       borderRadius: 5,
       marginRight: 5,
