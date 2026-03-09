@@ -46,13 +46,18 @@ class Task(Base):
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
             query = db.query(cls).options(joinedload(cls.tags))
+
             if 'delegated_to' in filters:
                 query = query.filter(cls.delegated_to == filters['delegated_to'])
             if 'archived' in filters:
                 query = query.filter(cls.archived == filters['archived'])
             if 'priority' in filters:
                 query = query.filter(cls.priority == filters['priority'])
-            return query.all()
+            if 'tag_ids' in filters and filters['tag_ids']:
+                query = query.join(TaskTag, TaskTag.task_id == cls.task_id).filter(
+                    TaskTag.tag_id.in_(filters['tag_ids']))
+
+            return query.distinct().all()
 
     @classmethod
     def create(cls, name, description, priority, status_id, delegated_to, created_by, tag_ids=None):

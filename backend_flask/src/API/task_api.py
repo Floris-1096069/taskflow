@@ -20,28 +20,13 @@ _db_manager = DatabaseManager()
 @cross_origin()
 @jwt_required()
 def get_filtered_tasks():
-    user_id = get_jwt_identity()
-
-    if not User.is_authorized(user_id):
-        return jsonify({"error": "Unauthorized"}), 403
-
-    archived = request.args.get('archived', default=None, type=lambda v: v.lower() == 'true')
-    priority = request.args.get('priority', default=None, type=int)
-    delegated_to = request.args.get('delegated_to', default=None, type=int)
-    status_id = request.args.get('status_id', default=None, type=int)
-
-    filters = {}
-    if archived is not None:
-        filters['archived'] = archived
-    if priority is not None:
-        filters['priority'] = priority
-    if delegated_to is not None:
-        filters['delegated_to'] = delegated_to
-    if status_id is not None:
-        filters['status_id'] = status_id
-
-    tasks = Task.get_filtered(**filters)
-    return jsonify([task.to_dict() for task in tasks])
+    try:
+        filters = {key: request.args.getlist(key) if key == 'tag_ids' else request.args.get(key) for key in request.args}
+        tasks = Task.get_filtered(**filters)
+        return jsonify([task.to_dict() for task in tasks])
+    except Exception as e:
+        print(f"Error fetching tasks: {e}")
+        return jsonify({"error": "Failed to fetch tasks"}), 500
 
 
 @task_api.get("/getall")

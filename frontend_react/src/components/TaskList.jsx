@@ -4,6 +4,7 @@ import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
 import ManageTask from './ManageTask';
+import TagSelector from './TagSelector';
 
 const TaskList = ()=> {
   const [tasks, setTasks] = useState([]);
@@ -14,6 +15,7 @@ const TaskList = ()=> {
     priority: null,
     delegated_to: null,
     status_id: null,
+    tag_ids: [],
   });
   const [loading, setLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -28,24 +30,29 @@ const TaskList = ()=> {
   const isAuthorized = String(role) === '1' || String(role) === '2';
 
   const fetchTasks = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const query = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== null && value !== '') {
+  setLoading(true);
+  setError(null);
+  try {
+    const query = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== '' && value.length > 0) {
+        if (Array.isArray(value)) {
+          value.forEach(id => query.append(key, id));
+        } else {
           query.append(key, value);
         }
-      });
-      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
-      const data = await response.json();
-      setTasks(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+      }
+    });
+    const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
+    const data = await response.json();
+    setTasks(data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const fetchUsers = async () => {
     setUsersLoading(true);
@@ -132,10 +139,25 @@ const TaskList = ()=> {
           <Picker.Item label="Medium" value={2} />
           <Picker.Item label="High" value={3} />
         </Picker>
+        <TagSelector
+          selectedTagIds={filters.tag_ids}
+          onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
+        />
 
         <Pressable style={globalStyles.button} onPress={fetchTasks}>
           <Text style={globalStyles.buttonText}>Apply Filters</Text>
         </Pressable>
+        <Pressable
+          style={globalStyles.button}
+          onPress={() => setFilters({
+            archived: false,
+            priority: null,
+            delegated_to: null,
+            status_id: null,
+            tag_ids: [],
+          })}>
+  <Text style={globalStyles.buttonText}>Clear Filters</Text>
+</Pressable>
       </View>
 
       <AddTask
