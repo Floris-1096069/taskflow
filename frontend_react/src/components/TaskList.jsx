@@ -12,7 +12,7 @@ const TaskList = ()=> {
   const [statuses, setStatuses] = useState([]);
   const [filters, setFilters] = useState({
     archived: false,
-    priority: null,
+    priority: undefined,
     delegated_to: null,
     status_id: null,
     tag_ids: [],
@@ -35,14 +35,17 @@ const TaskList = ()=> {
   try {
     const query = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== null && value !== '' && value.length > 0) {
-        if (Array.isArray(value)) {
-          value.forEach(id => query.append(key, id));
-        } else {
-          query.append(key, value);
+      if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
+        if (key !== 'priority' || value !== undefined) {
+          if (Array.isArray(value)) {
+            value.forEach(id => query.append(key, id));
+          } else {
+            query.append(key, value);
+          }
         }
       }
     });
+    console.log(`Query string: ${query.toString()}`);
     const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
     const data = await response.json();
     setTasks(data);
@@ -52,7 +55,6 @@ const TaskList = ()=> {
     setLoading(false);
   }
 };
-
 
   const fetchUsers = async () => {
     setUsersLoading(true);
@@ -131,8 +133,11 @@ const TaskList = ()=> {
         </Pressable>
 
         <Picker
-          selectedValue={filters.priority !== null ? filters.priority : undefined}
-          onValueChange={(itemValue) => setFilters({ ...filters, priority: itemValue })}
+          selectedValue={filters.priority}
+          onValueChange={(itemValue) => {
+            const value = itemValue === "Any Priority" ? undefined : itemValue;
+            setFilters({ ...filters, priority: value });
+          }}
         >
           <Picker.Item label="Any Priority" value={undefined} />
           <Picker.Item label="Low" value={1} />

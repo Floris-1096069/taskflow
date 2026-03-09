@@ -47,12 +47,15 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             query = db.query(cls).options(joinedload(cls.tags))
 
-            if 'delegated_to' in filters:
+            if 'delegated_to' in filters and filters['delegated_to'] is not None:
                 query = query.filter(cls.delegated_to == filters['delegated_to'])
-            if 'archived' in filters:
+            if 'archived' in filters and filters['archived'] is not None:
                 query = query.filter(cls.archived == filters['archived'])
-            if 'priority' in filters:
-                query = query.filter(cls.priority == filters['priority'])
+            if 'priority' in filters and filters['priority'] is not None:
+                try:
+                    query = query.filter(cls.priority == int(filters['priority']))
+                except (ValueError, TypeError):
+                    pass
             if 'tag_ids' in filters and filters['tag_ids']:
                 query = query.join(TaskTag, TaskTag.task_id == cls.task_id).filter(
                     TaskTag.tag_id.in_(filters['tag_ids']))

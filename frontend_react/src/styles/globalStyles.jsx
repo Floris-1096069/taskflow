@@ -244,7 +244,13 @@ export const getGlobalStyles = (colorScheme) => {
       alignItems: 'center',
     },
 
-    taskItem: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+    taskItem: {
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colours.white,
+      backgroundColor: colours.secondary,
+    },
+
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     refreshIndicator: { marginVertical: 8 },
@@ -258,7 +264,7 @@ export const getGlobalStyles = (colorScheme) => {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: colours.white,
 },
 
     tagPickerContainer: {
