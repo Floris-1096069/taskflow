@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import {View, Text, TextInput, Pressable, useColorScheme} from 'react-native';
+import { View, Text, TextInput, Pressable, useColorScheme } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-
 import getGlobalStyles from '../styles/globalStyles';
 import Header from "../components/Header";
-import {useAuthContext} from "../context/AuthContext";
+import { useAuthContext } from "../context/AuthContext";
 
 const roles = [
   { id: 1, name: 'Admin' },
@@ -14,10 +13,10 @@ const roles = [
   { id: 5, name: 'Scanmedewerker' },
 ];
 
-
 export default function RegisterScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // Add confirm password state
   const [role, setRole] = useState('1');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -26,10 +25,14 @@ export default function RegisterScreen({ navigation }) {
   const globalStyles = getGlobalStyles(colorScheme);
   const { fetchWithAuth } = useAuthContext();
 
-
   const handleRegister = async () => {
-    if (!username || !password || !role) {
+    if (!username || !password || !confirmPassword || !role) {
       setErrorMessage('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match');
       return;
     }
 
@@ -68,9 +71,7 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={[globalStyles.webContainer]}>
-      <Header navigation={navigation}
-      showBackButton={true}
-      showAdminButton={false}/>
+      <Header navigation={navigation} showBackButton={true} showAdminButton={false} />
 
       <View>
         <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>
@@ -92,6 +93,17 @@ export default function RegisterScreen({ navigation }) {
           placeholder="Enter password"
           value={password}
           onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>
+          Confirm Password
+        </Text>
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Confirm password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
           secureTextEntry
         />
 
@@ -118,18 +130,18 @@ export default function RegisterScreen({ navigation }) {
             {isLoading ? 'Registering...' : 'Register'}
           </Text>
         </Pressable>
-          {errorMessage ? (
-        <Text style={globalStyles.errorText}>
-          {errorMessage}
-        </Text>
-      ) : null}
 
-      {successMessage ? (
-        <Text style={{ color: 'green', textAlign: 'center', marginBottom: 10 }}>
-          {successMessage}
-        </Text>
-      ) : null}
+        {errorMessage ? (
+          <Text style={globalStyles.errorText}>
+            {errorMessage}
+          </Text>
+        ) : null}
 
+        {successMessage ? (
+          <Text style={{ color: 'green', textAlign: 'center', marginBottom: 10 }}>
+            {successMessage}
+          </Text>
+        ) : null}
       </View>
     </View>
   );

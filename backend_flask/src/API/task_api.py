@@ -70,24 +70,21 @@ def get_tasks_by_delegated_user_id(delegated_id):
 @cross_origin()
 @jwt_required()
 def create_task():
-    user_id = get_jwt_identity()
-    data = request.get_json()
-    required_fields = ['name', 'priority', 'status_id', 'delegated_to']
-
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
-
-    new_task = Task.create(
-        name=data['name'],
-        description=data.get('description', ''),
-        priority=data['priority'],
-        status_id=data['status_id'],
-        delegated_to=data['delegated_to'],
-        created_by=user_id,
-        tag_ids=data.get('tag_ids', []),
-    )
-
-    return jsonify(new_task.to_dict()), 201
+    try:
+        data = request.get_json()
+        new_task = Task.create(
+            name=data['name'],
+            description=data.get('description', ''),
+            priority=data['priority'],
+            status_id=data['status_id'],
+            delegated_to=data.get('delegated_to'),
+            created_by=get_jwt_identity(),
+            tag_ids=data.get('tag_ids')
+        )
+        return jsonify(new_task.to_dict()), 201
+    except Exception as e:
+        print(f"Error creating task: {e}")
+        return jsonify({"error": "Failed to create task"}), 500
 
 
 @task_api.put("/update/<int:task_id>")
@@ -95,26 +92,13 @@ def create_task():
 @jwt_required()
 def update_task(task_id):
     try:
-        user_id = get_jwt_identity()
-        if not User.is_authorized(user_id):
-            return jsonify({"error": "Unauthorized"}), 403
-
         data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
-
-        data.pop('task_id', None)
-
-        if 'priority' in data and isinstance(data['priority'], str):
-            data['priority'] = int(data['priority'])
-
         updated_task = Task.update(task_id, **data)
         return jsonify(updated_task.to_dict()), 200
-
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:
-        print("Unexpected error:", str(e))
+        print(f"Error updating task: {e}")
         return jsonify({"error": "Failed to update task"}), 500
 
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, Alert } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
+import TagSelector from "./TagSelector";
 
 const ManageTask = ({ task, onUpdate, onDelete }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -17,15 +18,21 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
     return <Text>Task not found</Text>;
   }
 
+  const handleTagsSelected = (selectedTagIds) => {
+    setEditedTask({ ...editedTask, tag_ids: Array.isArray(selectedTagIds) ? selectedTagIds : [] });
+  };
+
   const handleUpdateTask = async () => {
     setIsUpdating(true);
     try {
+      const { tags, task_id, ...taskData } = editedTask;
+      console.log("Sending tag_ids:", taskData.tag_ids);
       const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/update/${editedTask.task_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editedTask),
+        body: JSON.stringify(taskData),
       });
       if (!response.ok) throw new Error('Failed to update task');
       const updatedTask = await response.json();
@@ -65,7 +72,10 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
       <Pressable
         style={globalStyles.button}
         onPress={() => {
-          setEditedTask({ ...task });
+          setEditedTask({
+            ...task,
+            tag_ids: Array.isArray(task.tag_ids) ? task.tag_ids : [],
+          });
           setModalVisible(true);
         }}
       >
@@ -101,6 +111,22 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
               <Picker.Item label="Medium" value={2} />
               <Picker.Item label="High" value={3} />
             </Picker>
+
+            {/* Status Picker */}
+            <Picker
+              selectedValue={editedTask.status_id}
+              onValueChange={(itemValue) => setEditedTask({ ...editedTask, status_id: itemValue })}
+            >
+              <Picker.Item label="Todo" value={1} />
+              <Picker.Item label="In Progress" value={2} />
+              <Picker.Item label="Done" value={3} />
+            </Picker>
+
+            <TagSelector
+              selectedTagIds={editedTask.tag_ids || []}
+              onTagsSelected={handleTagsSelected}
+            />
+
             <View style={globalStyles.modalButtonContainer}>
               {!showDeleteConfirm ? (
                 <>

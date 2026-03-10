@@ -6,7 +6,7 @@ import AddTask from './AddTask';
 import ManageTask from './ManageTask';
 import TagSelector from './TagSelector';
 
-const TaskList = ()=> {
+const TaskList = () => {
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [statuses, setStatuses] = useState([]);
@@ -30,31 +30,31 @@ const TaskList = ()=> {
   const isAuthorized = String(role) === '1' || String(role) === '2';
 
   const fetchTasks = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const query = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
-        if (key !== 'priority' || value !== undefined) {
-          if (Array.isArray(value)) {
-            value.forEach(id => query.append(key, id));
-          } else {
-            query.append(key, value);
+    setLoading(true);
+    setError(null);
+    try {
+      const query = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
+          if (key !== 'priority' || value !== undefined) {
+            if (Array.isArray(value)) {
+              value.forEach(id => query.append(key, id));
+            } else {
+              query.append(key, value);
+            }
           }
         }
-      }
-    });
-    console.log(`Query string: ${query.toString()}`);
-    const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
-    const data = await response.json();
-    setTasks(data);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      });
+      console.log(`Query string: ${query.toString()}`);
+      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
+      const data = await response.json();
+      setTasks(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchUsers = async () => {
     setUsersLoading(true);
@@ -161,15 +161,15 @@ const TaskList = ()=> {
             status_id: null,
             tag_ids: [],
           })}>
-  <Text style={globalStyles.buttonText}>Clear Filters</Text>
-</Pressable>
+          <Text style={globalStyles.buttonText}>Clear Filters</Text>
+        </Pressable>
       </View>
 
       <AddTask
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onTaskCreated={(newTask) => {
-          setTasks([...tasks, newTask]);
+        onTaskCreated={() => {
+          fetchTasks(); // Refetch tasks to ensure the latest data
         }}
       />
 
@@ -190,29 +190,30 @@ const TaskList = ()=> {
             <Text>Created by: {getUsername(item.created_by)}</Text>
             <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
             <View style={globalStyles.tagsContainer}>
-            <Text>Tags: </Text>
+              <Text>Tags: </Text>
               {item.tags && item.tags.length > 0 ? (
                 item.tags.map((tag) => (
-              <View key={tag.tag_id} style={globalStyles.tag}>
-                <Text>{tag.name}</Text>
-              </View>
-          ))
-        ) : (
-          <Text>No tags</Text>
-        )}
-      </View>
+                  <View key={tag.tag_id} style={globalStyles.tag}>
+                    <Text>{tag.name}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text>No tags</Text>
+              )}
+            </View>
             {isAuthorized && (
-            <ManageTask
-              task={item}
-              onUpdate={(updatedTask) => {
-                setTasks(tasks.map(t => t.task_id === updatedTask.task_id ? updatedTask : t));
-              }}
-              onDelete={(taskId) => {
-                setTasks(tasks.filter(t => t.task_id !== taskId));
-              }}
-              isAdmin={role === 'Admin'}
-            />
-                )}
+              <ManageTask
+                task={item}
+                onUpdate={() => {
+                  fetchTasks(); // Refetch tasks to ensure the latest data
+                }}
+                onDelete={(taskId) => {
+                  setTasks(tasks.filter(t => t.task_id !== taskId));
+                  fetchTasks(); // Refetch tasks to ensure the latest data
+                }}
+                isAdmin={role === 'Admin'}
+              />
+            )}
           </View>
         )}
         ListEmptyComponent={

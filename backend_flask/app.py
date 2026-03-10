@@ -5,6 +5,8 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from jwt import InsecureKeyLengthWarning
+from datetime import timedelta
+
 
 from backend_flask.src.API.auth_api import auth_api
 from backend_flask.src.API.task_api import task_api
@@ -27,6 +29,7 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'secret')
     app.config['FRONTEND_URL'] = frontend_url
     warnings.filterwarnings("ignore", category=InsecureKeyLengthWarning)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 
     #CORS configuration
     #SET UP ORIGINS FROM ENV IN PROD!

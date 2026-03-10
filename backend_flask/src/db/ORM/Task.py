@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, joinedload
 from backend_flask.src.db.base import Base
 from backend_flask.src.db.database_manager import DatabaseManager
 from backend_flask.src.db.ORM.TaskTag import TaskTag
+from backend_flask.src.db.ORM.Tag import Tag
 
 
 class Task(Base):
@@ -41,6 +42,7 @@ class Task(Base):
     def get_by_delegated_to(cls, user_id: int):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(joinedload(cls.tags)).filter(cls.delegated_to == user_id).all()
+
 
     @classmethod
     def get_filtered(cls, **filters):
@@ -80,12 +82,14 @@ class Task(Base):
 
             if tag_ids:
                 for tag_id in tag_ids:
-                    task_tag = TaskTag(task_id=new_task.task_id, tag_id=tag_id)
-                    db.add(task_tag)
+                    tag = db.query(Tag).get(tag_id)
+                    if tag:
+                        new_task.tags.append(tag)
                 db.commit()
                 db.refresh(new_task)
 
             return new_task
+
 
     @classmethod
     def delete(cls, task_id):
@@ -104,35 +108,72 @@ class Task(Base):
             if not task:
                 raise ValueError("Task not found")
 
+            # Update task fields (excluding tags)
             for key, value in kwargs.items():
-                if hasattr(task, key):
+                if hasattr(task, key) and key != 'tag_ids':
                     setattr(task, key, value)
 
-            task.update_time = datetime.now()
+            # Handle tag updates if tag_ids is provided
+            if 'tag_ids' in kwargs:
+                new_tag_ids = kwargs['tag_ids']
+                if not isinstance(new_tag_ids, list):
+                    new_tag_ids = [new_tag_ids]
+                new_tag_ids = [int(tag_id) for tag_id in new_tag_ids if str(tag_id).isdigit()]
 
+                # Clear all tags if new_tag_ids is empty
+                if not new_tag_ids:
+                    task.tags = []
+                else:
+                    # Get the current tag IDs
+                    current_tag_ids = {tag.tag_id for tag in task.tags}
+                    # Remove tags not in the new list
+                    for tag in task.tags[:]:
+                        if tag.tag_id not in new_tag_ids:
+                            task.tags.remove(tag)
+                    # Add new tags
+                    for tag_id in new_tag_ids:
+                        if tag_id not in current_tag_ids:
+                            tag = db.query(Tag).get(tag_id)
+                            if tag:
+                                task.tags.append(tag)
+
+            task.update_time = datetime.now()
             db.commit()
             db.refresh(task)
-
             return task
 
     def to_dict(self):
         try:
-            tags = [tag.to_dict() for tag in self.tags] if hasattr(self, 'tags') and self.tags else []
+            tags = [tag.to_dict() for tag in self.tags] if self.tags else []
+            return {
+                "task_id": self.task_id,
+                "name": self.name,
+                "description": self.description,
+                "creation_time": self.creation_time.isoformat(),
+                "update_time": self.update_time.isoformat(),
+                "archived": self.archived,
+                "priority": self.priority,
+                "status_id": self.status_id,
+                "delegated_to": self.delegated_to,
+                "created_by": self.created_by,
+                "updated_by": self.updated_by,
+                "tags": tags,
+                "tag_ids": [tag.tag_id for tag in self.tags] if self.tags else [],
+            }
         except Exception as e:
-            print(f"Error serializing tags: {e}")
-            tags = []
-
-        return {
-            "task_id": self.task_id,
-            "name": self.name,
-            "description": self.description,
-            "creation_time": self.creation_time.isoformat(),
-            "update_time": self.update_time.isoformat(),
-            "archived": self.archived,
-            "priority": self.priority,
-            "status_id": self.status_id,
-            "delegated_to": self.delegated_to,
-            "created_by": self.created_by,
-            "updated_by": self.updated_by,
-            "tags": tags,
-        }
+            print(f"Error serializing task: {e}")
+            return {
+                "task_id": self.task_id,
+                "name": self.name,
+                "description": self.description,
+                "creation_time": self.creation_time.isoformat(),
+                "update_time": self.update_time.isoformat(),
+                "archived": self.archived,
+                "priority": self.priority,
+                "status_id": self.status_id,
+                "delegated_to": self.delegated_to,
+                "created_by": self.created_by,
+                "updated_by": self.updated_by,
+                "tags": [],
+                "tag_ids": [],
+            }

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './context/AuthContext';
+import {TagProvider} from './context/TagContext';
 
 
 export default function App() {
@@ -17,7 +18,9 @@ export default function App() {
 
   return (
       <AuthProvider>
-        <AppNavigator />
+        <TagProvider>
+          <AppNavigator/>
+        </TagProvider>
       </AuthProvider>
   );
 }

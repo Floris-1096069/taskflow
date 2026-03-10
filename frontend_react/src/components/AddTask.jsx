@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, ActivityIndicator } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
@@ -9,14 +9,33 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
     name: '',
     description: '',
     priority: 1,
-    status_id: 1,
+    status_id: 1, // Default to "Todo"
     delegated_to: null,
-    tag_ids:[],
+    tag_ids: [],
   });
-
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const { fetchWithAuth } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    if (visible) {
+      fetchUsers();
+    }
+  }, [visible]);
 
   const handleCreateTask = async () => {
     try {
@@ -34,7 +53,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
         name: '',
         description: '',
         priority: 1,
-        status_id: 1,
+        status_id: 1, // Reset to "Todo"
         delegated_to: null,
         tag_ids: [],
       });
@@ -75,27 +94,29 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
             <Picker.Item label="Medium" value={2} />
             <Picker.Item label="High" value={3} />
           </Picker>
-          <Picker
-            selectedValue={newTask.status_id}
-            onValueChange={(itemValue) => setNewTask({...newTask, status_id: itemValue})}
-          >
-            <Picker.Item label="Todo" value={1} />
-            <Picker.Item label="In Progress" value={2} />
-            <Picker.Item label="Done" value={3} />
-          </Picker>
-          <TextInput
-            style={globalStyles.input}
-            placeholder="Assigned To (User ID)"
-            value={newTask.delegated_to}
-            onChangeText={(text) => setNewTask({...newTask, delegated_to: text})}
-            keyboardType="numeric"
-          />
+
+          {loadingUsers ? (
+            <ActivityIndicator size="small" />
+          ) : (
+            <Picker
+              selectedValue={newTask.delegated_to}
+              onValueChange={(itemValue) => setNewTask({...newTask, delegated_to: itemValue})}
+            >
+              <Picker.Item label="Unassigned" value={null} />
+              {users.map((user) => (
+                <Picker.Item
+                  key={user.user_id}
+                  label={user.username}
+                  value={user.user_id}
+                />
+              ))}
+            </Picker>
+          )}
 
           <TagSelector
             selectedTagIds={newTask.tag_ids}
             onTagsSelected={(tagIds) => setNewTask({...newTask, tag_ids: tagIds})}
           />
-
 
           <Pressable
             style={globalStyles.button}
