@@ -39,6 +39,9 @@ const TagSelector = ({ selectedTagIds, onTagsSelected }) => {
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={globalStyles.tagItem}>No tags</Text>
+        }
       />
     </View>
   );
