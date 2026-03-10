@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
-
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
@@ -20,7 +19,7 @@ const TaskList = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { fetchWithAuth, getRole } = useAuthContext();
+  const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
   const [modalVisible, setModalVisible] = useState(false);
@@ -142,8 +141,8 @@ const TaskList = () => {
             onValueChange={(itemValue) => {
               const value = itemValue === "Any Priority" ? undefined : itemValue;
               setFilters({ ...filters, priority: value });
-            }}>
-
+            }}
+          >
             <Picker.Item label="Any Priority" value={undefined} />
             <Picker.Item label="Low" value={1} />
             <Picker.Item label="Medium" value={2} />
@@ -166,7 +165,8 @@ const TaskList = () => {
             delegated_to: null,
             status_id: null,
             tag_ids: [],
-          })}>
+          })}
+        >
           <Text style={globalStyles.buttonText}>Clear Filters</Text>
         </Pressable>
       </View>
@@ -186,42 +186,48 @@ const TaskList = () => {
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.task_id.toString()}
-        renderItem={({ item }) => (
-          <View style={globalStyles.taskItem}>
-            <Text style={globalStyles.taskName}>{item.name}</Text>
-            <Text>Description: {item.description}</Text>
-            <Text>Priority: {item.priority}</Text>
-            <Text>Status: {getStatusName(item.status_id)}</Text>
-            <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
-            <Text>Created by: {getUsername(item.created_by)}</Text>
-            <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
-            <View style={globalStyles.tagsContainer}>
-              <Text>Tags: </Text>
-              {item.tags && item.tags.length > 0 ? (
-                item.tags.map((tag) => (
-                  <View key={tag.tag_id} style={globalStyles.tag}>
-                    <Text>{tag.name}</Text>
-                  </View>
-                ))
-              ) : (
-                <Text>No tags</Text>
+        renderItem={({ item }) => {
+          // Check if the current user is the task creator
+          const taskCreatorId = typeof item.created_by === 'object' ? item.created_by.user_id : item.created_by;
+          const isTaskCreator = String(taskCreatorId) === String(user_id);
+          const canManageTask = isAuthorized || isTaskCreator; // Show Manage button if authorized or task creator
+
+          return (
+            <View style={globalStyles.taskItem}>
+              <Text style={globalStyles.taskName}>{item.name}</Text>
+              <Text>Description: {item.description}</Text>
+              <Text>Priority: {item.priority}</Text>
+              <Text>Status: {getStatusName(item.status_id)}</Text>
+              <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
+              <Text>Created by: {getUsername(item.created_by)}</Text>
+              <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
+              <View style={globalStyles.tagsContainer}>
+                <Text>Tags: </Text>
+                {item.tags && item.tags.length > 0 ? (
+                  item.tags.map((tag) => (
+                    <View key={tag.tag_id} style={globalStyles.tag}>
+                      <Text>{tag.name}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text>No tags</Text>
+                )}
+              </View>
+              {canManageTask && ( // Render ManageTask if user is authorized or task creator
+                <ManageTask
+                  task={item}
+                  onUpdate={() => {
+                    fetchTasks();
+                  }}
+                  onDelete={(taskId) => {
+                    setTasks(tasks.filter(t => t.task_id !== taskId));
+                    fetchTasks();
+                  }}
+                />
               )}
             </View>
-            {isAuthorized && (
-              <ManageTask
-                task={item}
-                onUpdate={() => {
-                  fetchTasks(); // Refetch tasks to ensure the latest data
-                }}
-                onDelete={(taskId) => {
-                  setTasks(tasks.filter(t => t.task_id !== taskId));
-                  fetchTasks(); // Refetch tasks to ensure the latest data
-                }}
-                isAdmin={role === 'Admin'}
-              />
-            )}
-          </View>
-        )}
+          );
+        }}
         ListEmptyComponent={
           !loading ? (
             <View style={globalStyles.emptyContainer}>

@@ -6,12 +6,12 @@ const AuthContext = createContext();
 
 export const useAuthContext = () => useContext(AuthContext);
 
-
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(null);
   const [username, setUsername] = useState(null);
+  const [user_id, setUserId] = useState(null);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -22,9 +22,16 @@ export const AuthProvider = ({ children }) => {
           setIsLoggedIn(true);
           try {
             const decodedToken = jwtDecode(token);
+            console.log('Decoded token:', decodedToken); // Log the decoded token for debugging
             setUsername(decodedToken.username || decodedToken.sub);
+            setUserId(decodedToken.user_id || decodedToken.sub);
+            console.log('User ID set to:', decodedToken.user_id || decodedToken.sub);// Use user_id or sub as fallback
           } catch (error) {
             console.error('Failed to decode token:', error);
+
+            await AsyncStorage.removeItem('token');
+            setToken(null);
+            setIsLoggedIn(false);
           }
         }
       } catch (error) {
@@ -40,7 +47,6 @@ export const AuthProvider = ({ children }) => {
     if (!token) return null;
     try {
       const decodedToken = jwtDecode(token);
-      console.log(decodedToken.role);
       return decodedToken.role;
     } catch (error) {
       console.error('Failed to decode token:', error);
@@ -68,8 +74,13 @@ export const AuthProvider = ({ children }) => {
       try {
         const decodedToken = jwtDecode(newToken);
         setUsername(decodedToken.username || decodedToken.sub);
+        setUserId(decodedToken.user_id || decodedToken.sub); // Use user_id or sub as fallback
       } catch (error) {
         console.error('Failed to decode token:', error);
+        // Clear invalid token
+        await AsyncStorage.removeItem('token');
+        setToken(null);
+        setIsLoggedIn(false);
       }
     } catch (error) {
       console.error('Failed to save token:', error);
@@ -82,6 +93,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setIsLoggedIn(false);
       setUsername(null);
+      setUserId(null);
       if (navigation) {
         navigation.reset({
           index: 0,
@@ -98,6 +110,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     token,
     username,
+    user_id,
     getRole,
     login,
     logout,
