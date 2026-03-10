@@ -286,6 +286,20 @@ export const getGlobalStyles = (colorScheme) => {
       color: colours.text,
     },
 
+    filterRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    filterLabel: {
+      marginRight: 8,
+      fontSize: 16,
+    },
+    picker: {
+      flex: 1,
+      maxWidth: 200, // Adjust as needed
+    },
+
     //taglist styling
     tagItem: {
     flexDirection: 'row',

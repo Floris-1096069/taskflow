@@ -24,6 +24,8 @@ const TaskList = () => {
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
   const [modalVisible, setModalVisible] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [statusesLoading, setStatusesLoading] = useState(false);
 
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
@@ -132,19 +134,22 @@ const TaskList = () => {
         >
           <Text style={globalStyles.buttonText}>Create New Task</Text>
         </Pressable>
+        <View style={globalStyles.filterRow}>
+          <Text style={globalStyles.filterLabel}>Filter Priorities:</Text>
+          <Picker
+            style={globalStyles.picker}
+            selectedValue={filters.priority}
+            onValueChange={(itemValue) => {
+              const value = itemValue === "Any Priority" ? undefined : itemValue;
+              setFilters({ ...filters, priority: value });
+            }}>
 
-        <Picker
-          selectedValue={filters.priority}
-          onValueChange={(itemValue) => {
-            const value = itemValue === "Any Priority" ? undefined : itemValue;
-            setFilters({ ...filters, priority: value });
-          }}
-        >
-          <Picker.Item label="Any Priority" value={undefined} />
-          <Picker.Item label="Low" value={1} />
-          <Picker.Item label="Medium" value={2} />
-          <Picker.Item label="High" value={3} />
-        </Picker>
+            <Picker.Item label="Any Priority" value={undefined} />
+            <Picker.Item label="Low" value={1} />
+            <Picker.Item label="Medium" value={2} />
+            <Picker.Item label="High" value={3} />
+          </Picker>
+        </View>
         <TagSelector
           selectedTagIds={filters.tag_ids}
           onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
@@ -170,7 +175,7 @@ const TaskList = () => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onTaskCreated={() => {
-          fetchTasks(); // Refetch tasks to ensure the latest data
+          fetchTasks();
         }}
       />
 
