@@ -34,11 +34,10 @@ class User(Base):
             print(f"Error fetching role for user {user_id}: {e}")
             return None
 
-
     @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).all()
+            return db.query(cls).options(joinedload(cls.role)).all()
 
 
     @classmethod
@@ -46,20 +45,14 @@ class User(Base):
         role = cls.get_role(user_id)
         return role in {RoleEnum.ADMIN.value, RoleEnum.TEAMLEIDER.value}
 
-
     @classmethod
     def get_user(cls, user_id: int = None, username: str = ""):
         with cls._db_manager.get_db() as db:
-            query = db.query(cls)
-
+            query = db.query(cls).options(joinedload(cls.role))  # Eager load role
             if user_id is not None:
-                user = query.options(joinedload(cls.role)).filter_by(user_id=user_id).one_or_none()
-                return user
-
+                return query.filter_by(user_id=user_id).one_or_none()
             elif username != "":
-                user = query.options(joinedload(cls.role)).filter_by(username=username).one_or_none()
-                return user
-
+                return query.filter_by(username=username).one_or_none()
             else:
                 return None
 
@@ -101,4 +94,5 @@ class User(Base):
             "user_id": self.user_id,
             "username": self.username,
             "role_id": self.role_id,
+            "role_name": self.role.name if self.role else None  # Access the role name via the relationship
         }

@@ -3,13 +3,14 @@ import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, Activi
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
+import UserPicker from "./UserPicker";
 
 const AddTask = ({ visible, onClose, onTaskCreated }) => {
   const [newTask, setNewTask] = useState({
     name: '',
     description: '',
     priority: 1,
-    status_id: 1, // Default to "Todo"
+    status_id: 1,
     delegated_to: null,
     tag_ids: [],
   });
@@ -98,19 +99,11 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
           {loadingUsers ? (
             <ActivityIndicator size="small" />
           ) : (
-            <Picker
-              selectedValue={newTask.delegated_to}
-              onValueChange={(itemValue) => setNewTask({...newTask, delegated_to: itemValue})}
-            >
-              <Picker.Item label="Unassigned" value={null} />
-              {users.map((user) => (
-                <Picker.Item
-                  key={user.user_id}
-                  label={user.username}
-                  value={user.user_id}
-                />
-              ))}
-            </Picker>
+            <UserPicker
+              users={users}
+              onUserSelect={(userId) => setNewTask({ ...newTask, delegated_to: userId })}
+              selectedUserId={newTask.delegated_to}
+            />
           )}
 
           <TagSelector

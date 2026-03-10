@@ -256,6 +256,36 @@ export const getGlobalStyles = (colorScheme) => {
     refreshIndicator: { marginVertical: 8 },
     emptyContainer: { padding: 16, alignItems: 'center' },
 
+    userPickerContainer: {
+      marginBottom: 10,
+    },
+    userPickerInput: {
+      borderWidth: 1,
+      borderColor: colours.border,
+      borderRadius: 4,
+      padding: 10,
+      marginBottom: 5,
+      color: colours.text,
+      backgroundColor: colours.white,
+    },
+    userPickerList: {
+      maxHeight: 150,
+      borderWidth: 1,
+      borderColor: colours.border,
+      borderRadius: 4,
+    },
+    userPickerItem: {
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: colours.border,
+    },
+    userPickerItemSelected: {
+      backgroundColor: colours.primary,
+    },
+    userPickerItemText: {
+      color: colours.text,
+    },
+
     //taglist styling
     tagItem: {
     flexDirection: 'row',
