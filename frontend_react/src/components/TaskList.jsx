@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
+
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
@@ -18,8 +19,6 @@ const TaskList = () => {
     tag_ids: [],
   });
   const [loading, setLoading] = useState(false);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [statusesLoading, setStatusesLoading] = useState(false);
   const [error, setError] = useState(null);
   const { fetchWithAuth, getRole } = useAuthContext();
   const colorScheme = useColorScheme();
@@ -45,12 +44,14 @@ const TaskList = () => {
           }
         }
       });
-      console.log(`Query string: ${query.toString()}`);
+
       const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
       const data = await response.json();
       setTasks(data);
+
     } catch (err) {
       setError(err.message);
+
     } finally {
       setLoading(false);
     }

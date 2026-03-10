@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, ActivityIndicator } from 'react-native';
+
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
@@ -23,12 +24,15 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       setLoadingUsers(true);
+
       try {
         const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
         const data = await response.json();
         setUsers(data);
+
       } catch (error) {
         console.error('Error fetching users:', error);
+
       } finally {
         setLoadingUsers(false);
       }
@@ -47,6 +51,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
         },
         body: JSON.stringify(newTask),
       });
+
       if (!response.ok) throw new Error('Failed to create task');
       const createdTask = await response.json();
       onTaskCreated(createdTask);
@@ -59,6 +64,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
         tag_ids: [],
       });
       onClose();
+
     } catch (error) {
       console.error('Error creating task:', error);
       alert(error.message);
@@ -70,31 +76,33 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
       animationType="slide"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}
-    >
+      onRequestClose={onClose}>
+
       <View style={globalStyles.modalContainer}>
         <View style={globalStyles.container}>
           <Text style={globalStyles.title}>Create New Task</Text>
-          <TextInput
-            style={globalStyles.input}
-            placeholder="Task Name"
-            value={newTask.name}
-            onChangeText={(text) => setNewTask({...newTask, name: text})}
-          />
-          <TextInput
-            style={globalStyles.input}
-            placeholder="Description"
-            value={newTask.description}
-            onChangeText={(text) => setNewTask({...newTask, description: text})}
-          />
-          <Picker
-            selectedValue={newTask.priority}
-            onValueChange={(itemValue) => setNewTask({...newTask, priority: itemValue})}
-          >
-            <Picker.Item label="Low" value={1} />
-            <Picker.Item label="Medium" value={2} />
-            <Picker.Item label="High" value={3} />
-          </Picker>
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Task Name"
+              value={newTask.name}
+              onChangeText={(text) => setNewTask({...newTask, name: text})}
+            />
+
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Description"
+              value={newTask.description}
+              onChangeText={(text) => setNewTask({...newTask, description: text})}
+            />
+
+            <Picker
+              selectedValue={newTask.priority}
+              onValueChange={(itemValue) => setNewTask({...newTask, priority: itemValue})}>
+
+              <Picker.Item label="Low" value={1} />
+              <Picker.Item label="Medium" value={2} />
+              <Picker.Item label="High" value={3} />
+            </Picker>
 
           {loadingUsers ? (
             <ActivityIndicator size="small" />
@@ -113,9 +121,10 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
 
           <Pressable
             style={globalStyles.button}
-            onPress={handleCreateTask}
-          >
+            onPress={handleCreateTask}>
+
             <Text style={globalStyles.buttonText}>Create Task</Text>
+
           </Pressable>
           <Pressable
             style={globalStyles.button}

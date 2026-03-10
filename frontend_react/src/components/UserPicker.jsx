@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, useColorScheme } from 'react-native';
+
 import { useAuthContext } from "../context/AuthContext";
 import getGlobalStyles from '../styles/globalStyles';
 
@@ -14,11 +15,12 @@ const UserPicker = ({ onUserSelect, selectedUserId }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
+
       try {
         const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
         const data = await response.json();
         setUsers(data);
-        console.log('Fetched users:', data);
+
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
@@ -41,13 +43,16 @@ const UserPicker = ({ onUserSelect, selectedUserId }) => {
         onChangeText={setSearchQuery}
         style={globalStyles.userPickerInput}
       />
+
       {loading ? (
-        <ActivityIndicator />
+        <ActivityIndicator/>
+
       ) : (
         <FlatList
           data={filteredUsers}
           keyExtractor={(item) => item.user_id.toString()}
           renderItem={({ item }) => (
+
             <TouchableOpacity
               onPress={() => onUserSelect(item.user_id)}
               style={[
@@ -55,9 +60,11 @@ const UserPicker = ({ onUserSelect, selectedUserId }) => {
                 selectedUserId === item.user_id && globalStyles.userPickerItemSelected,
               ]}
             >
+
               <Text style={globalStyles.userPickerItemText}>
                 {item.name || item.username} ({item.role_name || 'No role'})
               </Text>
+
             </TouchableOpacity>
           )}
           style={globalStyles.userPickerList}
