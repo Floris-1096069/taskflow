@@ -27,7 +27,7 @@ const Header = ({ navigation, showBackButton = false, showAdminButton = true }) 
         onPress={() => navigation.goBack()}
         style={globalStyles.backButton}
       >
-        <Text style={globalStyles.backButtonText}>← Back</Text>
+        <Text style={globalStyles.backButtonText}>← Back  |</Text>
       </TouchableOpacity>
     )}
 
