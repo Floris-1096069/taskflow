@@ -28,7 +28,7 @@ export const getGlobalStyles = (colorScheme) => {
   const colours = colorScheme === 'dark' ? lightColors : darkColors;
 
   return StyleSheet.create({
-    //text styles
+//text styles
     title: {
       fontSize: 24,
       fontWeight: 'bold',
@@ -47,13 +47,102 @@ export const getGlobalStyles = (colorScheme) => {
       lineHeight: 24,
     },
 
-    //containers
-    container: {
-    flex: 1,
-    backgroundColor: colours.background,
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginBottom: 10,
     },
 
+    buttonText: {
+      color: colours.white,
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
 
+    errorText: {
+      color: colours.error,
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: 5,
+    },
+
+    deleteButtonText: {
+      color: colours.white,
+    },
+
+    headerTitle: {
+      fontWeight: 'bold',
+      color: colours.text,
+      flex: 1,
+      textAlign: 'center',
+    },
+
+    backButtonText: {
+      color: colours.text,
+      fontSize: 16,
+    },
+
+    logoutButtonText: {
+      color: colours.text,
+      fontSize: 16,
+    },
+
+    registerButtonText: {
+      color: colours.text,
+      fontSize: 16,
+    },
+
+    userPickerItemText: {
+      color: colours.text,
+    },
+
+  //containers
+    container: {
+      flex: 1,
+      backgroundColor: colours.background,
+    },
+
+    headerContainer: {
+      backgroundColor: colours.background,
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      paddingHorizontal: 10,
+    },
+
+    headerButtonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+
+    filterContainer: {
+      width: '100%',
+      padding: 10,
+      backgroundColor: colours.background,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+
+    tagPickerContainer: {
+      marginBottom: 10,
+    },
+
+    tagsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      marginTop: 5,
+    },
+
+    filterRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
 
     modalContainer: {
     paddingTop: 20,
@@ -65,31 +154,24 @@ export const getGlobalStyles = (colorScheme) => {
     position: 'relative',
     },
 
-
     taskActionsContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: 8,
     },
 
-    editButton: {
-    backgroundColor: colours.secondary,
-    padding: 8,
-    borderRadius: 4,
-    marginRight: 8,
+    emptyContainer: {
+      padding: 16,
+      alignItems: 'center'
     },
 
   modalContent: {
-    backgroundColor: colorScheme === 'dark' ? '#333' : '#fff',
+    backgroundColor: colours.background,
     padding: 20,
     borderRadius: 10,
     width: '80%',
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
+
   modalButtonContainer:{
     paddingTop: 20,
     backgroundColor: colours.background,
@@ -116,8 +198,6 @@ export const getGlobalStyles = (colorScheme) => {
     shadowRadius: 4,
   },
 
-
-
   card: {
     backgroundColor: colours.white,
     borderRadius: 8,
@@ -130,178 +210,128 @@ export const getGlobalStyles = (colorScheme) => {
     elevation: 2,
   },
 
-    //buttons
-    button: {
-      backgroundColor: colours.primary,
-      width: 200,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 4,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginVertical: 4,
-    },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
 
-    buttonText: {
-      color: colours.white,
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
 
-    errorText: {
-      color: colours.error,
-      fontSize: 16,
-      textAlign: 'center',
-      marginBottom: 5,
-    },
+  userPickerContainer: {
+    marginBottom: 10,
+  },
 
-    deleteButton: {
-      backgroundColor: colours.error,
-      paddingVertical: 4,
-      paddingHorizontal: 8,
-      borderRadius: 4,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginLeft: 8,
-    },
+//buttons
+  button: {
+    backgroundColor: colours.primary,
+    width: 200,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 4,
+  },
 
-    deleteButtonText: {
-      color: colours.white,
-    },
+  deleteButton: {
+    backgroundColor: colours.error,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
 
-    //input fields
-    input: {
-      marginVertical: 7,
-      borderWidth: 1,
-      borderColor: colours.border,
-      borderRadius: 5,
-      paddingVertical: 7,
-      paddingHorizontal: 7,
-      backgroundColor: colours.white,
-      alignSelf: 'center',
-      width: '90%',
-    },
+  backButton: {
+    padding: 5,
+    marginRight: 10,
+  },
 
-    //header styling
-    headerContainer: {
-      backgroundColor: colours.background,
-      width: '100%',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      paddingHorizontal: 10,
-    },
+  logoutButton: {
+    padding: 1,
+  },
 
-    headerButtonContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-    },
-
-    headerTitle: {
-      fontWeight: 'bold',
-      color: colours.text,
-      flex: 1,
-      textAlign: 'center',
-    },
-
-    backButton: {
-      padding: 5,
-      marginRight: 10,
-    },
-
-    backButtonText: {
-      color: colours.text,
-      fontSize: 16,
-    },
-
-    logoutButton: {
+  registerButton: {
       padding: 1,
-    },
+  },
 
-    logoutButtonText: {
-      color: colours.text,
-      fontSize: 16,
-    },
+  editButton: {
+    backgroundColor: colours.secondary,
+    padding: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
 
-    registerButton: {
-      padding: 1,
-    },
+//input fields
+  input: {
+    marginVertical: 7,
+    borderWidth: 1,
+    borderColor: colours.border,
+    borderRadius: 5,
+    paddingVertical: 7,
+    paddingHorizontal: 7,
+    backgroundColor: colours.white,
+    alignSelf: 'center',
+    width: '90%',
+  },
 
-    registerButtonText: {
-      color: colours.text,
-      fontSize: 16,
-    },
+  userPickerInput: {
+    borderWidth: 1,
+    borderColor: colours.border,
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 5,
+    color: colours.text,
+    backgroundColor: colours.white,
+  },
 
-    //tasklist styles
-    filterContainer: {
-      width: '100%',
-      padding: 10,
-      backgroundColor: colours.background,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
+//tasklist styles
+  taskItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colours.white,
+    backgroundColor: colours.secondary,
+  },
 
-    taskItem: {
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colours.white,
-      backgroundColor: colours.secondary,
-    },
+  refreshIndicator: {
+      marginVertical: 8
+  },
 
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    refreshIndicator: { marginVertical: 8 },
-    emptyContainer: { padding: 16, alignItems: 'center' },
+  userPickerList: {
+    maxHeight: 150,
+    borderWidth: 1,
+    borderColor: colours.border,
+    borderRadius: 4,
+  },
 
-    userPickerContainer: {
-      marginBottom: 10,
-    },
-    userPickerInput: {
-      borderWidth: 1,
-      borderColor: colours.border,
-      borderRadius: 4,
-      padding: 10,
-      marginBottom: 5,
-      color: colours.text,
-      backgroundColor: colours.white,
-    },
-    userPickerList: {
-      maxHeight: 150,
-      borderWidth: 1,
-      borderColor: colours.border,
-      borderRadius: 4,
-    },
-    userPickerItem: {
-      padding: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: colours.border,
-    },
-    userPickerItemSelected: {
-      backgroundColor: colours.primary,
-    },
-    userPickerItemText: {
-      color: colours.text,
-    },
+  userPickerItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colours.border,
+  },
 
-    filterRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    filterLabel: {
-      marginRight: 8,
-      fontSize: 16,
-    },
-    picker: {
-      flex: 1,
-      maxWidth: 200, // Adjust as needed
-    },
+  userPickerItemSelected: {
+    backgroundColor: colours.primary,
+  },
 
-    //taglist styling
-    tagItem: {
+  filterLabel: {
+    marginRight: 8,
+    fontSize: 16,
+  },
+
+  picker: {
+    flex: 1,
+    maxWidth: 200,
+  },
+
+//taglist styling
+  tagItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -309,41 +339,30 @@ export const getGlobalStyles = (colorScheme) => {
     paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: colours.white,
-},
+  },
 
-    tagPickerContainer: {
-      marginBottom: 10,
-    },
+  selectedTagItem: {
+    backgroundColor: colours.primary,
+  },
 
-    selectedTagItem: {
-      backgroundColor: colours.primary,
-    },
+  tag: {
+    backgroundColor: colours.white,
+    padding: 5,
+    borderRadius: 5,
+    marginRight: 5,
+    marginBottom: 5,
+  },
 
-    tagsContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      marginTop: 5,
-    },
-
-    tag: {
-      backgroundColor: colours.white,
-      padding: 5,
-      borderRadius: 5,
-      marginRight: 5,
-      marginBottom: 5,
-    },
-
-    //web-specific styles (for PWA)
-    webContainer: {
-      flex: 1,
-      maxWidth:800,
-      justifyContent: 'flex-start',
-      flexDirection: 'column',
-      alignSelf: 'center',
-      width: '100%',
-      alignItems: 'center',
-    },
+//web-specific styles (for PWA)
+  webContainer: {
+    flex: 1,
+    maxWidth:800,
+    justifyContent: 'flex-start',
+    flexDirection: 'column',
+    alignSelf: 'center',
+    width: '100%',
+    alignItems: 'center',
+  },
   });
 };
 

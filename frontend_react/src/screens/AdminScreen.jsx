@@ -24,7 +24,7 @@ export default function AdminScreen({ navigation }) {
         onPress={() => navigation.navigate('Register')}
         style={[globalStyles.button]}
         >
-        <Text style={globalStyles.buttonText}>Add new account</Text>
+        <Text style={globalStyles.buttonText}>Manage Accounts</Text>
     </Pressable>
 
     <Pressable
