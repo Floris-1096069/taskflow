@@ -37,6 +37,12 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(joinedload(cls.tags)).all()
 
+    @classmethod
+    def get_created_by(cls, task_id):
+        with cls._db_manager.get_db() as db:
+            task = db.query(cls).filter_by(task_id=task_id).one_or_none()
+            return task.created_by if task else None
+
 
     @classmethod
     def get_by_delegated_to(cls, user_id: int):

@@ -106,8 +106,14 @@ def update_task(task_id):
 @cross_origin()
 @jwt_required()
 def delete_task(task_id):
-    user_id = get_jwt_identity()
-    if not User.is_authorized(user_id):
+    user_id = int(get_jwt_identity())
+    created_by = Task.get_created_by(task_id)
+
+    print(user_id)
+    print(created_by)
+
+    if not User.is_authorized(user_id) and user_id != created_by:
+        print('User is unauthorised')
         return jsonify({"error": "Unauthorized"}), 403
 
     try:
