@@ -20,9 +20,7 @@ def create_app():
 
     #load environment variables
     load_dotenv()
-    localhostfront_url = os.getenv("LOCALHOSTFRONT_URL")
     frontend_url = os.getenv("FRONTEND_URL")
-    basedir = os.path.abspath(os.path.dirname(__file__))
 
     #configure Flask app
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret')
@@ -47,8 +45,8 @@ def create_app():
     #configure database
     db_manager = DatabaseManager()
     with app.app_context():
-        #uncomment recreate_db() to drop database before creating entries
-        db_manager.recreate_db()
+        #uncomment drop_db() to drop database before creating entries
+        #db_manager.drop_db()
         db_manager.create_all()
 
     return app

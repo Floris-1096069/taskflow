@@ -5,7 +5,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from contextlib import contextmanager
 
 
-
 from backend_flask.src.db.base import Base
 
 load_dotenv()
@@ -27,7 +26,8 @@ class DatabaseManager:
             db.close()
 
 
-    def recreate_db(self):
+    def drop_db(self):
+        print('Dropping Database...')
         with self.engine.connect() as conn:
             conn.execute(text("DROP TABLE IF EXISTS taskproblems CASCADE;"))
             conn.execute(text("DROP TABLE IF EXISTS tasktags CASCADE;"))
@@ -38,23 +38,6 @@ class DatabaseManager:
             conn.execute(text("DROP TABLE IF EXISTS roles CASCADE;"))
             conn.commit()
 
-        Base.metadata.create_all(bind=self.engine)
-
-        with self.engine.connect() as conn:
-            #insert fixed roles with their IDs
-            roles = [
-                {"role_id": 1, "name": "Admin"},
-                {"role_id": 2, "name": "Teamleider"},
-                {"role_id": 3, "name": "Binnenkomend"},
-                {"role_id": 4, "name": "Scanmedewerkerplus"},
-                {"role_id": 5, "name": "Scanmedewerker"},
-            ]
-            for role in roles:
-                conn.execute(
-                    text("INSERT INTO roles (role_id, name) VALUES (:role_id, :name)"),
-                    {"role_id": role["role_id"], "name": role["name"]}
-                )
-            conn.commit()
 
     def init_roles(self):
         from backend_flask.src.db.ORM.Role import Role

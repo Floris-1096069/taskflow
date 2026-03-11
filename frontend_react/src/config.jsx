@@ -1,3 +1,3 @@
 export const Config = {
-    API_BASE_URL: 'http://172.20.10.2:5000/api'
+    API_BASE_URL: 'http://localhost:5000/api'
 }

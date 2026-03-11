@@ -1,5 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+
 import { useAuthContext } from './AuthContext';
+import { Config } from '../config';
 
 const TagContext = createContext();
 
@@ -11,7 +13,7 @@ export const TagProvider = ({ children }) => {
   const fetchTags = async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth('http://172.20.10.2:5000/api/task/tags');
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags`);
       const data = await response.json();
       setTags(data);
     } catch (error) {
@@ -23,7 +25,7 @@ export const TagProvider = ({ children }) => {
 
   const createTag = async (name) => {
     try {
-      const response = await fetchWithAuth('http://172.20.10.2:5000/api/task/tags', {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +47,7 @@ export const TagProvider = ({ children }) => {
 
   const deleteTag = async (tagId) => {
     try {
-      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/tags/${tagId}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${tagId}`, {
         method: 'DELETE',
       });
       if (response.ok) {

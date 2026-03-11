@@ -7,7 +7,7 @@ import getGlobalStyles from "../styles/globalStyles";
 export default function TagManager({ onBack }) {
   const [newTag, setNewTag] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const { tags, loading, createTag, deleteTag, fetchTags } = useTagContext();
+  const { tags, loading, createTag, deleteTag } = useTagContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
 

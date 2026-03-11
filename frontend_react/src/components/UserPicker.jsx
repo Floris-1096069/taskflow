@@ -36,6 +36,14 @@ const UserPicker = ({ onUserSelect, selectedUserId }) => {
     return userName.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  const handleUserPress = (userId) => {
+    if (selectedUserId === userId) {
+      onUserSelect(null);
+    } else {
+      onUserSelect(userId);
+    }
+  };
+
   return (
     <View style={globalStyles.userPickerContainer}>
       <TextInput
@@ -55,7 +63,7 @@ const UserPicker = ({ onUserSelect, selectedUserId }) => {
           renderItem={({ item }) => (
 
             <TouchableOpacity
-              onPress={() => onUserSelect(item.user_id)}
+              onPress={() => handleUserPress(item.user_id)}
               style={[
                 globalStyles.userPickerItem,
                 selectedUserId === item.user_id && globalStyles.userPickerItemSelected,
