@@ -22,10 +22,8 @@ export const AuthProvider = ({ children }) => {
           setIsLoggedIn(true);
           try {
             const decodedToken = jwtDecode(token);
-            console.log('Decoded token:', decodedToken);
             setUsername(decodedToken.username || decodedToken.sub);
             setUserId(decodedToken.user_id || decodedToken.sub);
-            console.log('User ID set to:', decodedToken.user_id || decodedToken.sub);
           } catch (error) {
             console.error('Failed to decode token:', error);
 

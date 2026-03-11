@@ -38,7 +38,6 @@ export default function LoginScreen({ navigation }) {
       });
 
       const data = await response.json();
-      console.log('Backend response:', data);
 
       if (!response.ok) {
         setErrorMessage(data.message || 'Login failed');

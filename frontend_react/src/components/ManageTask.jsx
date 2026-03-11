@@ -25,14 +25,9 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
   const role = getRole();
   const isAdminOrTeamleider = String(role) === '1' || String(role) === '2';
 
-  // Handle both ID and object cases for created_by
   const taskCreatorId = typeof task.created_by === 'object' ? task.created_by.user_id : task.created_by;
   const isTaskCreator = String(taskCreatorId) === String(user_id);
   const canManageTask = isAdminOrTeamleider || isTaskCreator;
-  console.log('User ID in ManageTask:', user_id);
-  console.log('Task created_by:', task.created_by);
-  console.log('Task object:', task);
-
 
   const handleTagsSelected = (selectedTagIds) => {
     setEditedTask({ ...editedTask, tag_ids: Array.isArray(selectedTagIds) ? selectedTagIds : [] });
