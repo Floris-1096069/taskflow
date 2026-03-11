@@ -17,7 +17,7 @@ const darkColors = {
   secondary: '#2ecc71',
   background: '#121212',
   text: '#fff',
-  lighttext: '#ccc',
+  lighttext: '#555',
   border: '#444',
   white: '#000',
   black: '#fff',
