@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+
 import getGlobalStyles from '../styles/globalStyles';
 import Header from "../components/Header";
 import { useAuthContext } from "../context/AuthContext";
+import { Config } from '../config';
 
 const roles = [
   { id: 1, name: 'Admin' },
@@ -41,7 +43,7 @@ export default function RegisterScreen({ navigation }) {
     setSuccessMessage('');
 
     try {
-      const response = await fetchWithAuth('http://172.20.10.2:5000/api/auth/register', {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +63,6 @@ export default function RegisterScreen({ navigation }) {
       }
 
       setSuccessMessage('User registered successfully!');
-      setTimeout(() => navigation.navigate('Login'), 1500);
     } catch (error) {
       setErrorMessage(error.message || 'An error occurred');
     } finally {

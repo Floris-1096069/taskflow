@@ -22,10 +22,10 @@ export const AuthProvider = ({ children }) => {
           setIsLoggedIn(true);
           try {
             const decodedToken = jwtDecode(token);
-            console.log('Decoded token:', decodedToken); // Log the decoded token for debugging
+            console.log('Decoded token:', decodedToken);
             setUsername(decodedToken.username || decodedToken.sub);
             setUserId(decodedToken.user_id || decodedToken.sub);
-            console.log('User ID set to:', decodedToken.user_id || decodedToken.sub);// Use user_id or sub as fallback
+            console.log('User ID set to:', decodedToken.user_id || decodedToken.sub);
           } catch (error) {
             console.error('Failed to decode token:', error);
 
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const decodedToken = jwtDecode(newToken);
         setUsername(decodedToken.username || decodedToken.sub);
-        setUserId(decodedToken.user_id || decodedToken.sub); // Use user_id or sub as fallback
+        setUserId(decodedToken.user_id || decodedToken.sub);
       } catch (error) {
         console.error('Failed to decode token:', error);
         // Clear invalid token

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
+
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
 import ManageTask from './ManageTask';
 import TagSelector from './TagSelector';
+import { Config } from '../config';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -46,7 +48,7 @@ const TaskList = () => {
         }
       });
 
-      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/filtered?${query.toString()}`);
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
       const data = await response.json();
       setTasks(data);
 
@@ -61,7 +63,7 @@ const TaskList = () => {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
-      const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/all`);
       const data = await response.json();
       setUsers(data);
     } catch (err) {
@@ -74,7 +76,7 @@ const TaskList = () => {
   const fetchStatuses = async () => {
     setStatusesLoading(true);
     try {
-      const response = await fetchWithAuth('http://172.20.10.2:5000/api/task/status');
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/status`);
       const data = await response.json();
       setStatuses(data);
     } catch (err) {

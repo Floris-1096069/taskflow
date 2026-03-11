@@ -3,6 +3,7 @@ import {View, Text, TextInput, Pressable, useColorScheme} from 'react-native';
 
 import { useAuthContext } from '../context/AuthContext';
 import getGlobalStyles from '../styles/globalStyles';
+import { Config } from '../config';
 
 
 export default function LoginScreen({ navigation }) {
@@ -25,7 +26,7 @@ export default function LoginScreen({ navigation }) {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://172.20.10.2:5000/api/auth', {
+      const response = await fetch(`${Config.API_BASE_URL}/auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

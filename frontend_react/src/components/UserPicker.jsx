@@ -3,6 +3,7 @@ import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, u
 
 import { useAuthContext } from "../context/AuthContext";
 import getGlobalStyles from '../styles/globalStyles';
+import { Config } from '../config';
 
 const UserPicker = ({ onUserSelect, selectedUserId }) => {
   const [users, setUsers] = useState([]);
@@ -17,7 +18,7 @@ const UserPicker = ({ onUserSelect, selectedUserId }) => {
       setLoading(true);
 
       try {
-        const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
+        const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/all`);
         const data = await response.json();
         setUsers(data);
 

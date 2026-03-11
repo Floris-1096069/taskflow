@@ -5,6 +5,7 @@ import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
 import UserPicker from "./UserPicker";
+import { Config } from '../config';
 
 const AddTask = ({ visible, onClose, onTaskCreated }) => {
   const [newTask, setNewTask] = useState({
@@ -26,7 +27,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
       setLoadingUsers(true);
 
       try {
-        const response = await fetchWithAuth('http://172.20.10.2:5000/api/user/all');
+        const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/all`);
         const data = await response.json();
         setUsers(data);
 
@@ -44,7 +45,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
 
   const handleCreateTask = async () => {
     try {
-      const response = await fetchWithAuth('http://172.20.10.2:5000/api/task/create', {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

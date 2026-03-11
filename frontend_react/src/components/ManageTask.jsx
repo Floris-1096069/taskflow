@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, Alert } from 'react-native';
+
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
 import UserPicker from "./UserPicker";
+import { Config } from '../config';
 
 const ManageTask = ({ task, onUpdate, onDelete }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -50,7 +52,7 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
     setIsUpdating(true);
     try {
       const { tags, task_id, ...taskData } = editedTask;
-      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/update/${editedTask.task_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${editedTask.task_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +88,7 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
     setIsDeleting(true);
 
     try {
-      const response = await fetchWithAuth(`http://172.20.10.2:5000/api/task/delete/${task.task_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/delete/${task.task_id}`, {
         method: 'DELETE',
       });
 
