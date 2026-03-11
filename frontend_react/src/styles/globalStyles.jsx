@@ -192,7 +192,7 @@ export const getGlobalStyles = (colorScheme) => {
     borderRadius: 10,
     zIndex: 1000,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: colours.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
