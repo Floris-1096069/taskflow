@@ -49,26 +49,27 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(joinedload(cls.tags)).filter(cls.delegated_to == user_id).all()
 
-
     @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
-            query = db.query(cls).options(joinedload(cls.tags))
+            query = db.query(cls)
 
-            if 'delegated_to' in filters and filters['delegated_to'] is not None:
-                query = query.filter(cls.delegated_to == filters['delegated_to'])
+            if 'status_id' not in filters:
+                query = query.filter(cls.status_id != 4)
+            elif filters['status_id'] != '4':
+                query = query.filter(cls.status_id == filters['status_id'])
+
+            # Apply other filters
             if 'archived' in filters and filters['archived'] is not None:
                 query = query.filter(cls.archived == filters['archived'])
             if 'priority' in filters and filters['priority'] is not None:
-                try:
-                    query = query.filter(cls.priority == int(filters['priority']))
-                except (ValueError, TypeError):
-                    pass
+                query = query.filter(cls.priority == filters['priority'])
+            if 'delegated_to' in filters and filters['delegated_to'] is not None:
+                query = query.filter(cls.delegated_to == filters['delegated_to'])
             if 'tag_ids' in filters and filters['tag_ids']:
-                query = query.join(TaskTag, TaskTag.task_id == cls.task_id).filter(
-                    TaskTag.tag_id.in_(filters['tag_ids']))
+                query = query.join(cls.tags).filter(Tag.tag_id.in_(filters['tag_ids']))
 
-            return query.distinct().all()
+            return query.all()
 
     @classmethod
     def create(cls, name, description, priority, status_id, delegated_to, created_by, tag_ids=None):

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, Alert } from 'react-native';
-
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, Alert, FlatList } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
@@ -14,6 +13,9 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(editedTask.delegated_to);
+  const [problems, setProblems] = useState([]);
+  const [editingProblem, setEditingProblem] = useState(null);
+  const [newProblemContent, setNewProblemContent] = useState("");
   const { fetchWithAuth, user_id, getRole } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
@@ -28,6 +30,22 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
   const taskCreatorId = typeof task.created_by === 'object' ? task.created_by.user_id : task.created_by;
   const isTaskCreator = String(taskCreatorId) === String(user_id);
   const canManageTask = isAdminOrTeamleider || isTaskCreator;
+
+  const fetchProblems = async () => {
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/task/${task.task_id}`);
+      const data = await response.json();
+      setProblems(data);
+    } catch (error) {
+      console.error('Error fetching problems:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (modalVisible) {
+      fetchProblems();
+    }
+  }, [modalVisible]);
 
   const handleTagsSelected = (selectedTagIds) => {
     setEditedTask({ ...editedTask, tag_ids: Array.isArray(selectedTagIds) ? selectedTagIds : [] });
@@ -99,6 +117,81 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
     }
   };
 
+  const handleAddProblem = async () => {
+    if (!newProblemContent.trim()) return;
+
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          task_id: task.task_id,
+          content: newProblemContent,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to add problem');
+
+      setNewProblemContent("");
+      fetchProblems();
+      Alert.alert('Success', 'Problem added successfully.');
+
+    } catch (error) {
+      console.error('Error adding problem:', error);
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const handleEditProblem = (problem) => {
+    setEditingProblem(problem);
+    setNewProblemContent(problem.content);
+  };
+
+  const handleUpdateProblem = async () => {
+    if (!editingProblem || !newProblemContent.trim()) return;
+
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/update/${editingProblem.task_problem_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: newProblemContent,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update problem');
+
+      setEditingProblem(null);
+      setNewProblemContent("");
+      fetchProblems();
+      Alert.alert('Success', 'Problem updated successfully.');
+
+    } catch (error) {
+      console.error('Error updating problem:', error);
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const handleDeleteProblem = async (problemId) => {
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/delete/${problemId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete problem');
+
+      fetchProblems();
+      Alert.alert('Success', 'Problem deleted successfully.');
+
+    } catch (error) {
+      console.error('Error deleting problem:', error);
+      Alert.alert('Error', error.message);
+    }
+  };
 
   return (
     <View>
@@ -154,6 +247,7 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
               <Picker.Item label="Todo" value={1} />
               <Picker.Item label="In Progress" value={2} />
               <Picker.Item label="Done" value={3} />
+              <Picker.Item label="Problem" value={4} />
             </Picker>
 
             <Text>Change Delegated User</Text>
@@ -166,6 +260,66 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
               selectedTagIds={editedTask.tag_ids || []}
               onTagsSelected={handleTagsSelected}
             />
+
+            <Text style={globalStyles.subtitle}>Problems:</Text>
+            <FlatList
+              data={problems}
+              keyExtractor={(item) => item.task_problem_id.toString()}
+              renderItem={({ item }) => (
+                <View style={globalStyles.problemItem}>
+                  <Text>{item.content}</Text>
+                  <View style={globalStyles.row}>
+                    <Pressable
+                      style={[globalStyles.smallButton, globalStyles.warningButton]}
+                      onPress={() => handleEditProblem(item)}
+                    >
+                      <Text style={globalStyles.buttonText}>Edit</Text>
+                    </Pressable>
+                    <Pressable
+                      style={[globalStyles.smallButton, globalStyles.errorButton]}
+                      onPress={() => handleDeleteProblem(item.task_problem_id)}
+                    >
+                      <Text style={globalStyles.buttonText}>Delete</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            />
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Add/Edit Problem"
+              value={newProblemContent}
+              onChangeText={setNewProblemContent}
+              multiline
+            />
+            <View style={globalStyles.row}>
+              {editingProblem ? (
+                <>
+                  <Pressable
+                    style={[globalStyles.button, globalStyles.successButton]}
+                    onPress={handleUpdateProblem}
+                  >
+                    <Text style={globalStyles.buttonText}>Update Problem</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[globalStyles.button, globalStyles.grayButton]}
+                    onPress={() => {
+                      setEditingProblem(null);
+                      setNewProblemContent("");
+                    }}
+                  >
+                    <Text style={globalStyles.buttonText}>Cancel</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <Pressable
+                  style={[globalStyles.button, globalStyles.successButton]}
+                  onPress={handleAddProblem}
+                >
+                  <Text style={globalStyles.buttonText}>Add Problem</Text>
+                </Pressable>
+              )}
+            </View>
 
             <View style={globalStyles.modalButtonContainer}>
               {!showDeleteConfirm ? (

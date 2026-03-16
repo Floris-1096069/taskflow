@@ -46,6 +46,17 @@ class TaskProblem(Base):
 
             return new_problem
 
+    @classmethod
+    def delete(cls, problem_id: int):
+        with cls._db_manager.get_db() as db:
+            problem = db.query(cls).filter(cls.task_problem_id == problem_id).one_or_none()
+            if not problem:
+                return False
+
+            db.delete(problem)
+            db.commit()
+            return True
+
 
     def to_dict(self):
         return {

@@ -10,6 +10,9 @@ const lightColors = {
   white: '#fff',
   black: '#000',
   error: '#e74c3c',
+  warning: '#ff9500',
+  success: '#34c759',
+  gray: '#8e8e93',
 };
 
 const darkColors = {
@@ -17,11 +20,14 @@ const darkColors = {
   secondary: '#2ecc71',
   background: '#121212',
   text: '#fff',
-  lighttext: '#555',
+  lighttext: '#ccc',
   border: '#444',
   white: '#000',
   black: '#fff',
   error: '#e74c3c',
+  warning: '#ff9500',
+  success: '#34c759',
+  gray: '#8e8e93',
 };
 
 export const getGlobalStyles = (colorScheme) => {
@@ -94,6 +100,28 @@ export const getGlobalStyles = (colorScheme) => {
 
     userPickerItemText: {
       color: colours.text,
+    },
+        row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginVertical: 5,
+    },
+    smallButton: {
+      padding: 8,
+      borderRadius: 5,
+      marginHorizontal: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flex: 1,
+    },
+    problemItem: {
+      padding: 10,
+      borderWidth: 1,
+      borderColor: colours.border,
+      borderRadius: 5,
+      marginVertical: 5,
+      backgroundColor: colours.white,
     },
 
   //containers

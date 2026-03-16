@@ -31,6 +31,25 @@ def create_task_problem():
     return jsonify(problem.to_dict()), 201
 
 
+@problem_api.delete("/delete/<int:problem_id>")
+@jwt_required()
+def delete_task_problem(problem_id):
+    user_id = get_jwt_identity()
+    if not User.is_authorized(user_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        success = TaskProblem.delete(problem_id)
+        if not success:
+            return jsonify({"error": "Problem not found"}), 404
+
+        return jsonify({"message": "Problem deleted successfully"}), 200
+    except Exception as e:
+        print(f"Error deleting problem: {e}")
+        return jsonify({"error": "Failed to delete problem"}), 500
+
+
+
 @problem_api.get("/task/<int:task_id>")
 @jwt_required()
 def get_problems_by_task(task_id):

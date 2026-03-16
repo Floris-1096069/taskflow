@@ -6,6 +6,7 @@ from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Tag import Tag
 from backend_flask.src.db.ORM.Status import Status
+from backend_flask.src.db.ORM.TaskProblem import TaskProblem
 from backend_flask.src.db.database_manager import DatabaseManager
 
 
@@ -27,6 +28,28 @@ def get_filtered_tasks():
     except Exception as e:
         print(f"Error fetching tasks: {e}")
         return jsonify({"error": "Failed to fetch tasks"}), 500
+
+@task_api.get("/problems")
+@cross_origin()
+@jwt_required()
+def get_problem_tasks():
+    user_id = get_jwt_identity()
+    if not User.is_authorized(user_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        tasks = Task.get_filtered(status_id=4)
+        tasks_with_problems = []
+        for task in tasks:
+            problems = TaskProblem.get_by_task_id(task.task_id)
+            task_dict = task.to_dict()
+            task_dict['problems'] = [problem.to_dict() for problem in problems]
+            tasks_with_problems.append(task_dict)
+        return jsonify(tasks_with_problems)
+    except Exception as e:
+        print(f"Error fetching problem tasks: {e}")
+        return jsonify({"error": "Failed to fetch problem tasks"}), 500
+
 
 
 @task_api.get("/getall")

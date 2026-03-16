@@ -34,6 +34,13 @@ export default function AdminScreen({ navigation }) {
         <Text style={globalStyles.buttonText}>Manage Tags</Text>
     </Pressable>
 
+    <Pressable
+        onPress={() => navigation.navigate('ProblemScreen')}
+        style={[globalStyles.button]}
+        >
+        <Text style={globalStyles.buttonText}>See Problematic Tasks</Text>
+    </Pressable>
+
     </View>
     </View>
   );
