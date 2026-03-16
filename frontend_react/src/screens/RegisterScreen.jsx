@@ -11,8 +11,9 @@ const roles = [
   { id: 1, name: 'Admin' },
   { id: 2, name: 'Teamleider' },
   { id: 3, name: 'Binnenkomend' },
-  { id: 4, name: 'Scanmedewerkerplus' },
-  { id: 5, name: 'Scanmedewerker' },
+  { id: 4, name: 'Zelfstandigscanmedewerker'},
+  { id: 5, name: 'Scanmedewerkerplus' },
+  { id: 6, name: 'Scanmedewerker' },
 ];
 
 export default function RegisterScreen({ navigation }) {

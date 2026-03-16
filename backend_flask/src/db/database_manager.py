@@ -48,8 +48,9 @@ class DatabaseManager:
                 {"role_id": 1, "name": "Admin"},
                 {"role_id": 2, "name": "Teamleider"},
                 {"role_id": 3, "name": "Binnenkomend"},
-                {"role_id": 4, "name": "Scanmedewerkerplus"},
-                {"role_id": 5, "name": "Scanmedewerker"},
+                {"role_id": 4, "name": "Zelfstandigscanmedewerker"},
+                {"role_id": 5, "name": "Scanmedewerkerplus"},
+                {"role_id": 6, "name": "Scanmedewerker"},
             ]
 
             for role_data in roles_to_create:
