@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
-
+import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Button } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
@@ -27,6 +26,10 @@ const TaskList = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [statusesLoading, setStatusesLoading] = useState(false);
+  const [problemModalVisible, setProblemModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [newProblem, setNewProblem] = useState("");
+  const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
 
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
@@ -101,6 +104,57 @@ const TaskList = () => {
     const status = statuses.find(s => s.status_id === statusId);
     return status ? status.name : 'Unknown';
   };
+
+  const handleReportProblem = (task) => {
+    setSelectedTask(task);
+    setProblemModalVisible(true);
+  };
+
+  const updateTaskStatus = async (taskId, newStatusId) => {
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status_id: newStatusId }),
+      });
+      if (!response.ok) throw new Error('Failed to update task status');
+      return true;
+    } catch (error) {
+      console.error("Failed to update task status:", error);
+      return false;
+    }
+  };
+
+  const submitProblem = async () => {
+  if (!newProblem.trim() || !selectedTask) return;
+
+  setIsSubmittingProblem(true);
+  try {
+    const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/create`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ task_id: selectedTask.task_id, content: newProblem }),
+    });
+
+    if (response.ok) {
+      setNewProblem("");
+      setProblemModalVisible(false);
+      fetchTasks();
+      alert("Problem reported and task status updated to 'Problem'!");
+    } else {
+      const errorData = await response.json();
+      alert(errorData.error || "Failed to report problem.");
+    }
+  } catch (error) {
+    console.error("Failed to report problem:", error);
+  } finally {
+    setIsSubmittingProblem(false);
+  }
+};
 
   if (loading && tasks.length === 0) {
     return (
@@ -189,10 +243,9 @@ const TaskList = () => {
         data={tasks}
         keyExtractor={(item) => item.task_id.toString()}
         renderItem={({ item }) => {
-          // Check if the current user is the task creator
           const taskCreatorId = typeof item.created_by === 'object' ? item.created_by.user_id : item.created_by;
           const isTaskCreator = String(taskCreatorId) === String(user_id);
-          const canManageTask = isAuthorized || isTaskCreator; // Show Manage button if authorized or task creator
+          const canManageTask = isAuthorized || isTaskCreator;
 
           return (
             <View style={globalStyles.taskItem}>
@@ -215,7 +268,17 @@ const TaskList = () => {
                   <Text>No tags</Text>
                 )}
               </View>
-              {canManageTask && ( // Render ManageTask if user is authorized or task creator
+
+              {/* Report Problem Button (visible to all users) */}
+              <Pressable
+                style={[globalStyles.button, { backgroundColor: '#ff6b6b' }]}
+                onPress={() => handleReportProblem(item)}
+              >
+                <Text style={globalStyles.buttonText}>Report Problem</Text>
+              </Pressable>
+
+              {/* Manage Task Button (visible only to authorized users or task creator) */}
+              {canManageTask && (
                 <ManageTask
                   task={item}
                   onUpdate={() => {
@@ -238,6 +301,38 @@ const TaskList = () => {
           ) : null
         }
       />
+
+      {/* Problem Reporting Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={problemModalVisible}
+        onRequestClose={() => setProblemModalVisible(false)}
+      >
+        <View style={globalStyles.modalContainer}>
+          <View style={globalStyles.modalContent}>
+            <Text style={globalStyles.modalTitle}>Report Problem</Text>
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Describe the problem..."
+              value={newProblem}
+              onChangeText={setNewProblem}
+              multiline
+            />
+            <Button
+              title={isSubmittingProblem ? "Submitting..." : "Submit Problem"}
+              onPress={submitProblem}
+              disabled={isSubmittingProblem || !newProblem.trim()}
+            />
+            <Pressable
+              style={globalStyles.button}
+              onPress={() => setProblemModalVisible(false)}
+            >
+              <Text style={globalStyles.buttonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

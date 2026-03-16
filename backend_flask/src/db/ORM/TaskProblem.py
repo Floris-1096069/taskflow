@@ -24,13 +24,11 @@ class TaskProblem(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.task_id == task_id).all()
 
-
     @classmethod
     def create(cls, task_id: int, user_id: int, content: str):
         with cls._db_manager.get_db() as db:
             task = db.query(Task).filter(Task.task_id == task_id).one_or_none()
-
-            if not task or task.status_id != 4:
+            if not task:
                 return None
 
             new_problem = cls(
@@ -39,7 +37,13 @@ class TaskProblem(Base):
                 content=content
             )
             db.add(new_problem)
+
+            task.status_id = 4
+
             db.commit()
+
+            db.refresh(new_problem)
+
             return new_problem
 
 

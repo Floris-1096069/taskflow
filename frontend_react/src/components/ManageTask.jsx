@@ -154,7 +154,6 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
               <Picker.Item label="Todo" value={1} />
               <Picker.Item label="In Progress" value={2} />
               <Picker.Item label="Done" value={3} />
-              <Picker.Item label="Problem" value={4} />
             </Picker>
 
             <Text>Change Delegated User</Text>
