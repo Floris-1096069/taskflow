@@ -96,7 +96,8 @@ const ProblemTasks = () => {
               <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
               <Text>Created by: {getUsername(item.created_by)}</Text>
               <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
-              <Text style={globalStyles.subtitle}>Problems:</Text>
+                <View style={{ marginVertical: 10 }} />
+              <Text style={globalStyles.Text}>Problems:</Text>
               {item.problems && item.problems.length > 0 ? (
                 item.problems.map((problem) => (
                   <View key={problem.task_problem_id} style={globalStyles.problemItem}>

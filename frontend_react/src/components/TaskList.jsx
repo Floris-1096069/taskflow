@@ -127,6 +127,15 @@ const TaskList = () => {
     }
   };
 
+  const getPriorityName = (priorityId) => {
+    const priorityMap = {
+      1: 'Low',
+      2: 'Medium',
+      3: 'High',
+    };
+    return priorityMap[priorityId] || 'Unknown';
+  };
+
   const submitProblem = async () => {
   if (!newProblem.trim() || !selectedTask) return;
 
@@ -249,9 +258,9 @@ const TaskList = () => {
 
           return (
             <View style={globalStyles.taskItem}>
-              <Text style={globalStyles.taskName}>{item.name}</Text>
+              <Text style={globalStyles.title}>{item.name}</Text>
               <Text>Description: {item.description}</Text>
-              <Text>Priority: {item.priority}</Text>
+              <Text>Priority: {getPriorityName(item.priority)}</Text>
               <Text>Status: {getStatusName(item.status_id)}</Text>
               <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
               <Text>Created by: {getUsername(item.created_by)}</Text>
@@ -269,7 +278,6 @@ const TaskList = () => {
                 )}
               </View>
 
-              {/* Report Problem Button (visible to all users) */}
               <Pressable
                 style={[globalStyles.button, { backgroundColor: '#ff6b6b' }]}
                 onPress={() => handleReportProblem(item)}
@@ -277,7 +285,6 @@ const TaskList = () => {
                 <Text style={globalStyles.buttonText}>Report Problem</Text>
               </Pressable>
 
-              {/* Manage Task Button (visible only to authorized users or task creator) */}
               {canManageTask && (
                 <ManageTask
                   task={item}
@@ -302,7 +309,6 @@ const TaskList = () => {
         }
       />
 
-      {/* Problem Reporting Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -310,27 +316,28 @@ const TaskList = () => {
         onRequestClose={() => setProblemModalVisible(false)}
       >
         <View style={globalStyles.modalContainer}>
-          <View style={globalStyles.modalContent}>
             <Text style={globalStyles.modalTitle}>Report Problem</Text>
             <TextInput
-              style={globalStyles.input}
+              style={[globalStyles.input, {width: '50%'}]}
               placeholder="Describe the problem..."
               value={newProblem}
               onChangeText={setNewProblem}
               multiline
             />
-            <Button
+            <Pressable
+              style={globalStyles.button}
               title={isSubmittingProblem ? "Submitting..." : "Submit Problem"}
               onPress={submitProblem}
               disabled={isSubmittingProblem || !newProblem.trim()}
-            />
+            >
+              <Text style={globalStyles.buttonText}>Submit</Text>
+            </Pressable>
             <Pressable
               style={globalStyles.button}
               onPress={() => setProblemModalVisible(false)}
             >
               <Text style={globalStyles.buttonText}>Cancel</Text>
             </Pressable>
-          </View>
         </View>
       </Modal>
     </View>
