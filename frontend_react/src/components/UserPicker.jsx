@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator, useColorScheme } from 'react-native';
-
 import { useAuthContext } from "../context/AuthContext";
 import getGlobalStyles from '../styles/globalStyles';
 import { Config } from '../config';
@@ -31,13 +30,22 @@ const UserPicker = ({ onUserSelect, selectedUserId, refetchTrigger }) => {
   }, []);
 
   useEffect(() => {
-      fetchUsers();
+    fetchUsers();
   }, [refetchTrigger]);
 
   const filteredUsers = users.filter(user => {
     const userName = user.name || user.username || '';
     return userName.toLowerCase().includes(searchQuery.toLowerCase());
   });
+
+  const handleUserPress = (userId) => {
+    // If the clicked user is already selected, unselect them
+    if (selectedUserId === userId) {
+      onUserSelect(null);
+    } else {
+      onUserSelect(userId);
+    }
+  };
 
   return (
     <View style={globalStyles.userPickerContainer}>
@@ -55,7 +63,7 @@ const UserPicker = ({ onUserSelect, selectedUserId, refetchTrigger }) => {
           keyExtractor={(item) => item.user_id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => onUserSelect(item.user_id)}
+              onPress={() => handleUserPress(item.user_id)}
               style={[
                 globalStyles.userPickerItem,
                 selectedUserId === item.user_id && globalStyles.userPickerItemSelected,
@@ -72,4 +80,5 @@ const UserPicker = ({ onUserSelect, selectedUserId, refetchTrigger }) => {
     </View>
   );
 };
+
 export default UserPicker;
