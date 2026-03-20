@@ -13,6 +13,10 @@ const lightColors = {
   warning: '#ff9500',
   success: '#34c759',
   gray: '#8e8e93',
+  todoBackground: '#F5F5F5',
+  inProgressBackground: '#B3E5FC',
+  doneBackground: '#C8E6C9',
+  problemBackground: '#FFCDD2',
 };
 
 const darkColors = {
@@ -28,6 +32,10 @@ const darkColors = {
   warning: '#ff9500',
   success: '#34c759',
   gray: '#8e8e93',
+  todoBackground: '#333333',
+  inProgressBackground: '#0D47A1',
+  doneBackground: '#2E7D32',
+  problemBackground: '#C62828',
 };
 
 export const getGlobalStyles = (colorScheme) => {
@@ -70,6 +78,7 @@ export const getGlobalStyles = (colorScheme) => {
       fontSize: 16,
       fontWeight: 'bold',
     },
+
 
     errorText: {
       color: colours.error,

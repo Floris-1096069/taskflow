@@ -11,7 +11,7 @@ const UndelegatedTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const globalStyles = getGlobalStyles(useColorScheme);
+  const globalStyles = getGlobalStyles(colorScheme);
 
   const role = getRole();
   const isAdminOrTeamleider = String(role) === '1' || String(role) === '2';
@@ -40,20 +40,28 @@ const UndelegatedTasks = () => {
   }
 
   if (loading) {
-    return <ActivityIndicator size="large" />;
+    return (
+      <View style={globalStyles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   if (error) {
-    return <Text>Error: {error}</Text>;
+    return (
+      <View style={globalStyles.errorContainer}>
+        <Text style={globalStyles.errorText}>Error: {error}</Text>
+      </View>
+    );
   }
 
   return (
-    <View style={globalStyles.container}>
+    <View style={[globalStyles.container, { flex: 1 }]}>
       <Text style={globalStyles.title}>Undelegated Tasks</Text>
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.task_id.toString()}
-        contentContainerStyle={{ backgroundColor: globalStyles.container.backgroundColor }}
+        contentContainerStyle={{ flexGrow: 1, backgroundColor: globalStyles.container.backgroundColor }}
         renderItem={({ item }) => (
           <ManageTask
             task={item}
@@ -62,7 +70,9 @@ const UndelegatedTasks = () => {
           />
         )}
         ListEmptyComponent={
-          <Text style={globalStyles.emptyText}>No undelegated tasks found.</Text>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: globalStyles.container.backgroundColor }}>
+            <Text style={globalStyles.bodyText}>No undelegated tasks found.</Text>
+          </View>
         }
       />
     </View>

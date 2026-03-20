@@ -35,6 +35,22 @@ const TaskList = () => {
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
 
+  // Define the function outside of any other function
+  const getStatusBackgroundColor = (statusId) => {
+    switch (statusId) {
+      case 1:
+        return '#F5F5F5'; // To Do
+      case 2:
+        return '#B3E5FC'; // In Progress
+      case 3:
+        return '#C8E6C9'; // Done
+      case 4:
+        return '#FFCDD2'; // Problem
+      default:
+        return globalStyles.container.backgroundColor;
+    }
+  };
+
   const fetchTasks = async () => {
     setLoading(true);
     setError(null);
@@ -279,9 +295,10 @@ const TaskList = () => {
           const isTaskCreator = String(taskCreatorId) === String(user_id);
           const canManageTask = isAuthorized || isTaskCreator;
           const isDelegatee = String(item.delegated_to) === String(user_id);
+          const statusBackgroundColor = getStatusBackgroundColor(item.status_id);
 
           return (
-            <View style={globalStyles.taskItem}>
+            <View style={[globalStyles.taskItem, { backgroundColor: statusBackgroundColor }]}>
               <Text style={globalStyles.taskName}>{item.name}</Text>
               <Text>Description: {item.description}</Text>
               <Text>Priority: {getPriorityName(item.priority)}</Text>

@@ -90,24 +90,24 @@ const ProblemTasks = () => {
           const canManageTask = isAdminOrTeamleider || isTaskCreator;
 
           return (
-            <View style={globalStyles.taskItem}>
+            <View style={[globalStyles.taskItem, { backgroundColor: globalStyles.container.backgroundColor }]}>
               <Text style={globalStyles.taskName}>{item.name}</Text>
-              <Text>Status: Problem</Text>
-              <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
-              <Text>Created by: {getUsername(item.created_by)}</Text>
-              <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
+              <Text style={globalStyles.bodyText}>Status: Problem</Text>
+              <Text style={globalStyles.bodyText}>Assigned to: {getUsername(item.delegated_to)}</Text>
+              <Text style={globalStyles.bodyText}>Created by: {getUsername(item.created_by)}</Text>
+              <Text style={globalStyles.bodyText}>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
               <View style={{ marginVertical: 10 }} />
-              <Text style={globalStyles.Text}>Problems:</Text>
+              <Text style={[globalStyles.bodyText, { fontWeight: 'bold' }]}>Problems:</Text>
               {item.problems && item.problems.length > 0 ? (
                 item.problems.map((problem) => (
-                  <View key={problem.task_problem_id} style={globalStyles.problemItem}>
-                    <Text>{problem.content}</Text>
-                    <Text>Reported by: {getUsername(problem.user_id)}</Text>
-                    <Text>Reported at: {new Date(problem.creation_time).toLocaleString()}</Text>
+                  <View key={problem.task_problem_id} style={[globalStyles.problemItem, { backgroundColor: globalStyles.container.backgroundColor }]}>
+                    <Text style={globalStyles.bodyText}>{problem.content}</Text>
+                    <Text style={globalStyles.bodyText}>Reported by: {getUsername(problem.user_id)}</Text>
+                    <Text style={globalStyles.bodyText}>Reported at: {new Date(problem.creation_time).toLocaleString()}</Text>
                   </View>
                 ))
               ) : (
-                <Text>No problems reported.</Text>
+                <Text style={globalStyles.bodyText}>No problems reported.</Text>
               )}
               {canManageTask && (
                 <ManageTask
@@ -124,7 +124,7 @@ const ProblemTasks = () => {
         }}
         ListEmptyComponent={
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-            <Text>No problematic tasks reported.</Text>
+            <Text style={globalStyles.bodyText}>No problematic tasks reported.</Text>
           </View>
         }
       />
