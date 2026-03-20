@@ -76,6 +76,15 @@ def get_tasks_delegated_to_my_account():
     return jsonify([task.to_dict() for task in tasks])
 
 
+@task_api.route('/undelegated', methods=['GET'])
+@cross_origin()
+@jwt_required()
+def get_undelegated_tasks():
+    tasks = Task.get_undelegated()
+    return jsonify([task.to_dict() for task in tasks])
+
+
+
 @task_api.get("/delegated/<int:user_id>")
 @cross_origin()
 @jwt_required()

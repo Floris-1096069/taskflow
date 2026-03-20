@@ -50,6 +50,12 @@ class Task(Base):
             return db.query(cls).options(joinedload(cls.tags)).filter(cls.delegated_to == user_id).all()
 
     @classmethod
+    def get_undelegated(cls):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).filter(cls.delegated_to == None).all()
+
+
+    @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
             query = db.query(cls)

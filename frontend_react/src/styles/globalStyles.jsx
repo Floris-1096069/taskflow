@@ -42,6 +42,12 @@ export const getGlobalStyles = (colorScheme) => {
       textAlign: "center",
     },
 
+    emptyText: {
+      textAlign: 'center',
+      marginTop: 20,
+      fontSize: 16,
+    },
+
     subtitle: {
       fontSize: 18,
       color: colours.lighttext,

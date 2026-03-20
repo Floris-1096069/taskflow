@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Button, Switch } from 'react-native';
+import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Switch, Alert } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
@@ -91,6 +91,30 @@ const TaskList = () => {
     }
   };
 
+  const getNextStatus = (currentStatusId) => {
+    const statusOrder = [1, 2, 3];
+    const currentIndex = statusOrder.indexOf(currentStatusId);
+    return currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : currentStatusId;
+  };
+
+  const handleAdvanceStatus = async (task) => {
+    const nextStatusId = getNextStatus(task.status_id);
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${task.task_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status_id: nextStatusId }),
+      });
+      if (!response.ok) throw new Error('Failed to update task status');
+      fetchTasks();
+    } catch (error) {
+      console.error("Failed to update task status:", error);
+      Alert.alert('Error', 'Failed to update task status.');
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
     fetchUsers();
@@ -110,23 +134,6 @@ const TaskList = () => {
   const handleReportProblem = (task) => {
     setSelectedTask(task);
     setProblemModalVisible(true);
-  };
-
-  const updateTaskStatus = async (taskId, newStatusId) => {
-    try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${taskId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status_id: newStatusId }),
-      });
-      if (!response.ok) throw new Error('Failed to update task status');
-      return true;
-    } catch (error) {
-      console.error("Failed to update task status:", error);
-      return false;
-    }
   };
 
   const getPriorityName = (priorityId) => {
@@ -190,7 +197,7 @@ const TaskList = () => {
   return (
     <View style={globalStyles.container}>
       <View style={globalStyles.filterContainer}>
-        <Text style={[globalStyles.title]}>
+        <Text style={globalStyles.title}>
           To Do List
         </Text>
 
@@ -271,10 +278,11 @@ const TaskList = () => {
           const taskCreatorId = typeof item.created_by === 'object' ? item.created_by.user_id : item.created_by;
           const isTaskCreator = String(taskCreatorId) === String(user_id);
           const canManageTask = isAuthorized || isTaskCreator;
+          const isDelegatee = String(item.delegated_to) === String(user_id);
 
           return (
             <View style={globalStyles.taskItem}>
-              <Text style={globalStyles.title}>{item.name}</Text>
+              <Text style={globalStyles.taskName}>{item.name}</Text>
               <Text>Description: {item.description}</Text>
               <Text>Priority: {getPriorityName(item.priority)}</Text>
               <Text>Status: {getStatusName(item.status_id)}</Text>
@@ -294,8 +302,22 @@ const TaskList = () => {
                 )}
               </View>
 
+              {isDelegatee && item.status_id !== 3 && (
+                <Pressable
+                  style={[
+                    globalStyles.button,
+                    item.status_id === 1 ? globalStyles.startButton : globalStyles.doneButton
+                  ]}
+                  onPress={() => handleAdvanceStatus(item)}
+                >
+                  <Text style={globalStyles.buttonText}>
+                    {item.status_id === 1 ? 'Start Task' : 'Mark as Done'}
+                  </Text>
+                </Pressable>
+              )}
+
               <Pressable
-                style={[globalStyles.button, { backgroundColor: '#ff6b6b' }]}
+                style={[globalStyles.button, globalStyles.problemButton]}
                 onPress={() => handleReportProblem(item)}
               >
                 <Text style={globalStyles.buttonText}>Report Problem</Text>
@@ -304,9 +326,7 @@ const TaskList = () => {
               {canManageTask && (
                 <ManageTask
                   task={item}
-                  onUpdate={() => {
-                    fetchTasks();
-                  }}
+                  onUpdate={fetchTasks}
                   onDelete={(taskId) => {
                     setTasks(tasks.filter(t => t.task_id !== taskId));
                     fetchTasks();
@@ -334,7 +354,7 @@ const TaskList = () => {
         <View style={globalStyles.modalContainer}>
             <Text style={globalStyles.modalTitle}>Report Problem</Text>
             <TextInput
-              style={[globalStyles.input, {width: '50%'}]}
+              style={globalStyles.input}
               placeholder="Describe the problem..."
               value={newProblem}
               onChangeText={setNewProblem}
@@ -342,11 +362,12 @@ const TaskList = () => {
             />
             <Pressable
               style={globalStyles.button}
-              title={isSubmittingProblem ? "Submitting..." : "Submit Problem"}
-              onPress={submitProblem}
               disabled={isSubmittingProblem || !newProblem.trim()}
+              onPress={submitProblem}
             >
-              <Text style={globalStyles.buttonText}>Submit</Text>
+              <Text style={globalStyles.buttonText}>
+                {isSubmittingProblem ? "Submitting..." : "Submit Problem"}
+              </Text>
             </Pressable>
             <Pressable
               style={globalStyles.button}
