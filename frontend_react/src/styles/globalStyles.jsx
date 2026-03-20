@@ -174,6 +174,7 @@ export const getGlobalStyles = (colorScheme) => {
 
     modalContainer: {
     paddingTop: 20,
+    flex: 1,
     backgroundColor: colours.background,
     width: '100%',
     flexDirection: 'column',

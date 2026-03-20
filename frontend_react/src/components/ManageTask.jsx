@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Picker, Pressable, Modal, useColorScheme, Alert, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Picker,
+  Pressable,
+  Modal,
+  useColorScheme,
+  Alert,
+  FlatList,
+  ScrollView, KeyboardAvoidingView
+} from 'react-native';
+import { Platform } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import TagSelector from "./TagSelector";
@@ -214,151 +226,178 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={globalStyles.modalContainer}>
-          <View style={globalStyles.modalContent}>
-            <Text style={globalStyles.modalTitle}>Edit Task</Text>
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Task Name"
-              value={editedTask.name}
-              onChangeText={(text) => setEditedTask({ ...editedTask, name: text })}
-            />
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Description"
-              value={editedTask.description}
-              onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
-            />
-            <Text>Change Task Priority</Text>
-            <Picker
-              selectedValue={editedTask.priority}
-              onValueChange={(itemValue) => setEditedTask({ ...editedTask, priority: itemValue })}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ width: '100%', maxHeight: '90%' }}
+          >
+            <ScrollView
+              contentContainerStyle={{
+                padding: 20,
+                backgroundColor: 'white',
+                borderRadius: 10,
+                maxHeight: '90%',
+                width: '90%',
+                alignSelf: 'center',
+              }}
             >
-              <Picker.Item label="Low" value={1} />
-              <Picker.Item label="Medium" value={2} />
-              <Picker.Item label="High" value={3} />
-            </Picker>
+              <Text style={globalStyles.modalTitle}>Edit Task</Text>
 
-            <Text>Change Task Status</Text>
-            <Picker
-              selectedValue={editedTask.status_id}
-              onValueChange={(itemValue) => setEditedTask({ ...editedTask, status_id: itemValue })}
-            >
-              <Picker.Item label="Todo" value={1} />
-              <Picker.Item label="In Progress" value={2} />
-              <Picker.Item label="Done" value={3} />
-              <Picker.Item label="Problem" value={4} />
-            </Picker>
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Task Name"
+                value={editedTask.name}
+                onChangeText={(text) => setEditedTask({ ...editedTask, name: text })}
+              />
 
-            <Text>Change Delegated User</Text>
-            <UserPicker
-              onUserSelect={handleUserSelect}
-              selectedUserId={selectedUserId}
-            />
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Description"
+                value={editedTask.description}
+                onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
+                multiline
+              />
 
-            <TagSelector
-              selectedTagIds={editedTask.tag_ids || []}
-              onTagsSelected={handleTagsSelected}
-            />
+              <Text>Change Task Priority</Text>
+              <Picker
+                selectedValue={editedTask.priority}
+                onValueChange={(itemValue) => setEditedTask({ ...editedTask, priority: itemValue })}
+              >
+                <Picker.Item label="Low" value={1} />
+                <Picker.Item label="Medium" value={2} />
+                <Picker.Item label="High" value={3} />
+              </Picker>
 
-            <Text style={globalStyles.subtitle}>Problems:</Text>
-            <FlatList
-              data={problems}
-              keyExtractor={(item) => item.task_problem_id.toString()}
-              renderItem={({ item }) => (
-                <View style={globalStyles.problemItem}>
-                  <Text>{item.content}</Text>
-                  <View style={globalStyles.row}>
+              <Text>Change Task Status</Text>
+              <Picker
+                selectedValue={editedTask.status_id}
+                onValueChange={(itemValue) => setEditedTask({ ...editedTask, status_id: itemValue })}
+              >
+                <Picker.Item label="Todo" value={1} />
+                <Picker.Item label="In Progress" value={2} />
+                <Picker.Item label="Done" value={3} />
+                <Picker.Item label="Problem" value={4} />
+              </Picker>
+
+              <Text>Change Delegated User</Text>
+              <UserPicker
+                onUserSelect={handleUserSelect}
+                selectedUserId={selectedUserId}
+              />
+
+              <TagSelector
+                selectedTagIds={editedTask.tag_ids || []}
+                onTagsSelected={handleTagsSelected}
+              />
+
+              <Text style={globalStyles.subtitle}>Problems:</Text>
+              <FlatList
+                data={problems}
+                keyExtractor={(item) => item.task_problem_id.toString()}
+                renderItem={({ item }) => (
+                  <View style={globalStyles.problemItem}>
+                    <Text>{item.content}</Text>
+                    <View style={[globalStyles.row, { marginTop: 5 }]}>
+                      <Pressable
+                        style={[globalStyles.smallButton, globalStyles.warningButton]}
+                        onPress={() => handleEditProblem(item)}
+                      >
+                        <Text style={globalStyles.buttonText}>Edit</Text>
+                      </Pressable>
+                      <Pressable
+                        style={[globalStyles.smallButton, globalStyles.errorButton]}
+                        onPress={() => handleDeleteProblem(item.task_problem_id)}
+                      >
+                        <Text style={globalStyles.buttonText}>Delete</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+              />
+
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Add/Edit Problem"
+                value={newProblemContent}
+                onChangeText={setNewProblemContent}
+                multiline
+              />
+
+              <View style={[globalStyles.row, { marginTop: 10 }]}>
+                {editingProblem ? (
+                  <>
                     <Pressable
-                      style={[globalStyles.smallButton, globalStyles.warningButton]}
-                      onPress={() => handleEditProblem(item)}
+                      style={[globalStyles.button, globalStyles.successButton, { flex: 1, marginRight: 5 }]}
+                      onPress={handleUpdateProblem}
                     >
-                      <Text style={globalStyles.buttonText}>Edit</Text>
+                      <Text style={globalStyles.buttonText}>Update Problem</Text>
                     </Pressable>
                     <Pressable
-                      style={[globalStyles.smallButton, globalStyles.errorButton]}
-                      onPress={() => handleDeleteProblem(item.task_problem_id)}
+                      style={[globalStyles.button, globalStyles.grayButton, { flex: 1, marginLeft: 5 }]}
+                      onPress={() => {
+                        setEditingProblem(null);
+                        setNewProblemContent("");
+                      }}
+                    >
+                      <Text style={globalStyles.buttonText}>Cancel</Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <Pressable
+                    style={[globalStyles.button, globalStyles.successButton, { flex: 1 }]}
+                    onPress={handleAddProblem}
+                  >
+                    <Text style={globalStyles.buttonText}>Add Problem</Text>
+                  </Pressable>
+                )}
+              </View>
+
+              <View style={[globalStyles.row, { marginTop: 20, justifyContent: 'space-between' }]}>
+                {!showDeleteConfirm ? (
+                  <>
+                    <Pressable
+                      style={[globalStyles.button, { flex: 1, marginRight: 5 }]}
+                      onPress={handleUpdateTask}
+                      disabled={isUpdating || !canManageTask}
+                    >
+                      <Text style={globalStyles.buttonText}>{isUpdating ? 'Updating...' : 'Update'}</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={[globalStyles.button, globalStyles.deleteButton, { flex: 1, marginLeft: 5 }]}
+                      onPress={handleDeleteTask}
+                      disabled={isDeleting || !canManageTask}
                     >
                       <Text style={globalStyles.buttonText}>Delete</Text>
                     </Pressable>
+                  </>
+                ) : (
+                  <View style={{ flex: 1, alignItems: 'center' }}>
+                    <Text>Are you sure you want to delete this task?</Text>
+                    <View style={[globalStyles.row, { marginTop: 10 }]}>
+                      <Pressable onPress={() => setShowDeleteConfirm(false)}>
+                        <Text>Cancel</Text>
+                      </Pressable>
+                      <Pressable
+                        style={{ marginLeft: 20 }}
+                        onPress={confirmDelete}
+                        disabled={!canManageTask}
+                      >
+                        <Text>Confirm Delete</Text>
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-              )}
-            />
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Add/Edit Problem"
-              value={newProblemContent}
-              onChangeText={setNewProblemContent}
-              multiline
-            />
-            <View style={globalStyles.row}>
-              {editingProblem ? (
-                <>
-                  <Pressable
-                    style={[globalStyles.button, globalStyles.successButton]}
-                    onPress={handleUpdateProblem}
-                  >
-                    <Text style={globalStyles.buttonText}>Update Problem</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[globalStyles.button, globalStyles.grayButton]}
-                    onPress={() => {
-                      setEditingProblem(null);
-                      setNewProblemContent("");
-                    }}
-                  >
-                    <Text style={globalStyles.buttonText}>Cancel</Text>
-                  </Pressable>
-                </>
-              ) : (
-                <Pressable
-                  style={[globalStyles.button, globalStyles.successButton]}
-                  onPress={handleAddProblem}
-                >
-                  <Text style={globalStyles.buttonText}>Add Problem</Text>
-                </Pressable>
-              )}
-            </View>
+                )}
+              </View>
 
-            <View style={globalStyles.modalButtonContainer}>
-              {!showDeleteConfirm ? (
-                <>
-                  <Pressable
-                    style={globalStyles.button}
-                    onPress={handleUpdateTask}
-                    disabled={isUpdating || !canManageTask}
-                  >
-                    <Text style={globalStyles.buttonText}>{isUpdating ? 'Updating...' : 'Update'}</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[globalStyles.button, globalStyles.deleteButton]}
-                    onPress={handleDeleteTask}
-                    disabled={isDeleting || !canManageTask}
-                  >
-                    <Text style={globalStyles.buttonText}>Delete</Text>
-                  </Pressable>
-                </>
-              ) : (
-                <View style={globalStyles.confirmModal}>
-                  <Text>Are you sure you want to delete this task?</Text>
-                  <Pressable onPress={() => setShowDeleteConfirm(false)}>
-                    <Text>Cancel</Text>
-                  </Pressable>
-                  <Pressable onPress={confirmDelete} disabled={!canManageTask}>
-                    <Text>Confirm Delete</Text>
-                  </Pressable>
-                </View>
-              )}
               <Pressable
-                style={globalStyles.button}
+                style={[globalStyles.button, { marginTop: 10 }]}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={globalStyles.buttonText}>Cancel</Text>
               </Pressable>
-            </View>
-          </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </View>

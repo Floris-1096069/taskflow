@@ -96,7 +96,7 @@ const ProblemTasks = () => {
               <Text>Assigned to: {getUsername(item.delegated_to)}</Text>
               <Text>Created by: {getUsername(item.created_by)}</Text>
               <Text>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
-                <View style={{ marginVertical: 10 }} />
+              <View style={{ marginVertical: 10 }} />
               <Text style={globalStyles.Text}>Problems:</Text>
               {item.problems && item.problems.length > 0 ? (
                 item.problems.map((problem) => (
@@ -122,6 +122,11 @@ const ProblemTasks = () => {
             </View>
           );
         }}
+        ListEmptyComponent={
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+            <Text>No problematic tasks reported.</Text>
+          </View>
+        }
       />
     </View>
   );
