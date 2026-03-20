@@ -25,6 +25,11 @@ class TaskProblem(Base):
             return db.query(cls).filter(cls.task_id == task_id).all()
 
     @classmethod
+    def get_all(cls):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).all()
+
+    @classmethod
     def create(cls, task_id: int, user_id: int, content: str):
         with cls._db_manager.get_db() as db:
             task = db.query(Task).filter(Task.task_id == task_id).one_or_none()

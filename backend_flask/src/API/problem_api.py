@@ -61,3 +61,13 @@ def get_problems_by_task(task_id):
     problems = TaskProblem.get_by_task_id(task_id)
     return jsonify([problem.to_dict() for problem in problems])
 
+
+@problem_api.get("/all")
+@jwt_required()
+def get_all_problems():
+    user_id = get_jwt_identity()
+    if not User.get_user(user_id):
+        return jsonify({"error": "User doesnt exist"}), 401
+
+    problems = TaskProblem.get_all()
+    return jsonify([problem.to_dict() for problem in problems])
