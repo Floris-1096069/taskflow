@@ -46,7 +46,7 @@ def create_app():
     db_manager = DatabaseManager()
     with app.app_context():
         #uncomment drop_db() to drop database before creating entries
-        db_manager.drop_db()
+        #db_manager.drop_db()
         db_manager.create_all()
 
     return app
