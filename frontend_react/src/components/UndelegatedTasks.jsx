@@ -63,11 +63,29 @@ const UndelegatedTasks = () => {
         keyExtractor={(item) => item.task_id.toString()}
         contentContainerStyle={{ flexGrow: 1, backgroundColor: globalStyles.container.backgroundColor }}
         renderItem={({ item }) => (
-          <ManageTask
-            task={item}
-            onUpdate={fetchUndelegatedTasks}
-            onDelete={fetchUndelegatedTasks}
-          />
+          <View style={globalStyles.taskItem}>
+            <Text style={globalStyles.taskName}>{item.name}</Text>
+            <Text style={globalStyles.bodyText}>Description: {item.description}</Text>
+            <Text style={globalStyles.bodyText}>Priority: {item.priority}</Text>
+            <Text style={globalStyles.bodyText}>Created at: {new Date(item.creation_time).toLocaleString()}</Text>
+            <View style={globalStyles.tagsContainer}>
+              <Text>Tags: </Text>
+              {item.tags && item.tags.length > 0 ? (
+                item.tags.map((tag) => (
+                  <View key={tag.tag_id} style={globalStyles.tag}>
+                    <Text>{tag.name}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text>No tags</Text>
+              )}
+            </View>
+            <ManageTask
+              task={item}
+              onUpdate={fetchUndelegatedTasks}
+              onDelete={fetchUndelegatedTasks}
+            />
+          </View>
         )}
         ListEmptyComponent={
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: globalStyles.container.backgroundColor }}>

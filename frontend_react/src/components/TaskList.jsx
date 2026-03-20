@@ -31,10 +31,24 @@ const TaskList = () => {
   const [newProblem, setNewProblem] = useState("");
   const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
-  const [expandedTaskId, setExpandedTaskId] = useState(null);
 
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
+
+  const getStatusBackgroundColor = (statusId) => {
+    switch (statusId) {
+      case 1:
+        return '#F5F5F5'; // To Do
+      case 2:
+        return '#B3E5FC'; // In Progress
+      case 3:
+        return '#C8E6C9'; // Done
+      case 4:
+        return '#FFCDD2'; // Problem
+      default:
+        return globalStyles.container.backgroundColor;
+    }
+  };
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -92,26 +106,6 @@ const TaskList = () => {
     }
   };
 
-  const fetchAllProblems = async () => {
-    try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/all`);
-      const data = await response.json();
-      const problemsMap = {};
-      data.forEach(problem => {
-        if (!problemsMap[problem.task_id]) {
-          problemsMap[problem.task_id] = [];
-        }
-        problemsMap[problem.task_id].push(problem);
-      });
-      setTasks(prevTasks => prevTasks.map(task => ({
-        ...task,
-        problems: problemsMap[task.task_id] || []
-      })));
-    } catch (err) {
-      console.error('Error fetching problems:', err);
-    }
-  };
-
   const getNextStatus = (currentStatusId) => {
     const statusOrder = [1, 2, 3];
     const currentIndex = statusOrder.indexOf(currentStatusId);
@@ -140,7 +134,6 @@ const TaskList = () => {
     fetchTasks();
     fetchUsers();
     fetchStatuses();
-    fetchAllProblems();
   }, [filters, showAllTasks]);
 
   const getUsername = (userId) => {
@@ -156,14 +149,6 @@ const TaskList = () => {
   const handleReportProblem = (task) => {
     setSelectedTask(task);
     setProblemModalVisible(true);
-  };
-
-  const toggleProblems = (taskId) => {
-    if (expandedTaskId === taskId) {
-      setExpandedTaskId(null);
-    } else {
-      setExpandedTaskId(taskId);
-    }
   };
 
   const getPriorityName = (priorityId) => {
@@ -192,7 +177,6 @@ const TaskList = () => {
         setNewProblem("");
         setProblemModalVisible(false);
         fetchTasks();
-        fetchAllProblems();
         alert("Problem reported and task status updated to 'Problem'!");
       } else {
         const errorData = await response.json();
@@ -310,11 +294,10 @@ const TaskList = () => {
           const isTaskCreator = String(taskCreatorId) === String(user_id);
           const canManageTask = isAuthorized || isTaskCreator;
           const isDelegatee = String(item.delegated_to) === String(user_id);
-          const isExpanded = expandedTaskId === item.task_id;
-          const hasProblems = item.problems && item.problems.length > 0;
+          const statusBackgroundColor = getStatusBackgroundColor(item.status_id);
 
           return (
-            <View style={globalStyles.taskItem}>
+            <View style={[globalStyles.taskItem, { backgroundColor: statusBackgroundColor }]}>
               <Text style={globalStyles.taskName}>{item.name}</Text>
               <Text style={globalStyles.bodyText}>Description: {item.description}</Text>
               <Text style={globalStyles.bodyText}>Priority: {getPriorityName(item.priority)}</Text>
@@ -334,29 +317,6 @@ const TaskList = () => {
                   <Text>No tags</Text>
                 )}
               </View>
-
-              {hasProblems && (
-                <Pressable
-                  style={globalStyles.button}
-                  onPress={() => toggleProblems(item.task_id)}
-                >
-                  <Text style={globalStyles.buttonText}>
-                    {isExpanded ? 'Hide Problems' : 'Show Problems'}
-                  </Text>
-                </Pressable>
-              )}
-
-              {isExpanded && (
-                <View style={globalStyles.problemContainer}>
-                  {item.problems.map((problem) => (
-                    <View key={problem.task_problem_id} style={globalStyles.problemItem}>
-                      <Text style={globalStyles.bodyText}>{problem.content}</Text>
-                      <Text style={globalStyles.bodyText}>Reported by: {getUsername(problem.user_id)}</Text>
-                      <Text style={globalStyles.bodyText}>Reported at: {new Date(problem.creation_time).toLocaleString()}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
 
               {isDelegatee && item.status_id !== 3 && (
                 <Pressable
