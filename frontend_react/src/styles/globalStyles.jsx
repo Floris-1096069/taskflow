@@ -122,6 +122,7 @@ export const getGlobalStyles = (colorScheme) => {
       alignItems: 'center',
       marginVertical: 5,
     },
+
     smallButton: {
       padding: 8,
       borderRadius: 5,
@@ -130,6 +131,7 @@ export const getGlobalStyles = (colorScheme) => {
       justifyContent: 'center',
       flex: 1,
     },
+
     problemItem: {
       padding: 10,
       borderWidth: 1,
@@ -137,6 +139,23 @@ export const getGlobalStyles = (colorScheme) => {
       borderRadius: 5,
       marginVertical: 5,
       backgroundColor: colours.white,
+    },
+
+    tagListWrapper: {
+      maxHeight: 200,
+      borderWidth: 1,
+      borderColor: '#ddd',
+      borderRadius: 4,
+      marginTop: 5,
+      overflow: 'hidden',
+    },
+
+    tagList: {
+      flex: 1,
+    },
+
+    tagListContent: {
+      paddingBottom: 10,
     },
 
   //containers
