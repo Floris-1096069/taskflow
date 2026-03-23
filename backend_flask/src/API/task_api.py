@@ -141,9 +141,6 @@ def delete_task(task_id):
     user_id = int(get_jwt_identity())
     created_by = Task.get_created_by(task_id)
 
-    print(user_id)
-    print(created_by)
-
     if not User.is_authorized(user_id) and user_id != created_by:
         print('User is unauthorised')
         return jsonify({"error": "Unauthorized"}), 403
@@ -151,9 +148,12 @@ def delete_task(task_id):
     try:
         Task.delete(task_id)
         return jsonify({"message": "Task deleted successfully"})
+
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
+
     except Exception as e:
+        print(e)
         return jsonify({"error": "Failed to delete task"}), 500
 
 

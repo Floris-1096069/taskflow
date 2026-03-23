@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, Boolean, ForeignKey, DateTime, text
 from sqlalchemy.orm import relationship, joinedload
 
 from backend_flask.src.db.base import Base
@@ -103,10 +103,11 @@ class Task(Base):
 
             return new_task
 
-
     @classmethod
     def delete(cls, task_id):
         with cls._db_manager.get_db() as db:
+            db.execute(text("DELETE FROM taskproblems WHERE task_id = :task_id"), {"task_id": task_id})
+
             task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
             if not task:
                 raise ValueError("Task not found")
