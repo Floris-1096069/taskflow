@@ -70,34 +70,44 @@ class DatabaseManager:
             existing_tag_ids = {tag.tag_id for tag in db.query(Tag).all()}
 
             tags_to_create = [
-                {"tag_id": 1, "name": "Wegleg"},
-                {"tag_id": 2, "name": "Binnenkomend"},
-                {"tag_id": 3, "name": "Missend Product"},
-                {"tag_id": 4, "name": "Probleem met Bak"},
-                {"tag_id": 5, "name": "Hoge Prio"},
-                {"tag_id": 6, "name": "Orderpick"},
-                {"tag_id": 7, "name": "Multiorder"},
-                {"tag_id": 8, "name": "Verzenden"},
-                {"tag_id": 9, "name": "Band"},
-                {"tag_id": 10, "name": "PGS"},
-                {"tag_id": 11, "name": "Beneden"},
-                {"tag_id": 12, "name": "Boven"},
-                {"tag_id": 13, "name": "In de Wacht"},
-                {"tag_id": 14, "name": "Bijpick"},
-                {"tag_id": 15, "name": "Afval"},
-                {"tag_id": 16, "name": "Schoonmaak"},
-                {"tag_id": 17, "name": "Dozen"},
-                {"tag_id": 18, "name": "Ophalen"},
-                {"tag_id": 19, "name": "Kreekweg"},
-                {"tag_id": 20, "name": "Wegbrengen"},
-                {"tag_id": 21, "name": "Crediteren"},
-                {"tag_id": 22, "name": "Bijvullen"},
-                {"tag_id": 23, "name": "Tellen"},
-                {"tag_id": 24, "name": "Meten"},
-                {"tag_id": 25, "name": "Inventariseren"},
-                {"tag_id": 26, "name": "Opboeken"},
-                {"tag_id": 27, "name": "Afboeken"},
+                {"tag_id": 1, "tag": "Wegleg"},
+                {"tag_id": 2, "tag": "Binnenkomend"},
+                {"tag_id": 3, "tag": "Missend Product"},
+                {"tag_id": 4, "tag": "Probleem met Bak"},
+                {"tag_id": 5, "tag": "Hoge Prio"},
+                {"tag_id": 6, "tag": "Orderpick"},
+                {"tag_id": 7, "tag": "Multiorder"},
+                {"tag_id": 8, "tag": "Verzenden"},
+                {"tag_id": 9, "tag": "Band"},
+                {"tag_id": 10, "tag": "PGS"},
+                {"tag_id": 11, "tag": "Beneden"},
+                {"tag_id": 12, "tag": "Boven"},
+                {"tag_id": 13, "tag": "In de Wacht"},
+                {"tag_id": 14, "tag": "Bijpick"},
+                {"tag_id": 15, "tag": "Afval"},
+                {"tag_id": 16, "tag": "Schoonmaak"},
+                {"tag_id": 17, "tag": "Dozen"},
+                {"tag_id": 18, "tag": "Ophalen"},
+                {"tag_id": 19, "tag": "Kreekweg"},
+                {"tag_id": 20, "tag": "Wegbrengen"},
+                {"tag_id": 21, "tag": "Crediteren"},
+                {"tag_id": 22, "tag": "Bijvullen"},
+                {"tag_id": 23, "tag": "Tellen"},
+                {"tag_id": 24, "tag": "Meten"},
+                {"tag_id": 25, "tag": "Inventariseren"},
+                {"tag_id": 26, "tag": "Opboeken"},
+                {"tag_id": 27, "tag": "Afboeken"},
             ]
+
+            for tag_data in tags_to_create:
+                if tag_data["tag_id"] not in existing_tag_ids:
+                    new_tag = Tag(tag_id=tag_data["tag_id"], tag=tag_data["tag"])
+                    db.add(new_tag)
+                    print(f'Added new tag: {new_tag}')
+                else:
+                    print(f'{tag_data} already in database')
+
+            db.commit()
 
 
     def init_statuses(self):
