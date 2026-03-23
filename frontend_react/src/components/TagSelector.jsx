@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, FlatList, Pressable, ActivityIndicator, useColorScheme } from 'react-native';
 import { useTagContext } from '../context/TagContext';
 import getGlobalStyles from "../styles/globalStyles";
 
 const TagSelector = ({ selectedTagIds, onTagsSelected }) => {
   const { tags, loading } = useTagContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const globalStyles = getGlobalStyles();
+  const colorScheme = useColorScheme();
+  const globalStyles = getGlobalStyles(colorScheme);
 
   const toggleTag = (tagId) => {
     if (selectedTagIds.includes(tagId)) {
@@ -32,7 +33,7 @@ const TagSelector = ({ selectedTagIds, onTagsSelected }) => {
       {loading ? (
         <ActivityIndicator size="small" />
       ) : (
-        <View style={globalStyles.tagListWrapper}>
+        <View style={[globalStyles.tagListWrapper, { maxHeight: 120 }]}>
           <FlatList
             data={filteredTags}
             keyExtractor={(item) => item.tag_id.toString()}
@@ -50,8 +51,6 @@ const TagSelector = ({ selectedTagIds, onTagsSelected }) => {
             ListEmptyComponent={
               <Text style={globalStyles.tagItem}>No tags found</Text>
             }
-            contentContainerStyle={globalStyles.tagListContent}
-            style={globalStyles.tagList}
           />
         </View>
       )}

@@ -285,10 +285,15 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
                 selectedUserId={selectedUserId}
               />
 
-              <TagSelector
-                selectedTagIds={editedTask.tag_ids || []}
-                onTagsSelected={handleTagsSelected}
-              />
+              <View style={{ marginVertical: 10 }}>
+                <Text style={globalStyles.subtitle}>Tags:</Text>
+                <View style={globalStyles.tagPickerContainer}>
+                  <TagSelector
+                    selectedTagIds={editedTask.tag_ids || []}
+                    onTagsSelected={handleTagsSelected}
+                  />
+                </View>
+              </View>
 
               <Text style={globalStyles.subtitle}>Problems:</Text>
               <FlatList

@@ -22,7 +22,7 @@ const TaskList = () => {
   const [error, setError] = useState(null);
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
-  const globalStyles = getGlobalStyles(colorScheme);
+  const { colours, ...styles } = getGlobalStyles(colorScheme);
   const [modalVisible, setModalVisible] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [statusesLoading, setStatusesLoading] = useState(false);
@@ -38,15 +38,15 @@ const TaskList = () => {
   const getStatusBackgroundColor = (statusId) => {
     switch (statusId) {
       case 1:
-        return '#F5F5F5'; // To Do
+        return colours.todoBackground;
       case 2:
-        return '#B3E5FC'; // In Progress
+        return colours.inProgressBackground;
       case 3:
-        return '#C8E6C9'; // Done
+        return colours.doneBackground;
       case 4:
-        return '#FFCDD2'; // Problem
+        return colours.problemBackground;
       default:
-        return globalStyles.container.backgroundColor;
+        return colours.background;
     }
   };
 
@@ -191,8 +191,8 @@ const TaskList = () => {
 
   if (loading && tasks.length === 0) {
     return (
-      <View style={globalStyles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colours.primary} />
         <Text>Loading tasks...</Text>
       </View>
     );
@@ -200,8 +200,8 @@ const TaskList = () => {
 
   if (error) {
     return (
-      <View style={globalStyles.errorContainer}>
-        <Text style={globalStyles.errorText}>Error: {error}</Text>
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
         <Pressable onPress={fetchTasks}>
           <Text>Retry</Text>
         </Pressable>
@@ -210,34 +210,26 @@ const TaskList = () => {
   }
 
   return (
-    <View style={globalStyles.container}>
-      <View style={globalStyles.filterContainer}>
-        <Text style={globalStyles.title}>
-          To Do List
-        </Text>
+    <View style={styles.container}>
+      <View style={styles.filterContainer}>
+        <Text style={styles.title}>To Do List</Text>
 
         {isAuthorized && (
-          <View style={globalStyles.filterRow}>
-            <Text style={globalStyles.filterLabel}>Show:</Text>
-            <Switch
-              value={showAllTasks}
-              onValueChange={setShowAllTasks}
-            />
+          <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Show:</Text>
+            <Switch value={showAllTasks} onValueChange={setShowAllTasks} />
             <Text>{showAllTasks ? "All Tasks" : "My Tasks"}</Text>
           </View>
         )}
 
-        <Pressable
-          style={globalStyles.button}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={globalStyles.buttonText}>Create New Task</Text>
+        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Create New Task</Text>
         </Pressable>
 
-        <View style={globalStyles.filterRow}>
-          <Text style={globalStyles.filterLabel}>Filter Priorities:</Text>
+        <View style={styles.filterRow}>
+          <Text style={styles.filterLabel}>Filter Priorities:</Text>
           <Picker
-            style={globalStyles.picker}
+            style={styles.picker}
             selectedValue={filters.priority}
             onValueChange={(itemValue) => {
               const value = itemValue === "Any Priority" ? undefined : itemValue;
@@ -251,27 +243,34 @@ const TaskList = () => {
           </Picker>
         </View>
 
-        <TagSelector
-          selectedTagIds={filters.tag_ids}
-          onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
-        />
+        <View style={{ marginVertical: 10 }}>
+          <Text style={styles.subtitle}>Tags:</Text>
+          <View style={[styles.tagPickerContainer, { maxHeight: 150 }]}>
+            <TagSelector
+              selectedTagIds={filters.tag_ids}
+              onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
+            />
+          </View>
+        </View>
 
-        <Pressable style={globalStyles.button} onPress={fetchTasks}>
-          <Text style={globalStyles.buttonText}>Apply Filters</Text>
-        </Pressable>
+        <View style={styles.filterRow}>
+          <Pressable style={styles.button} onPress={fetchTasks}>
+            <Text style={styles.buttonText}>Apply Filters</Text>
+          </Pressable>
 
-        <Pressable
-          style={globalStyles.button}
-          onPress={() => setFilters({
-            archived: false,
-            priority: null,
-            delegated_to: null,
-            status_id: null,
-            tag_ids: [],
-          })}
-        >
-          <Text style={globalStyles.buttonText}>Clear Filters</Text>
-        </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => setFilters({
+              archived: false,
+              priority: null,
+              delegated_to: null,
+              status_id: null,
+              tag_ids: [],
+            })}
+          >
+            <Text style={styles.buttonText}>Clear Filters</Text>
+          </Pressable>
+        </View>
       </View>
 
       <AddTask
@@ -283,7 +282,7 @@ const TaskList = () => {
       />
 
       {loading && tasks.length > 0 ? (
-        <ActivityIndicator size="small" color="#0000ff" style={globalStyles.refreshIndicator} />
+        <ActivityIndicator size="small" color={colours.primary} style={styles.refreshIndicator} />
       ) : null}
 
       <FlatList
@@ -297,20 +296,21 @@ const TaskList = () => {
           const statusBackgroundColor = getStatusBackgroundColor(item.status_id);
 
           return (
-            <View style={[globalStyles.taskItem, { backgroundColor: statusBackgroundColor }]}>
-              <Text style={globalStyles.taskName}>{item.name}</Text>
-              <Text style={globalStyles.bodyText}>Description: {item.description}</Text>
-              <Text style={globalStyles.bodyText}>Priority: {getPriorityName(item.priority)}</Text>
-              <Text style={globalStyles.bodyText}>Status: {getStatusName(item.status_id)}</Text>
-              <Text style={globalStyles.bodyText}>Assigned to: {getUsername(item.delegated_to)}</Text>
-              <Text style={globalStyles.bodyText}>Created by: {getUsername(item.created_by)}</Text>
-              <Text style={globalStyles.bodyText}>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
-              <View style={globalStyles.tagsContainer}>
+            <View style={[styles.taskItem, { backgroundColor: statusBackgroundColor }]}>
+              <Text style={styles.taskName}>{item.name}</Text>
+              <Text style={styles.bodyText}>Description: {item.description}</Text>
+              <Text style={styles.bodyText}>Priority: {getPriorityName(item.priority)}</Text>
+              <Text style={styles.bodyText}>Status: {getStatusName(item.status_id)}</Text>
+              <Text style={styles.bodyText}>Assigned to: {getUsername(item.delegated_to)}</Text>
+              <Text style={styles.bodyText}>Created by: {getUsername(item.created_by)}</Text>
+              <Text style={styles.bodyText}>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
+
+              <View style={styles.tagsContainer}>
                 <Text>Tags: </Text>
                 {item.tags && item.tags.length > 0 ? (
                   item.tags.map((tag) => (
-                    <View key={tag.tag_id} style={globalStyles.tag}>
-                      <Text>{tag.name}</Text>
+                    <View key={tag.tag_id} style={styles.tag}>
+                      <Text style={{ color: colours.white }}>{tag.name}</Text>
                     </View>
                   ))
                 ) : (
@@ -318,43 +318,49 @@ const TaskList = () => {
                 )}
               </View>
 
-              {isDelegatee && item.status_id !== 3 && (
+              <View style={styles.taskActionsContainer}>
+                {isDelegatee && item.status_id !== 3 && (
+                  <Pressable
+                    style={[
+                      styles.button,
+                      { flex: 1, marginRight: 8 }
+                    ]}
+                    onPress={() => handleAdvanceStatus(item)}
+                  >
+                    <Text style={styles.buttonText}>
+                      {item.status_id === 1 ? 'Start Task' : 'Mark as Done'}
+                    </Text>
+                  </Pressable>
+                )}
+
                 <Pressable
                   style={[
-                    globalStyles.button,
-                    item.status_id === 1 ? globalStyles.startButton : globalStyles.doneButton
+                    styles.button,
+                    { flex: 1, marginRight: 8 }
                   ]}
-                  onPress={() => handleAdvanceStatus(item)}
+                  onPress={() => handleReportProblem(item)}
                 >
-                  <Text style={globalStyles.buttonText}>
-                    {item.status_id === 1 ? 'Start Task' : 'Mark as Done'}
-                  </Text>
+                  <Text style={styles.buttonText}>Report Problem</Text>
                 </Pressable>
-              )}
 
-              <Pressable
-                style={[globalStyles.button, globalStyles.problemButton]}
-                onPress={() => handleReportProblem(item)}
-              >
-                <Text style={globalStyles.buttonText}>Report Problem</Text>
-              </Pressable>
-
-              {canManageTask && (
-                <ManageTask
-                  task={item}
-                  onUpdate={fetchTasks}
-                  onDelete={(taskId) => {
-                    setTasks(tasks.filter(t => t.task_id !== taskId));
-                    fetchTasks();
-                  }}
-                />
-              )}
+                {canManageTask && (
+                  <ManageTask
+                    task={item}
+                    onUpdate={fetchTasks}
+                    onDelete={(taskId) => {
+                      setTasks(tasks.filter(t => t.task_id !== taskId));
+                      fetchTasks();
+                    }}
+                  />
+                )}
+              </View>
             </View>
           );
         }}
+        contentContainerStyle={{ padding: 10 }}
         ListEmptyComponent={
           !loading ? (
-            <View style={globalStyles.emptyContainer}>
+            <View style={styles.emptyContainer}>
               <Text>No tasks found.</Text>
             </View>
           ) : null
@@ -367,29 +373,29 @@ const TaskList = () => {
         visible={problemModalVisible}
         onRequestClose={() => setProblemModalVisible(false)}
       >
-        <View style={globalStyles.modalContainer}>
-            <Text style={globalStyles.modalTitle}>Report Problem</Text>
+        <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Report Problem</Text>
             <TextInput
-              style={globalStyles.input}
+              style={styles.input}
               placeholder="Describe the problem..."
               value={newProblem}
               onChangeText={setNewProblem}
               multiline
             />
             <Pressable
-              style={globalStyles.button}
+              style={styles.button}
               disabled={isSubmittingProblem || !newProblem.trim()}
               onPress={submitProblem}
             >
-              <Text style={globalStyles.buttonText}>
+              <Text style={styles.buttonText}>
                 {isSubmittingProblem ? "Submitting..." : "Submit Problem"}
               </Text>
             </Pressable>
             <Pressable
-              style={globalStyles.button}
+              style={styles.button}
               onPress={() => setProblemModalVisible(false)}
             >
-              <Text style={globalStyles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>Cancel</Text>
             </Pressable>
         </View>
       </Modal>

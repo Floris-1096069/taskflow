@@ -54,18 +54,16 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.delegated_to == None).all()
 
-
     @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
-            query = db.query(cls)
+            query = db.query(cls).options(joinedload(cls.tags))
 
             if 'status_id' not in filters:
                 query = query.filter(cls.status_id != 4)
             elif filters['status_id'] != '4':
                 query = query.filter(cls.status_id == filters['status_id'])
 
-            # Apply other filters
             if 'archived' in filters and filters['archived'] is not None:
                 query = query.filter(cls.archived == filters['archived'])
             if 'priority' in filters and filters['priority'] is not None:
