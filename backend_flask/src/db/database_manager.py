@@ -64,6 +64,42 @@ class DatabaseManager:
             db.commit()
 
 
+    def init_tags(self):
+        from backend_flask.src.db.ORM.Tag import Tag
+        with self.get_db() as db:
+            existing_tag_ids = {tag.tag_id for tag in db.query(Tag).all()}
+
+            tags_to_create = [
+                {"tag_id": 1, "name": "Wegleg"},
+                {"tag_id": 2, "name": "Binnenkomend"},
+                {"tag_id": 3, "name": "Missend Product"},
+                {"tag_id": 4, "name": "Probleem met Bak"},
+                {"tag_id": 5, "name": "Hoge Prio"},
+                {"tag_id": 6, "name": "Orderpick"},
+                {"tag_id": 7, "name": "Multiorder"},
+                {"tag_id": 8, "name": "Verzenden"},
+                {"tag_id": 9, "name": "Band"},
+                {"tag_id": 10, "name": "PGS"},
+                {"tag_id": 11, "name": "Beneden"},
+                {"tag_id": 12, "name": "Boven"},
+                {"tag_id": 13, "name": "In de Wacht"},
+                {"tag_id": 14, "name": "Bijpick"},
+                {"tag_id": 15, "name": "Afval"},
+                {"tag_id": 16, "name": "Schoonmaak"},
+                {"tag_id": 17, "name": "Dozen"},
+                {"tag_id": 18, "name": "Ophalen"},
+                {"tag_id": 19, "name": "Kreekweg"},
+                {"tag_id": 20, "name": "Wegbrengen"},
+                {"tag_id": 21, "name": "Crediteren"},
+                {"tag_id": 22, "name": "Bijvullen"},
+                {"tag_id": 23, "name": "Tellen"},
+                {"tag_id": 24, "name": "Meten"},
+                {"tag_id": 25, "name": "Inventariseren"},
+                {"tag_id": 26, "name": "Opboeken"},
+                {"tag_id": 27, "name": "Afboeken"},
+            ]
+
+
     def init_statuses(self):
         from backend_flask.src.db.ORM.Status import Status
         with self.get_db() as db:
@@ -116,6 +152,7 @@ class DatabaseManager:
         Base.metadata.create_all(bind=self.engine)
         self.init_roles()
         self.init_statuses()
+        self.init_tags()
         self.ensure_admin_user()
 
 
