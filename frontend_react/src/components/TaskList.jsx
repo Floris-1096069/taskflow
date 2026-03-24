@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Switch, Alert } from 'react-native';
+import {
+  View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Switch, Alert,
+  TouchableOpacity
+} from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
@@ -31,6 +34,7 @@ const TaskList = () => {
   const [newProblem, setNewProblem] = useState("");
   const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
+  const [showTagSelector, setShowTagSelector] = useState(false); // New state for tag selector visibility
 
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
@@ -212,66 +216,56 @@ const TaskList = () => {
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>
-        <Text style={styles.title}>To Do List</Text>
+  <Text style={styles.title}>To Do List</Text>
 
-        {isAuthorized && (
-          <View style={styles.filterRow}>
-            <Text style={styles.filterLabel}>Show:</Text>
-            <Switch value={showAllTasks} onValueChange={setShowAllTasks} />
-            <Text>{showAllTasks ? "All Tasks" : "My Tasks"}</Text>
-          </View>
-        )}
+  {isAuthorized && (
+    <View style={styles.filterRow}>
+      <Text style={styles.filterLabel}>Show:</Text>
+      <Switch value={showAllTasks} onValueChange={setShowAllTasks} />
+      <Text>{showAllTasks ? "All Tasks" : "My Tasks"}</Text>
+    </View>
+  )}
 
-        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
-          <Text style={styles.buttonText}>Create New Task</Text>
-        </Pressable>
+  <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+    <Text style={styles.buttonText}>Create New Task</Text>
+  </Pressable>
 
-        <View style={styles.filterRow}>
-          <Text style={styles.filterLabel}>Filter Priorities:</Text>
-          <Picker
-            style={styles.picker}
-            selectedValue={filters.priority}
-            onValueChange={(itemValue) => {
-              const value = itemValue === "Any Priority" ? undefined : itemValue;
-              setFilters({ ...filters, priority: value });
-            }}
-          >
-            <Picker.Item label="Any Priority" value={undefined} />
-            <Picker.Item label="Low" value={1} />
-            <Picker.Item label="Medium" value={2} />
-            <Picker.Item label="High" value={3} />
-          </Picker>
-        </View>
+  <View style={styles.filterRow}>
+    <Text style={styles.filterLabel}>Filter Priorities:</Text>
+    <Picker
+      style={styles.picker}
+      selectedValue={filters.priority}
+      onValueChange={(itemValue) => {
+        const value = itemValue === "Any Priority" ? undefined : itemValue;
+        setFilters({ ...filters, priority: value });
+      }}
+    >
+      <Picker.Item label="Any Priority" value={undefined} />
+      <Picker.Item label="Low" value={1} />
+      <Picker.Item label="Medium" value={2} />
+      <Picker.Item label="High" value={3} />
+    </Picker>
+  </View>
 
-        <View>
-          <Text style={styles.subtitle}>Tags:</Text>
-          <View style={[styles.tagPickerContainer]}>
-            <TagSelector
-              selectedTagIds={filters.tag_ids}
-              onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
-            />
-          </View>
-        </View>
-
-        <View style={styles.filterRow}>
-          <Pressable style={styles.button} onPress={fetchTasks}>
-            <Text style={styles.buttonText}>Apply Filters</Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.button}
-            onPress={() => setFilters({
-              archived: false,
-              priority: null,
-              delegated_to: null,
-              status_id: null,
-              tag_ids: [],
-            })}
-          >
-            <Text style={styles.buttonText}>Clear Filters</Text>
-          </Pressable>
-        </View>
+  <View>
+    <TouchableOpacity
+      style={styles.tagFilterToggle}
+      onPress={() => setShowTagSelector(!showTagSelector)}
+    >
+      <Text style={styles.tagFilterToggleText}>
+        {showTagSelector ? "Hide Tag Filter" : "Show Tag Filter"}
+      </Text>
+    </TouchableOpacity>
+    {showTagSelector && (
+      <View style={[styles.tagPickerContainer]}>
+        <TagSelector
+          selectedTagIds={filters.tag_ids}
+          onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
+        />
       </View>
+    )}
+  </View>
+</View>
 
       <AddTask
         visible={modalVisible}

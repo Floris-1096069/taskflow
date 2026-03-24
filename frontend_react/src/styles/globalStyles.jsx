@@ -195,6 +195,20 @@ export const getGlobalStyles = (colorScheme) => {
       overflow: 'hidden',
     },
 
+    tagFilterToggle: {
+      padding: 8,
+      marginVertical: 4,
+      alignSelf: 'flex-start',
+      backgroundColor: 'transparent', // Or a subtle color
+      borderRadius: 4,
+    },
+
+    tagFilterToggleText: {
+      color: colours.primary, // Or any color that fits your theme
+      fontSize: 14,
+      textDecorationLine: 'underline', // Optional: makes it look like a link
+    },
+
     tagsContainer: {
       flexDirection: 'row',
       alignItems: 'center',
