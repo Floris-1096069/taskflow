@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+import {Config} from "../config";
 
 const AuthContext = createContext();
 
@@ -87,7 +88,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async (navigation) => {
     try {
-      const response = await fetchWithAuth('/api/auth/logout', {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/auth/logout`, {
         method: 'POST',
       });
 

@@ -86,5 +86,6 @@ def register():
 def logout():
     user_id = get_jwt_identity()
     User.set_offline(user_id)
+    print("Logout called")
 
     return jsonify({"message": "User logged out"}), 200
