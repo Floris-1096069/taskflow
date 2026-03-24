@@ -39,9 +39,13 @@ class User(Base):
 
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls, online_only=False):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).options(joinedload(cls.role)).all()
+            query = db.query(cls)
+            if online_only:
+                query = query.filter(cls.is_online == True)
+            query = query.options(joinedload(cls.role))
+            return query.all()
 
 
     @classmethod
@@ -131,6 +135,9 @@ class User(Base):
         return {
             "user_id": self.user_id,
             "username": self.username,
+            "name": getattr(self, 'name', None),
             "role_id": self.role_id,
-            "role_name": self.role.name if hasattr(self.role, 'name') else None,
+            "role_name": getattr(self.role, 'name', None) if hasattr(self, 'role') and self.role else None,
+            "is_online": self.is_online,
+            "last_seen": getattr(self, 'last_seen', None),
         }

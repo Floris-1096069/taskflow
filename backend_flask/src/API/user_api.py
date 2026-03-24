@@ -22,6 +22,14 @@ def get_all_users():
     return jsonify([user.to_dict() for user in users])
 
 
+@user_api.get("/online")
+@cross_origin()
+@jwt_required()
+def get_online_users():
+    users = User.get_all(online_only=True)
+    return jsonify([user.to_dict() for user in users])
+
+
 @user_api.get("/<int:user_id>")
 @cross_origin()
 @jwt_required()
