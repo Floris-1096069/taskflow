@@ -48,6 +48,9 @@ def create_app():
         #uncomment drop_db() to drop database before creating entries
         #db_manager.drop_db()
         db_manager.create_all()
+        print("=== Registered Routes ===")
+        for rule in app.url_map.iter_rules():
+            print(f"Endpoint: {rule.endpoint}, Path: {rule}")
 
     return app
 

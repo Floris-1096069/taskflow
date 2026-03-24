@@ -243,9 +243,9 @@ const TaskList = () => {
           </Picker>
         </View>
 
-        <View style={{ marginVertical: 10 }}>
+        <View>
           <Text style={styles.subtitle}>Tags:</Text>
-          <View style={[styles.tagPickerContainer, { maxHeight: 150 }]}>
+          <View style={[styles.tagPickerContainer]}>
             <TagSelector
               selectedTagIds={filters.tag_ids}
               onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}

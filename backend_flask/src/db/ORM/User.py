@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship, joinedload
 from backend_flask.src.db.database_manager import DatabaseManager
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 from backend_flask.src.db.base import Base
 from backend_flask.src.db.ORM.enums import RoleEnum
@@ -14,6 +15,8 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False)
     password_hash = Column(String(256), nullable=False)
     role_id = Column(Integer, ForeignKey("roles.role_id"), nullable=False)
+    last_seen = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    is_online = Column(Boolean, default=False)
 
     role = relationship("Role", back_populates="users")
     created_tasks = relationship("Task", foreign_keys="Task.created_by", back_populates="creator")
@@ -101,6 +104,27 @@ class User(Base):
             user.role_id = role_id
             db.commit()
             return user.to_dict()
+
+
+    @classmethod
+    def set_last_online(cls, user_id: int):
+        with cls._db_manager.get_db() as db:
+            user = db.query(cls).filter(cls.user_id == user_id).one_or_none()
+            if user:
+                user.is_online = True
+                user.last_seen = datetime.now()
+                db.commit()
+
+            return None
+
+
+    @classmethod
+    def set_offline(cls, user_id: int):
+        with cls._db_manager.get_db() as db:
+            user = db.query(cls).filter(cls.user_id == user_id).one_or_none()
+            if user:
+                user.is_online = False
+                db.commit()
 
 
     def to_dict(self):

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Role import Role
@@ -14,13 +14,9 @@ auth_api = Blueprint(
 )
 _db_manager = DatabaseManager()
 
-@auth_api.post("")
-@cross_origin()
-def login():
-    print("Request received from:", request.remote_addr)
-    print("Request headers:", request.headers)
-    print("Request data:", request.get_json())
 
+@auth_api.post("/login")
+def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -35,6 +31,7 @@ def login():
     if not User.authenticate(user.user_id, password):
         return jsonify({"message": "Invalid credentials"}), 401
 
+    User.set_last_online(user.user_id)
 
     access_token = create_access_token(
         identity=str(user.user_id),
@@ -42,6 +39,17 @@ def login():
                            "username": user.username}
     )
     return jsonify({"token": access_token,}), 200
+
+
+@auth_api.post("/heartbeat")
+@cross_origin()
+@jwt_required()
+def heartbeat():
+    user_id = get_jwt_identity()
+    User.set_last_online(user_id)
+    print("Heartbeat called")
+
+    return jsonify({"status": "HeartBeat Success"}), 200
 
 
 @auth_api.post("/register")
@@ -71,3 +79,12 @@ def register():
 
     return jsonify({"message": "User registered!"}), 201
 
+
+@auth_api.post("/logout")
+@cross_origin()
+@jwt_required()
+def logout():
+    user_id = get_jwt_identity()
+    User.set_offline(user_id)
+
+    return jsonify({"message": "User logged out"}), 200

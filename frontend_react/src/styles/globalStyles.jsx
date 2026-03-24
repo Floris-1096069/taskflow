@@ -190,8 +190,6 @@ export const getGlobalStyles = (colorScheme) => {
     },
 
     tagPickerContainer: {
-      marginBottom: 10,
-      borderWidth: 1,
       borderColor: colours.border,
       borderRadius: 4,
       overflow: 'hidden',

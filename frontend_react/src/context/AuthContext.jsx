@@ -87,11 +87,20 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async (navigation) => {
     try {
+      const response = await fetchWithAuth('/api/auth/logout', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Logout failed on the server');
+      }
+
       await AsyncStorage.removeItem('token');
       setToken(null);
       setIsLoggedIn(false);
       setUsername(null);
       setUserId(null);
+
       if (navigation) {
         navigation.reset({
           index: 0,
@@ -100,6 +109,18 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Failed to logout:', error);
+      await AsyncStorage.removeItem('token');
+      setToken(null);
+      setIsLoggedIn(false);
+      setUsername(null);
+      setUserId(null);
+
+      if (navigation) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
+      }
     }
   };
 
