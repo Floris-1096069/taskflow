@@ -21,7 +21,6 @@ export default function App() {
   return (
       <AuthProvider>
         <TagProvider>
-            <Heartbeat/>
             <AppNavigator/>
         </TagProvider>
       </AuthProvider>
