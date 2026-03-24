@@ -9,11 +9,10 @@ const Heartbeat = () => {
     const interval = setInterval(async () => {
       try {
         await fetchWithAuth(`${Config.API_BASE_URL}/auth/heartbeat`, { method: 'POST' });
-        console.log('Heartbeat');
       } catch (error) {
         console.error('Heartbeat failed:', error);
       }
-    }, 30000); // Every 30 seconds
+    }, 60000); // Every 60 seconds
 
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);

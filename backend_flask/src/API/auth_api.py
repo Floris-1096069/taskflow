@@ -47,7 +47,6 @@ def login():
 def heartbeat():
     user_id = get_jwt_identity()
     User.set_last_online(user_id)
-    print("Heartbeat called")
 
     return jsonify({"status": "HeartBeat Success"}), 200
 
