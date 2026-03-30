@@ -49,7 +49,6 @@ def delete_task_problem(problem_id):
         return jsonify({"error": "Failed to delete problem"}), 500
 
 
-
 @problem_api.get("/task/<int:task_id>")
 @jwt_required()
 def get_problems_by_task(task_id):

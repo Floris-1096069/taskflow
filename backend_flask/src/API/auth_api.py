@@ -12,7 +12,7 @@ auth_api = Blueprint(
     __name__,
     url_prefix='/api/auth',
 )
-_db_manager = DatabaseManager()
+#_db_manager = DatabaseManager()
 
 
 @auth_api.post("/login")

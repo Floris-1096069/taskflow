@@ -9,6 +9,7 @@ from backend_flask.src.db.base import Base
 
 load_dotenv()
 
+
 class DatabaseManager:
     def __init__(self, echo: bool = False):
         self.engine = create_engine(os.getenv("DATABASE_URL"), echo=echo)
@@ -16,6 +17,7 @@ class DatabaseManager:
         self.SessionLocal = scoped_session(
             sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         )
+
 
     @contextmanager
     def get_db(self):

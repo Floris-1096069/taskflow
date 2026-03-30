@@ -15,8 +15,9 @@ task_api = Blueprint(
     __name__,
     url_prefix='/api/task',
 )
+#_db_manager = DatabaseManager()
 
-_db_manager = DatabaseManager()
+
 @task_api.get("/filtered")
 @cross_origin()
 @jwt_required()
@@ -28,6 +29,7 @@ def get_filtered_tasks():
     except Exception as e:
         print(f"Error fetching tasks: {e}")
         return jsonify({"error": "Failed to fetch tasks"}), 500
+
 
 @task_api.get("/problems")
 @cross_origin()
@@ -49,7 +51,6 @@ def get_problem_tasks():
     except Exception as e:
         print(f"Error fetching problem tasks: {e}")
         return jsonify({"error": "Failed to fetch problem tasks"}), 500
-
 
 
 @task_api.get("/getall")
@@ -82,7 +83,6 @@ def get_tasks_delegated_to_my_account():
 def get_undelegated_tasks():
     tasks = Task.get_undelegated()
     return jsonify([task.to_dict() for task in tasks])
-
 
 
 @task_api.get("/delegated/<int:user_id>")
@@ -155,7 +155,6 @@ def delete_task(task_id):
     except Exception as e:
         print(e)
         return jsonify({"error": "Failed to delete task"}), 500
-
 
 
 @task_api.get("/tags")
