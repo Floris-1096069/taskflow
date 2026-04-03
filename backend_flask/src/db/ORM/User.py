@@ -22,6 +22,7 @@ class User(Base):
     created_tasks = relationship("Task", foreign_keys="Task.created_by", back_populates="creator")
     delegated_tasks = relationship("Task", foreign_keys="Task.delegated_to", back_populates="assignee")
     task_problems = relationship("TaskProblem", back_populates="user")
+    checkins = relationship("TaskUserCheckIn", back_populates="user")
 
     _db_manager = DatabaseManager()
 

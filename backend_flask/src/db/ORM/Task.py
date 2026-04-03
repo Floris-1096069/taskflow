@@ -6,6 +6,7 @@ from backend_flask.src.db.base import Base
 from backend_flask.src.db.database_manager import DatabaseManager
 from backend_flask.src.db.ORM.TaskTag import TaskTag
 from backend_flask.src.db.ORM.Tag import Tag
+from backend_flask.src.db.ORM.TaskUserCheckIn import TaskUserCheckIn
 
 
 class Task(Base):
@@ -22,12 +23,14 @@ class Task(Base):
     delegated_to = Column(Integer, ForeignKey("users.user_id"), nullable=True)
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     updated_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    is_continuous = Column(Boolean, default=False, nullable=False)
 
     status = relationship("Status", back_populates="tasks")
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_tasks")
     assignee = relationship("User", foreign_keys=[delegated_to], back_populates="delegated_tasks")
     tags = relationship("Tag", secondary="tasktags", back_populates="tasks")
     task_problems = relationship("TaskProblem", back_populates="task")
+    checkins = relationship("TaskUserCheckIn", back_populates="task")
 
     _db_manager = DatabaseManager()
 
@@ -153,6 +156,42 @@ class Task(Base):
             db.commit()
             db.refresh(task)
             return task
+
+    @classmethod
+    def check_in_user(cls, task_id, user_id):
+        with cls._db_manager.get_db() as db:
+            # Check if the task is continuous
+            task = db.query(cls).filter(cls.task_id == task_id, cls.is_continuous == True).one_or_none()
+            if not task:
+                raise ValueError("Task not found or not continuous")
+
+            # Check if the user is already checked in
+            existing = db.query(TaskUserCheckIn).filter_by(task_id=task_id, user_id=user_id).first()
+            if existing:
+                raise ValueError("User already checked in")
+
+            # Add the check-in
+            checkin = TaskUserCheckIn(task_id=task_id, user_id=user_id)
+            db.add(checkin)
+            db.commit()
+            return checkin
+
+    @classmethod
+    def check_out_user(cls, task_id, user_id):
+        with cls._db_manager.get_db() as db:
+            # Find and remove the check-in
+            checkin = db.query(TaskUserCheckIn).filter_by(task_id=task_id, user_id=user_id).first()
+            if not checkin:
+                raise ValueError("User not checked in")
+
+            db.delete(checkin)
+            db.commit()
+            return checkin
+
+    @classmethod
+    def get_checkins(cls, task_id):
+        with cls._db_manager.get_db() as db:
+            return db.query(TaskUserCheckIn).filter_by(task_id=task_id).all()
 
     def to_dict(self):
         try:
