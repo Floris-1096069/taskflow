@@ -43,6 +43,7 @@ class DatabaseManager:
 
     def init_roles(self):
         from backend_flask.src.db.ORM.Role import Role
+
         with self.get_db() as db:
             existing_role_ids = {role.role_id for role in db.query(Role).all()}
 
@@ -68,6 +69,7 @@ class DatabaseManager:
 
     def init_tags(self):
         from backend_flask.src.db.ORM.Tag import Tag
+
         with self.get_db() as db:
             existing_tag_ids = {tag.tag_id for tag in db.query(Tag).all()}
 
@@ -114,6 +116,7 @@ class DatabaseManager:
 
     def init_statuses(self):
         from backend_flask.src.db.ORM.Status import Status
+
         with self.get_db() as db:
             existing_status_ids = {status.status_id for status in db.query(Status).all()}
 
@@ -132,6 +135,40 @@ class DatabaseManager:
                 else:
                     print(f'Status {status_data} already in database')
 
+            db.commit()
+
+
+    def init_continuous_tasks(self):
+        from backend_flask.src.db.ORM.Task import Task
+
+        standard_tasks = [
+            {"name": "Multi-Picken", "description": "Multi Orderpicks Lopen", "priority": 2},
+            {"name": "Order-Picken", "description": "Orderpicks Lopen", "priority": 2},
+            {"name": "Bij-Picken", "description": "Beneden Bijpicken", "priority": 2},
+            {"name": "Verzenden", "description": "Bakken Verzenden", "priority": 2},
+            {"name": "Binnenkomend", "description": "Producten binnenboeken", "priority": 2},
+            {"name": "Wegleg", "description": "Producten wegleggen", "priority": 2},
+        ]
+
+        with self.get_db() as db:
+            for task_data in standard_tasks:
+                existing_task = db.query(Task).filter_by(name=task_data["name"], is_continuous=True).first()
+                if not existing_task:
+                    new_task = Task(
+                        name=task_data["name"],
+                        description=task_data["description"],
+                        priority=task_data["priority"],
+                        status_id=1,  # Default status (e.g., "To Do")
+                        delegated_to=None,  # Not delegated to anyone by default
+                        created_by=1,  # System/admin user ID
+                        updated_by=1,
+                        is_continuous=True,
+                    )
+                    db.add(new_task)
+                    print(f'Added new task: {new_task}')
+
+                else:
+                    print(f'Task {new_task} already in database')
             db.commit()
 
 
@@ -166,6 +203,7 @@ class DatabaseManager:
         self.init_statuses()
         self.init_tags()
         self.ensure_admin_user()
+        self.init_continuous_tasks()
 
 
     def dispose(self):

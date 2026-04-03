@@ -79,6 +79,22 @@ class Task(Base):
             return query.all()
 
     @classmethod
+    def is_standard_continuous_task(cls, task_id):
+        standard_task_names = [
+            "Multi-Picken",
+            "Order-Picken",
+            "Bij-Picken",
+            "Verzenden",
+            "Binnenkomend",
+            "Wegleg",
+        ]
+
+        with cls._db_manager.get_db() as db:
+            task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
+            return task and task.is_continuous and task.name in standard_task_names
+
+
+    @classmethod
     def create(cls, name, description, priority, status_id, delegated_to, created_by, tag_ids=None):
         with cls._db_manager.get_db() as db:
             new_task = cls(
@@ -107,6 +123,9 @@ class Task(Base):
     @classmethod
     def delete(cls, task_id):
         with cls._db_manager.get_db() as db:
+            if cls.is_standard_continuous_task(task_id):
+                raise ValueError("Standard continuous tasks cannot be deleted.")
+
             db.execute(text("DELETE FROM taskproblems WHERE task_id = :task_id"), {"task_id": task_id})
 
             task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
@@ -122,6 +141,9 @@ class Task(Base):
             task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
             if not task:
                 raise ValueError("Task not found")
+
+            if cls.is_standard_continuous_task(task_id):
+                raise ValueError("Standard continuous tasks cannot be modified.")
 
             # Update task fields (excluding tags)
             for key, value in kwargs.items():
