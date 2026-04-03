@@ -249,4 +249,5 @@ class Task(Base):
                 "updated_by": self.updated_by,
                 "tags": [],
                 "tag_ids": [],
+                "is_continuous": self.is_continuous,
             }

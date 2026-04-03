@@ -168,7 +168,7 @@ class DatabaseManager:
                     print(f'Added new task: {new_task}')
 
                 else:
-                    print(f'Task {new_task} already in database')
+                    print(f'Task {task_data} already in database')
             db.commit()
 
 

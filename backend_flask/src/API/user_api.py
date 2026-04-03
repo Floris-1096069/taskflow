@@ -11,7 +11,7 @@ user_api = Blueprint(
     __name__,
     url_prefix='/api/user',
 )
-#_db_manager = DatabaseManager()
+_db_manager = DatabaseManager()
 
 
 @user_api.get("/all")

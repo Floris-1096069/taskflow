@@ -15,7 +15,7 @@ task_api = Blueprint(
     __name__,
     url_prefix='/api/task',
 )
-#_db_manager = DatabaseManager()
+_db_manager = DatabaseManager()
 
 
 
