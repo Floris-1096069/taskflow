@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, useColorScheme } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, useColorScheme, Switch, Pressable } from 'react-native';
 import { useAuthContext } from "../context/AuthContext";
 import getGlobalStyles from '../styles/globalStyles';
 import { Config } from '../config';
 import ManageTask from './ManageTask';
 
 const UndelegatedTasks = () => {
-  const { fetchWithAuth, getRole } = useAuthContext();
-  const colorScheme = useColorScheme();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showContinuousTasks, setShowContinuousTasks] = useState(true);
+  const { fetchWithAuth, getRole } = useAuthContext();
+  const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
 
   const role = getRole();
@@ -21,7 +22,13 @@ const UndelegatedTasks = () => {
     try {
       const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/undelegated`);
       const data = await response.json();
-      setTasks(data);
+
+      // Filter continuous tasks based on toggle
+      const filteredTasks = showContinuousTasks
+        ? data
+        : data.filter(task => !task.is_continuous);
+
+      setTasks(filteredTasks);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -33,7 +40,7 @@ const UndelegatedTasks = () => {
     if (isAdminOrTeamleider) {
       fetchUndelegatedTasks();
     }
-  }, []);
+  }, [showContinuousTasks]);
 
   if (!isAdminOrTeamleider) {
     return <Text>You are not authorized to view undelegated tasks.</Text>;
@@ -51,6 +58,9 @@ const UndelegatedTasks = () => {
     return (
       <View style={globalStyles.errorContainer}>
         <Text style={globalStyles.errorText}>Error: {error}</Text>
+        <Pressable onPress={fetchUndelegatedTasks} style={globalStyles.button}>
+          <Text style={globalStyles.buttonText}>Retry</Text>
+        </Pressable>
       </View>
     );
   }
@@ -58,6 +68,19 @@ const UndelegatedTasks = () => {
   return (
     <View style={[globalStyles.container, { flex: 1 }]}>
       <Text style={globalStyles.title}>Undelegated Tasks</Text>
+
+      {/* Toggle for continuous tasks */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+        <Text style={globalStyles.bodyText}>Show continuous tasks:</Text>
+        <Switch
+          value={showContinuousTasks}
+          onValueChange={setShowContinuousTasks}
+        />
+        <Text style={globalStyles.bodyText}>
+          {showContinuousTasks ? "Shown" : "Hidden"}
+        </Text>
+      </View>
+
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.task_id.toString()}
