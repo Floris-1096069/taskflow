@@ -38,6 +38,7 @@ class DatabaseManager:
             conn.execute(text("DROP TABLE IF EXISTS tags CASCADE;"))
             conn.execute(text("DROP TABLE IF EXISTS status CASCADE;"))
             conn.execute(text("DROP TABLE IF EXISTS roles CASCADE;"))
+            conn.execute(text("DROP TABLE IF EXISTS task_user_checkins CASCADE;"))
             conn.commit()
 
 
@@ -142,8 +143,8 @@ class DatabaseManager:
         from backend_flask.src.db.ORM.Task import Task
 
         standard_tasks = [
-            {"name": "Multi-Picken", "description": "Multi Orderpicks Lopen", "priority": 2},
-            {"name": "Order-Picken", "description": "Orderpicks Lopen", "priority": 2},
+            {"name": "Multi-Picken", "description": "Boven Multi Orderpicks Lopen", "priority": 2},
+            {"name": "Order-Picken", "description": "Boven Orderpicks Lopen", "priority": 2},
             {"name": "Bij-Picken", "description": "Beneden Bijpicken", "priority": 2},
             {"name": "Verzenden", "description": "Bakken Verzenden", "priority": 2},
             {"name": "Binnenkomend", "description": "Producten binnenboeken", "priority": 2},
@@ -158,9 +159,9 @@ class DatabaseManager:
                         name=task_data["name"],
                         description=task_data["description"],
                         priority=task_data["priority"],
-                        status_id=1,  # Default status (e.g., "To Do")
-                        delegated_to=None,  # Not delegated to anyone by default
-                        created_by=1,  # System/admin user ID
+                        status_id=1,
+                        delegated_to=None,
+                        created_by=1,
                         updated_by=1,
                         is_continuous=True,
                     )

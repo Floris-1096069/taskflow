@@ -18,7 +18,6 @@ task_api = Blueprint(
 _db_manager = DatabaseManager()
 
 
-
 @task_api.post("/checkin/<int:task_id>")
 @cross_origin()
 @jwt_required()
@@ -26,9 +25,16 @@ def check_in_to_task(task_id):
     user_id = get_jwt_identity()
     try:
         Task.check_in_user(task_id, user_id)
-        return jsonify({"message": "Checked in successfully"}), 200
+
+        task = Task.get_filtered(task_id=task_id)[0]
+        return jsonify({
+            "message": "Checked in successfully",
+            "task": task.to_dict()
+        }), 200
+
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
     except Exception as e:
         print(f"Error checking in: {e}")
         return jsonify({"error": "Failed to check in"}), 500
@@ -41,12 +47,20 @@ def check_out_of_task(task_id):
     user_id = get_jwt_identity()
     try:
         Task.check_out_user(task_id, user_id)
-        return jsonify({"message": "Checked out successfully"}), 200
+
+        task = Task.get_filtered(task_id=task_id)[0]
+        return jsonify({
+            "message": "Checked out successfully",
+            "task": task.to_dict()
+        }), 200
+
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
     except Exception as e:
         print(f"Error checking out: {e}")
         return jsonify({"error": "Failed to check out"}), 500
+
 
 @task_api.get("/checkins/<int:task_id>")
 @cross_origin()
@@ -55,6 +69,7 @@ def get_task_checkins(task_id):
     try:
         checkins = Task.get_checkins(task_id)
         return jsonify([{"user_id": ci.user_id, "checked_in_at": ci.checked_in_at.isoformat()} for ci in checkins]), 200
+
     except Exception as e:
         print(f"Error fetching check-ins: {e}")
         return jsonify({"error": "Failed to fetch check-ins"}), 500
@@ -68,6 +83,7 @@ def get_filtered_tasks():
         filters = {key: request.args.getlist(key) if key == 'tag_ids' else request.args.get(key) for key in request.args}
         tasks = Task.get_filtered(**filters)
         return jsonify([task.to_dict() for task in tasks])
+
     except Exception as e:
         print(f"Error fetching tasks: {e}")
         return jsonify({"error": "Failed to fetch tasks"}), 500
@@ -90,6 +106,7 @@ def get_problem_tasks():
             task_dict['problems'] = [problem.to_dict() for problem in problems]
             tasks_with_problems.append(task_dict)
         return jsonify(tasks_with_problems)
+
     except Exception as e:
         print(f"Error fetching problem tasks: {e}")
         return jsonify({"error": "Failed to fetch problem tasks"}), 500
@@ -169,8 +186,10 @@ def update_task(task_id):
         data = request.get_json()
         updated_task = Task.update(task_id, **data)
         return jsonify(updated_task.to_dict()), 200
+
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
+    
     except Exception as e:
         print(f"Error updating task: {e}")
         return jsonify({"error": "Failed to update task"}), 500
@@ -205,6 +224,16 @@ def delete_task(task_id):
 def get_all_tags():
     tags = Tag.get_all()
     return jsonify([tag.to_dict() for tag in tags])
+
+
+@task_api.get("/tags/<int:task_id>")
+@cross_origin()
+@jwt_required()
+def get_task_tags(task_id):
+    task = Task.get_filtered(task_id=task_id)
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+    return jsonify([tag.to_dict() for tag in task[0].tags])
 
 
 @task_api.post("/tags")

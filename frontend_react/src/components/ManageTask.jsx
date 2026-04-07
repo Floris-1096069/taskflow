@@ -9,7 +9,8 @@ import {
   useColorScheme,
   Alert,
   FlatList,
-  ScrollView, KeyboardAvoidingView
+  ScrollView,
+  KeyboardAvoidingView
 } from 'react-native';
 import { Platform } from 'react-native';
 import getGlobalStyles from "../styles/globalStyles";
@@ -38,7 +39,6 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
 
   const role = getRole();
   const isAdminOrTeamleider = String(role) === '1' || String(role) === '2';
-
   const taskCreatorId = typeof task.created_by === 'object' ? task.created_by.user_id : task.created_by;
   const isTaskCreator = String(taskCreatorId) === String(user_id);
   const canManageTask = isAdminOrTeamleider || isTaskCreator;
@@ -60,7 +60,7 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
   }, [modalVisible]);
 
   const handleTagsSelected = (selectedTagIds) => {
-    setEditedTask({ ...editedTask, tag_ids: Array.isArray(selectedTagIds) ? selectedTagIds : [] });
+    setEditedTask({ ...editedTask, tag_ids: selectedTagIds });
   };
 
   const handleUserSelect = (userId) => {
@@ -69,36 +69,37 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
   };
 
   const handleUpdateTask = async () => {
-    if (!canManageTask) {
-      Alert.alert('Error', 'You are not authorized to update this task.');
-      return;
-    }
+  if (!canManageTask) {
+    Alert.alert('Error', 'You are not authorized to update this task.');
+    return;
+  }
 
-    setIsUpdating(true);
-    try {
-      const { tags, task_id, ...taskData } = editedTask;
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${editedTask.task_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(taskData),
-      });
+  setIsUpdating(true);
+  try {
+    // Remove task_id from the payload
+    const { task_id, ...taskData } = editedTask;
 
-      if (!response.ok) throw new Error('Failed to update task');
+    const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${editedTask.task_id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(taskData), // Send without task_id
+    });
 
-      const updatedTask = await response.json();
-      onUpdate(updatedTask);
-      setModalVisible(false);
+    if (!response.ok) throw new Error('Failed to update task');
 
-    } catch (error) {
-      console.error('Error updating task:', error);
-      Alert.alert('Error', error.message);
+    const updatedTask = await response.json();
+    onUpdate(updatedTask);
+    setModalVisible(false);
 
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  } catch (error) {
+    console.error('Error updating task:', error);
+    Alert.alert('Error', error.message);
+  } finally {
+    setIsUpdating(false);
+  }
+};
 
   const handleDeleteTask = () => {
     if (!canManageTask) {
@@ -123,7 +124,6 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
     } catch (error) {
       console.error('Error deleting task:', error);
       alert(error.message);
-
     } finally {
       setIsDeleting(false);
     }
@@ -208,15 +208,17 @@ const ManageTask = ({ task, onUpdate, onDelete }) => {
   return (
     <View>
       <Pressable
-        style={globalStyles.button}
-        onPress={() => {
-          setEditedTask({
-            ...task,
-            tag_ids: Array.isArray(task.tag_ids) ? task.tag_ids : [],
-          });
-          setModalVisible(true);
-        }}
-      >
+  style={globalStyles.button}
+  onPress={() => {
+    setEditedTask({
+      ...Object.fromEntries(
+        Object.entries(task).filter(([key]) => key !== 'tags') // Remove 'tags'
+      ),
+      tag_ids: Array.isArray(task.tag_ids) ? task.tag_ids : [],
+    });
+    setModalVisible(true);
+  }}
+>
         <Text style={globalStyles.buttonText}>Manage</Text>
       </Pressable>
 

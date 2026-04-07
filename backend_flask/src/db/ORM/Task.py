@@ -142,42 +142,25 @@ class Task(Base):
             if not task:
                 raise ValueError("Task not found")
 
-            if cls.is_standard_continuous_task(task_id):
-                raise ValueError("Standard continuous tasks cannot be modified.")
-
-            # Update task fields (excluding tags)
             for key, value in kwargs.items():
-                if hasattr(task, key) and key != 'tag_ids':
+                if key == 'tag_ids':
+                    if not isinstance(value, list):
+                        value = [value]
+                    if not value:
+                        task.tags = []
+                    else:
+                        tag_ids = [int(tag_id) for tag_id in value if isinstance(tag_id, (int, str))]
+                        new_tags = db.query(Tag).filter(Tag.tag_id.in_(tag_ids)).all()
+                        task.tags = new_tags
+                elif hasattr(task, key):
                     setattr(task, key, value)
 
-            # Handle tag updates if tag_ids is provided
-            if 'tag_ids' in kwargs:
-                new_tag_ids = kwargs['tag_ids']
-                if not isinstance(new_tag_ids, list):
-                    new_tag_ids = [new_tag_ids]
-                new_tag_ids = [int(tag_id) for tag_id in new_tag_ids if str(tag_id).isdigit()]
-
-                # Clear all tags if new_tag_ids is empty
-                if not new_tag_ids:
-                    task.tags = []
-                else:
-                    # Get the current tag IDs
-                    current_tag_ids = {tag.tag_id for tag in task.tags}
-                    # Remove tags not in the new list
-                    for tag in task.tags[:]:
-                        if tag.tag_id not in new_tag_ids:
-                            task.tags.remove(tag)
-                    # Add new tags
-                    for tag_id in new_tag_ids:
-                        if tag_id not in current_tag_ids:
-                            tag = db.query(Tag).get(tag_id)
-                            if tag:
-                                task.tags.append(tag)
-
-            task.update_time = datetime.now()
+            task.update_time = datetime.utcnow()
             db.commit()
-            db.refresh(task)
-            return task
+
+            # Return a fresh task object from the database
+            updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
+            return updated_task  # Let Flask serialize it in the endpoint
 
     @classmethod
     def check_in_user(cls, task_id, user_id):
@@ -218,6 +201,7 @@ class Task(Base):
     def to_dict(self):
         try:
             tags = [tag.to_dict() for tag in self.tags] if self.tags else []
+            active_users = [{"user_id": ci.user_id} for ci in self.checkins] if hasattr(self, 'checkins') else []
             return {
                 "task_id": self.task_id,
                 "name": self.name,
@@ -230,6 +214,8 @@ class Task(Base):
                 "delegated_to": self.delegated_to,
                 "created_by": self.created_by,
                 "updated_by": self.updated_by,
+                "is_continuous": self.is_continuous,
+                "active_users": active_users,  # Add this line
                 "tags": tags,
                 "tag_ids": [tag.tag_id for tag in self.tags] if self.tags else [],
             }
@@ -247,7 +233,8 @@ class Task(Base):
                 "delegated_to": self.delegated_to,
                 "created_by": self.created_by,
                 "updated_by": self.updated_by,
+                "is_continuous": self.is_continuous,
+                "active_users": [],
                 "tags": [],
                 "tag_ids": [],
-                "is_continuous": self.is_continuous,
             }

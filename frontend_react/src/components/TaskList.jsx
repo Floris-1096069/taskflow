@@ -52,66 +52,64 @@ const TaskList = () => {
   };
 
   const fetchTasks = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const query = new URLSearchParams();
-      const delegatedTo = showAllTasks && isAuthorized ? null : user_id;
-      const updatedFilters = { ...filters, delegated_to: delegatedTo };
+  setLoading(true);
+  setError(null);
+  try {
+    const query = new URLSearchParams();
+    const delegatedTo = showAllTasks && isAuthorized ? null : user_id;
+    const updatedFilters = { ...filters, delegated_to: delegatedTo };
 
-      Object.entries(updatedFilters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
-          if (key !== 'priority' || value !== undefined) {
-            if (Array.isArray(value)) {
-              value.forEach(id => query.append(key, id));
-            } else {
-              query.append(key, value);
-            }
+    Object.entries(updatedFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
+        if (key !== 'priority' || value !== undefined) {
+          if (Array.isArray(value)) {
+            value.forEach(id => query.append(key, id));
+          } else {
+            query.append(key, value);
           }
         }
+      }
+    });
+
+    const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
+    let filteredTasks = await response.json();
+
+    const standardTasksResponse = await fetchWithAuth(
+      `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
+    );
+    let standardTasks = await standardTasksResponse.json();
+
+    // Fetch tags for all tasks
+    const tasksWithTags = await Promise.all(
+      [...filteredTasks, ...standardTasks].map(async (task) => {
+        const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
+        const tags = await tagResponse.json();
+        return { ...task, tags };
+      })
+    );
+
+    const uniqueTasks = tasksWithTags.reduce((acc, task) => {
+      if (!acc.some(t => t.task_id === task.task_id)) {
+        acc.push(task);
+      }
+      return acc;
+    }, []);
+
+    const sortedTasks = uniqueTasks
+      .filter(task => showContinuousTasks || !task.is_continuous)
+      .sort((a, b) => {
+        if (a.is_continuous && !b.is_continuous) return -1;
+        if (!a.is_continuous && b.is_continuous) return 1;
+        return 0;
       });
 
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
-      const filteredTasks = await response.json();
-
-      const standardTasksResponse = await fetchWithAuth(
-        `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
-      );
-      const standardTasks = await standardTasksResponse.json();
-
-      const tasksWithActiveUsers = await Promise.all(
-        [...filteredTasks, ...standardTasks].map(async (task) => {
-          if (task.is_continuous) {
-            const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
-            const checkinsData = await checkinsResponse.json();
-            return { ...task, active_users: checkinsData };
-          }
-          return task;
-        })
-      );
-
-      const uniqueTasks = tasksWithActiveUsers.reduce((acc, task) => {
-        if (!acc.some(t => t.task_id === task.task_id)) {
-          acc.push(task);
-        }
-        return acc;
-      }, []);
-
-      const sortedTasks = uniqueTasks
-        .filter(task => showContinuousTasks || !task.is_continuous)
-        .sort((a, b) => {
-          if (a.is_continuous && !b.is_continuous) return -1;
-          if (!a.is_continuous && b.is_continuous) return 1;
-          return 0;
-        });
-
-      setTasks(sortedTasks);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setTasks(sortedTasks);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const fetchUsers = async () => {
     setUsersLoading(true);
@@ -399,7 +397,10 @@ const TaskList = () => {
                     </Pressable>
                     {canManageTask && (
                       <ManageTask
-                        task={item}
+                        task={{
+                          ...item,
+                          tag_ids: item.tags ? item.tags.map(tag => tag.tag_id) : [], // Convert tags to tag_ids
+                        }}
                         onUpdate={fetchTasks}
                         onDelete={(taskId) => {
                           setTasks(tasks.filter(t => t.task_id !== taskId));
