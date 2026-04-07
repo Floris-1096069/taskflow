@@ -33,6 +33,7 @@ def check_in_to_task(task_id):
         }), 200
 
     except ValueError as e:
+        print(str(e))
         return jsonify({"error": str(e)}), 400
 
     except Exception as e:
@@ -189,7 +190,7 @@ def update_task(task_id):
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    
+
     except Exception as e:
         print(f"Error updating task: {e}")
         return jsonify({"error": "Failed to update task"}), 500

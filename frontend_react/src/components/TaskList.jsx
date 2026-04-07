@@ -51,6 +51,18 @@ const TaskList = () => {
     }
   };
 
+
+  const getTaskBackgroundColor = (task) => {
+    // If the task is checked in by the current user
+    if (isCheckedIn(task)) {
+      return colours.inProgressBackground; // Light green
+    }
+    // Otherwise, use the status-based color
+    return getStatusBackgroundColor(task.status_id);
+  };
+
+
+
   const fetchTasks = async () => {
   setLoading(true);
   setError(null);
@@ -160,20 +172,32 @@ const TaskList = () => {
   };
 
   const handleCheckInOut = async (task) => {
-    try {
-      const endpoint = isCheckedIn(task) ? "checkout" : "checkin";
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+  try {
+    const endpoint = isCheckedIn(task) ? "checkout" : "checkin";
+    const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      await fetchTasks();
-    } catch (error) {
-      console.error("Failed to update check-in status:", error);
-      Alert.alert("Error", error.message || "Failed to update check-in status.");
-    }
-  };
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    // Force a refresh of the task list
+    await fetchTasks();
+
+    // Optional: Update local state directly if needed
+    setTasks(prevTasks =>
+      prevTasks.map(t =>
+        t.task_id === task.task_id
+          ? { ...t, active_users: isCheckedIn(task) ? [] : [{ user_id }] }
+          : t
+      )
+    );
+
+  } catch (error) {
+    console.error("Failed to update check-in status:", error);
+    Alert.alert("Error", error.message || "Failed to update check-in status.");
+  }
+};
 
   const isCheckedIn = (task) => {
     return task.active_users?.some((user) => String(user.user_id) === String(user_id));
@@ -319,7 +343,7 @@ const TaskList = () => {
           const isTaskCreator = String(taskCreatorId) === String(user_id);
           const canManageTask = isAuthorized || isTaskCreator;
           const isDelegatee = String(item.delegated_to) === String(user_id);
-          const statusBackgroundColor = getStatusBackgroundColor(item.status_id);
+          const statusBackgroundColor = getTaskBackgroundColor(item);
 
           return (
             <View style={[styles.taskItem, { backgroundColor: statusBackgroundColor }]}>
