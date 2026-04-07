@@ -7,6 +7,7 @@ import getGlobalStyles from "../styles/globalStyles";
 export default function TagManager({ onBack }) {
   const [newTag, setNewTag] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const { tags, loading, createTag, deleteTag } = useTagContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
@@ -33,6 +34,11 @@ export default function TagManager({ onBack }) {
     }
   };
 
+  // Filter tags based on search query
+  const filteredTags = tags.filter(tag =>
+    tag.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <Text style={[globalStyles.title]}>
@@ -47,6 +53,13 @@ export default function TagManager({ onBack }) {
           {errorMessage}
         </Text>
       ) : null}
+
+      <TextInput
+        style={globalStyles.input}
+        placeholder="Search tags..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
       <TextInput
         style={globalStyles.input}
@@ -66,7 +79,7 @@ export default function TagManager({ onBack }) {
         <Text>Loading tags...</Text>
       ) : (
         <FlatList
-          data={tags}
+          data={filteredTags}
           keyExtractor={(item) => item.tag_id.toString()}
           renderItem={({ item }) => (
             <View style={globalStyles.tagItem}>
