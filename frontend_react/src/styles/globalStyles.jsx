@@ -1,5 +1,7 @@
 import { StyleSheet } from 'react-native';
 
+const isWeb = () => typeof window !== 'undefined';
+
 const lightColors = {
   primary: '#3498db',
   secondary: '#2ecc71',
@@ -42,7 +44,7 @@ export const getGlobalStyles = (colorScheme) => {
   const colours = colorScheme === 'dark' ? lightColors : darkColors;
 
   const styles = StyleSheet.create({
-    // text styles
+    //text styles
     title: {
       fontSize: 24,
       fontWeight: 'bold',
@@ -66,6 +68,8 @@ export const getGlobalStyles = (colorScheme) => {
       color: colours.text,
       lineHeight: 20,
       marginBottom: 4,
+      minWidth: 'auto', // Allow text to be as wide as needed
+      flexShrink: 1, // Allow text to shrink if needed
     },
 
     modalTitle: {
@@ -159,7 +163,7 @@ export const getGlobalStyles = (colorScheme) => {
       paddingBottom: 10,
     },
 
-    // containers
+    //containers
     container: {
       flex: 1,
       backgroundColor: colours.background,
@@ -185,7 +189,7 @@ export const getGlobalStyles = (colorScheme) => {
       padding: 10,
       backgroundColor: colours.background,
       flexDirection: 'column',
-      alignItems: 'stretch',
+      alignItems: 'center',
       marginBottom: 10,
     },
 
@@ -198,15 +202,50 @@ export const getGlobalStyles = (colorScheme) => {
     tagFilterToggle: {
       padding: 8,
       marginVertical: 4,
-      alignSelf: 'flex-start',
-      backgroundColor: 'transparent', // Or a subtle color
+      alignSelf: 'center',
+      backgroundColor: 'transparent',
       borderRadius: 4,
     },
 
     tagFilterToggleText: {
-      color: colours.primary, // Or any color that fits your theme
+      color: colours.primary,
       fontSize: 14,
-      textDecorationLine: 'underline', // Optional: makes it look like a link
+      textDecorationLine: 'underline',
+    },
+
+    continuousBadge: {
+      padding: 4,
+      borderRadius: 4,
+      alignSelf: 'center',
+      marginBottom: 8,
+      backgroundColor: '#FF5722'
+    },
+
+    continuousBadgeText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 12,
+    },
+
+    activeUsersContainer: {
+      marginTop: 8,
+    },
+
+    activeUsersTitle: {
+      fontWeight: 'bold',
+      marginBottom: 4,
+    },
+    activeUsersList: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+
+    activeUser: {
+      backgroundColor: '#E0E0E0',
+      padding: 4,
+      borderRadius: 4,
+      marginRight: 4,
+      marginBottom: 4,
     },
 
     tagsContainer: {
@@ -309,7 +348,7 @@ export const getGlobalStyles = (colorScheme) => {
       marginBottom: 10,
     },
 
-    // buttons
+    //buttons
     button: {
       backgroundColor: colours.primary,
       paddingVertical: 8,
@@ -360,7 +399,7 @@ export const getGlobalStyles = (colorScheme) => {
       paddingVertical: 7,
       paddingHorizontal: 7,
       backgroundColor: colours.white,
-      alignSelf: 'stretch',
+      alignSelf: 'center',
       width: '100%',
     },
 
@@ -389,6 +428,22 @@ export const getGlobalStyles = (colorScheme) => {
       elevation: 2,
       width: '100%',
       alignSelf: 'center',
+      alignItems: 'flex-start', // Allow content to flow naturally
+      flexDirection: 'row', // Arrange children in a row
+      flexWrap: 'wrap', // Allow wrapping if needed
+      gap: 8, // Add space between items
+    },
+
+    taskInfoRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-start',
+      gap: 12,
+      marginTop: 8,
+    },
+    taskInfoContainer: {
+      flex: 1,
+      minWidth: 200, // Adjust as needed
     },
 
     taskName: {
@@ -455,7 +510,7 @@ export const getGlobalStyles = (colorScheme) => {
     // web-specific styles (for PWA)
     webContainer: {
       flex: 1,
-      maxWidth: 800,
+      maxWidth: 1600,
       justifyContent: 'flex-start',
       flexDirection: 'column',
       alignSelf: 'center',
@@ -466,5 +521,27 @@ export const getGlobalStyles = (colorScheme) => {
 
   return { ...styles, colours };
 };
+
+if (isWeb()) {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .container, .taskItem, .webContainer {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      flex-basis: auto !important;
+      flex-shrink: 1 !important;
+      flex-grow: 1 !important;
+    }
+    .taskItem {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+    .FlatList {
+      width: 100% !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 export default getGlobalStyles;

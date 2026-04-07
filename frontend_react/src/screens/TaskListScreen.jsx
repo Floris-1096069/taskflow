@@ -12,13 +12,13 @@ export default function TaskListScreen({ navigation }) {
 
 
   return (
-    <View style={[globalStyles.webContainer]}>
+    <View style={[globalStyles.webContainer, {width: '100%'}]}>
 
       <Header title="To Do List" navigation={navigation}
       showBackButton={false}
       showAdminButton={true}/>
 
-    <View style={globalStyles.container}>
+    <View style={[globalStyles.container, {width: '100%'}]}>
 
       <TaskList></TaskList>
 

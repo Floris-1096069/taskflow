@@ -23,9 +23,6 @@ const TaskList = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { fetchWithAuth, getRole, user_id } = useAuthContext();
-  const colorScheme = useColorScheme();
-  const { colours, ...styles } = getGlobalStyles(colorScheme);
   const [modalVisible, setModalVisible] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [statusesLoading, setStatusesLoading] = useState(false);
@@ -34,23 +31,23 @@ const TaskList = () => {
   const [newProblem, setNewProblem] = useState("");
   const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
   const [showAllTasks, setShowAllTasks] = useState(false);
-  const [showTagSelector, setShowTagSelector] = useState(false); // New state for tag selector visibility
+  const [showTagSelector, setShowTagSelector] = useState(false);
+  const [showContinuousTasks, setShowContinuousTasks] = useState(true);
+
+  const { fetchWithAuth, getRole, user_id } = useAuthContext();
+  const colorScheme = useColorScheme();
+  const { colours, ...styles } = getGlobalStyles(colorScheme);
 
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
 
   const getStatusBackgroundColor = (statusId) => {
     switch (statusId) {
-      case 1:
-        return colours.todoBackground;
-      case 2:
-        return colours.inProgressBackground;
-      case 3:
-        return colours.doneBackground;
-      case 4:
-        return colours.problemBackground;
-      default:
-        return colours.background;
+      case 1: return colours.todoBackground;
+      case 2: return colours.inProgressBackground;
+      case 3: return colours.doneBackground;
+      case 4: return colours.problemBackground;
+      default: return colours.background;
     }
   };
 
@@ -75,8 +72,40 @@ const TaskList = () => {
       });
 
       const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
-      const data = await response.json();
-      setTasks(data);
+      const filteredTasks = await response.json();
+
+      const standardTasksResponse = await fetchWithAuth(
+        `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
+      );
+      const standardTasks = await standardTasksResponse.json();
+
+      const tasksWithActiveUsers = await Promise.all(
+        [...filteredTasks, ...standardTasks].map(async (task) => {
+          if (task.is_continuous) {
+            const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
+            const checkinsData = await checkinsResponse.json();
+            return { ...task, active_users: checkinsData };
+          }
+          return task;
+        })
+      );
+
+      const uniqueTasks = tasksWithActiveUsers.reduce((acc, task) => {
+        if (!acc.some(t => t.task_id === task.task_id)) {
+          acc.push(task);
+        }
+        return acc;
+      }, []);
+
+      const sortedTasks = uniqueTasks
+        .filter(task => showContinuousTasks || !task.is_continuous)
+        .sort((a, b) => {
+          if (a.is_continuous && !b.is_continuous) return -1;
+          if (!a.is_continuous && b.is_continuous) return 1;
+          return 0;
+        });
+
+      setTasks(sortedTasks);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -121,9 +150,7 @@ const TaskList = () => {
     try {
       const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${task.task_id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status_id: nextStatusId }),
       });
       if (!response.ok) throw new Error('Failed to update task status');
@@ -134,11 +161,31 @@ const TaskList = () => {
     }
   };
 
+  const handleCheckInOut = async (task) => {
+    try {
+      const endpoint = isCheckedIn(task) ? "checkout" : "checkin";
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      await fetchTasks();
+    } catch (error) {
+      console.error("Failed to update check-in status:", error);
+      Alert.alert("Error", error.message || "Failed to update check-in status.");
+    }
+  };
+
+  const isCheckedIn = (task) => {
+    return task.active_users?.some((user) => String(user.user_id) === String(user_id));
+  };
+
   useEffect(() => {
     fetchTasks();
     fetchUsers();
     fetchStatuses();
-  }, [filters, showAllTasks]);
+  }, [filters, showAllTasks, showContinuousTasks]);
 
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
@@ -156,11 +203,7 @@ const TaskList = () => {
   };
 
   const getPriorityName = (priorityId) => {
-    const priorityMap = {
-      1: 'Low',
-      2: 'Medium',
-      3: 'High',
-    };
+    const priorityMap = { 1: 'Low', 2: 'Medium', 3: 'High' };
     return priorityMap[priorityId] || 'Unknown';
   };
 
@@ -171,9 +214,7 @@ const TaskList = () => {
     try {
       const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/create`, {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task_id: selectedTask.task_id, content: newProblem }),
       });
 
@@ -206,9 +247,7 @@ const TaskList = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Error: {error}</Text>
-        <Pressable onPress={fetchTasks}>
-          <Text>Retry</Text>
-        </Pressable>
+        <Pressable onPress={fetchTasks}><Text>Retry</Text></Pressable>
       </View>
     );
   }
@@ -216,64 +255,59 @@ const TaskList = () => {
   return (
     <View style={styles.container}>
       <View style={styles.filterContainer}>
-  <Text style={styles.title}>To Do List</Text>
-
-  {isAuthorized && (
-    <View style={styles.filterRow}>
-      <Text style={styles.filterLabel}>Show:</Text>
-      <Switch value={showAllTasks} onValueChange={setShowAllTasks} />
-      <Text>{showAllTasks ? "All Tasks" : "My Tasks"}</Text>
-    </View>
-  )}
-
-  <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
-    <Text style={styles.buttonText}>Create New Task</Text>
-  </Pressable>
-
-  <View style={styles.filterRow}>
-    <Text style={styles.filterLabel}>Filter Priorities:</Text>
-    <Picker
-      style={styles.picker}
-      selectedValue={filters.priority}
-      onValueChange={(itemValue) => {
-        const value = itemValue === "Any Priority" ? undefined : itemValue;
-        setFilters({ ...filters, priority: value });
-      }}
-    >
-      <Picker.Item label="Any Priority" value={undefined} />
-      <Picker.Item label="Low" value={1} />
-      <Picker.Item label="Medium" value={2} />
-      <Picker.Item label="High" value={3} />
-    </Picker>
-  </View>
-
-  <View>
-    <TouchableOpacity
-      style={styles.tagFilterToggle}
-      onPress={() => setShowTagSelector(!showTagSelector)}
-    >
-      <Text style={styles.tagFilterToggleText}>
-        {showTagSelector ? "Hide Tag Filter" : "Show Tag Filter"}
-      </Text>
-    </TouchableOpacity>
-    {showTagSelector && (
-      <View style={[styles.tagPickerContainer]}>
-        <TagSelector
-          selectedTagIds={filters.tag_ids}
-          onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
-        />
+        <Text style={styles.title}>To Do List</Text>
+        {isAuthorized && (
+          <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Show:</Text>
+            <Switch value={showAllTasks} onValueChange={setShowAllTasks} />
+            <Text>{showAllTasks ? "All Tasks" : "My Tasks"}</Text>
+          </View>
+        )}
+        <View style={styles.filterRow}>
+          <Text style={styles.filterLabel}>Continuous Tasks:</Text>
+          <Switch
+            value={showContinuousTasks}
+            onValueChange={setShowContinuousTasks}
+          />
+          <Text>{showContinuousTasks ? "Shown" : "Hidden"}</Text>
+        </View>
+        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Create New Task</Text>
+        </Pressable>
+        <View style={styles.filterRow}>
+          <Text style={styles.filterLabel}>Filter Priorities:</Text>
+          <Picker
+            style={styles.picker}
+            selectedValue={filters.priority}
+            onValueChange={(itemValue) => {
+              const value = itemValue === "Any Priority" ? undefined : itemValue;
+              setFilters({ ...filters, priority: value });
+            }}
+          >
+            <Picker.Item label="Any Priority" value={undefined} />
+            <Picker.Item label="Low" value={1} />
+            <Picker.Item label="Medium" value={2} />
+            <Picker.Item label="High" value={3} />
+          </Picker>
+        </View>
+        <View>
+          <TouchableOpacity style={styles.tagFilterToggle} onPress={() => setShowTagSelector(!showTagSelector)}>
+            <Text style={styles.tagFilterToggleText}>
+              {showTagSelector ? "Hide Tag Filter" : "Show Tag Filter"}
+            </Text>
+          </TouchableOpacity>
+          {showTagSelector && (
+            <View style={[styles.tagPickerContainer]}>
+              <TagSelector
+                selectedTagIds={filters.tag_ids}
+                onTagsSelected={(tagIds) => setFilters({ ...filters, tag_ids: tagIds })}
+              />
+            </View>
+          )}
+        </View>
       </View>
-    )}
-  </View>
-</View>
 
-      <AddTask
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onTaskCreated={() => {
-          fetchTasks();
-        }}
-      />
+      <AddTask visible={modalVisible} onClose={() => setModalVisible(false)} onTaskCreated={fetchTasks} />
 
       {loading && tasks.length > 0 ? (
         <ActivityIndicator size="small" color={colours.primary} style={styles.refreshIndicator} />
@@ -291,67 +325,95 @@ const TaskList = () => {
 
           return (
             <View style={[styles.taskItem, { backgroundColor: statusBackgroundColor }]}>
-              <Text style={styles.taskName}>{item.name}</Text>
-              <Text style={styles.bodyText}>Description: {item.description}</Text>
-              <Text style={styles.bodyText}>Priority: {getPriorityName(item.priority)}</Text>
-              <Text style={styles.bodyText}>Status: {getStatusName(item.status_id)}</Text>
-              <Text style={styles.bodyText}>Assigned to: {getUsername(item.delegated_to)}</Text>
-              <Text style={styles.bodyText}>Created by: {getUsername(item.created_by)}</Text>
-              <Text style={styles.bodyText}>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
-
-              <View style={styles.tagsContainer}>
-                <Text>Tags: </Text>
-                {item.tags && item.tags.length > 0 ? (
-                  item.tags.map((tag) => (
-                    <View key={tag.tag_id} style={styles.tag}>
-                      <Text style={{ color: colours.white }}>{tag.name}</Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text>No tags</Text>
-                )}
+              {item.is_continuous && (
+                <View style={[styles.continuousBadge]}>
+                  <Text style={styles.continuousBadgeText}>Continuous</Text>
+                </View>
+              )}
+              <View style={styles.taskInfoContainer}>
+                <Text style={styles.taskName}>{item.name}</Text>
+                <Text style={styles.bodyText}>Description: {item.description}</Text>
               </View>
-
+              {!item.is_continuous && (
+                <>
+                  <View style={styles.taskInfoRow}>
+                    <Text style={styles.bodyText}>Priority: {getPriorityName(item.priority)}</Text>
+                    <Text style={styles.bodyText}>Status: {getStatusName(item.status_id)}</Text>
+                    <Text style={styles.bodyText}>Assigned to: {getUsername(item.delegated_to)}</Text>
+                    <Text style={styles.bodyText}>Created by: {getUsername(item.created_by)}</Text>
+                    <Text style={styles.bodyText}>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
+                  </View>
+                  {item.is_continuous && (
+                    <View style={styles.activeUsersContainer}>
+                      <Text style={styles.activeUsersTitle}>Active Users:</Text>
+                      <View style={styles.activeUsersList}>
+                        {item.active_users?.map((user) => (
+                          <Text key={user.user_id} style={styles.activeUser}>
+                            {getUsername(user.user_id)}
+                          </Text>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                  <View style={styles.tagsContainer}>
+                    <Text>Tags: </Text>
+                    {item.tags && item.tags.length > 0 ? (
+                      item.tags.map((tag) => (
+                        <View key={tag.tag_id} style={styles.tag}>
+                          <Text style={{ color: colours.white }}>{tag.name}</Text>
+                        </View>
+                      ))
+                    ) : (
+                      <Text>No tags</Text>
+                    )}
+                  </View>
+                </>
+              )}
               <View style={styles.taskActionsContainer}>
-                {isDelegatee && item.status_id !== 3 && (
+                {item.is_continuous ? (
                   <Pressable
-                    style={[
-                      styles.button,
-                      { flex: 1, marginRight: 8 }
-                    ]}
-                    onPress={() => handleAdvanceStatus(item)}
+                    style={[styles.button, { flex: 1 }]}
+                    onPress={() => handleCheckInOut(item)}
                   >
                     <Text style={styles.buttonText}>
-                      {item.status_id === 1 ? 'Start Task' : 'Mark as Done'}
+                      {isCheckedIn(item) ? "Check Out" : "Check In"}
                     </Text>
                   </Pressable>
-                )}
-
-                <Pressable
-                  style={[
-                    styles.button,
-                    { flex: 1, marginRight: 8 }
-                  ]}
-                  onPress={() => handleReportProblem(item)}
-                >
-                  <Text style={styles.buttonText}>Report Problem</Text>
-                </Pressable>
-
-                {canManageTask && (
-                  <ManageTask
-                    task={item}
-                    onUpdate={fetchTasks}
-                    onDelete={(taskId) => {
-                      setTasks(tasks.filter(t => t.task_id !== taskId));
-                      fetchTasks();
-                    }}
-                  />
+                ) : (
+                  <>
+                    {isDelegatee && item.status_id !== 3 && (
+                      <Pressable
+                        style={[styles.button, { flex: 1, marginRight: 8 }]}
+                        onPress={() => handleAdvanceStatus(item)}
+                      >
+                        <Text style={styles.buttonText}>
+                          {item.status_id === 1 ? 'Start Task' : 'Mark as Done'}
+                        </Text>
+                      </Pressable>
+                    )}
+                    <Pressable
+                      style={[styles.button, { flex: 1, marginRight: 8 }]}
+                      onPress={() => handleReportProblem(item)}
+                    >
+                      <Text style={styles.buttonText}>Report Problem</Text>
+                    </Pressable>
+                    {canManageTask && (
+                      <ManageTask
+                        task={item}
+                        onUpdate={fetchTasks}
+                        onDelete={(taskId) => {
+                          setTasks(tasks.filter(t => t.task_id !== taskId));
+                          fetchTasks();
+                        }}
+                      />
+                    )}
+                  </>
                 )}
               </View>
             </View>
           );
         }}
-        contentContainerStyle={{ padding: 10 }}
+        contentContainerStyle={{ padding: 10, width: '100%' }}
         ListEmptyComponent={
           !loading ? (
             <View style={styles.emptyContainer}>
@@ -368,29 +430,29 @@ const TaskList = () => {
         onRequestClose={() => setProblemModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Report Problem</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Describe the problem..."
-              value={newProblem}
-              onChangeText={setNewProblem}
-              multiline
-            />
-            <Pressable
-              style={styles.button}
-              disabled={isSubmittingProblem || !newProblem.trim()}
-              onPress={submitProblem}
-            >
-              <Text style={styles.buttonText}>
-                {isSubmittingProblem ? "Submitting..." : "Submit Problem"}
-              </Text>
-            </Pressable>
-            <Pressable
-              style={styles.button}
-              onPress={() => setProblemModalVisible(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </Pressable>
+          <Text style={styles.modalTitle}>Report Problem</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Describe the problem..."
+            value={newProblem}
+            onChangeText={setNewProblem}
+            multiline
+          />
+          <Pressable
+            style={styles.button}
+            disabled={isSubmittingProblem || !newProblem.trim()}
+            onPress={submitProblem}
+          >
+            <Text style={styles.buttonText}>
+              {isSubmittingProblem ? "Submitting..." : "Submit Problem"}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => setProblemModalVisible(false)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </Pressable>
         </View>
       </Modal>
     </View>
