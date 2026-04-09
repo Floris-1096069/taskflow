@@ -185,14 +185,19 @@ def create_task():
 def update_task(task_id):
     try:
         data = request.get_json()
-        updated_task = Task.update(task_id, **data)
+        # Filter out fields that don't exist in the Task model
+        filtered_data = {
+            k: v for k, v in data.items()
+            if k in ['name', 'description', 'priority', 'status_id', 'delegated_to', 'tag_ids']
+        }
+        updated_task = Task.update(task_id, **filtered_data)
         return jsonify(updated_task.to_dict()), 200
-
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-
     except Exception as e:
         print(f"Error updating task: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": "Failed to update task"}), 500
 
 

@@ -3,14 +3,15 @@ import {
   View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Switch, Alert,
   TouchableOpacity
 } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
-import ManageTask from './ManageTask';
 import TagSelector from './TagSelector';
 import { Config } from '../config';
 
-const TaskList = () => {
+const TaskList = ({ navigation }) => {
+  const route = useRoute();
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [statuses, setStatuses] = useState([]);
@@ -41,6 +42,14 @@ const TaskList = () => {
   const role = getRole();
   const isAuthorized = String(role) === '1' || String(role) === '2';
 
+  // Handle refresh parameter
+  useEffect(() => {
+    if (route.params?.refresh) {
+      fetchTasks();
+      navigation.setParams({ refresh: false });
+    }
+  }, [route.params?.refresh]);
+
   const getStatusBackgroundColor = (statusId) => {
     switch (statusId) {
       case 1: return colours.todoBackground;
@@ -51,77 +60,80 @@ const TaskList = () => {
     }
   };
 
-
   const getTaskBackgroundColor = (task) => {
-    // If the task is checked in by the current user
     if (isCheckedIn(task)) {
-      return colours.inProgressBackground; // Light green
+      return colours.inProgressBackground;
     }
-    // Otherwise, use the status-based color
     return getStatusBackgroundColor(task.status_id);
   };
 
-
+  const handleNavigateToManageTask = (task) => {
+    navigation.navigate('ManageTask', {
+      task: {
+        ...task,
+        tag_ids: task.tags ? task.tags.map(tag => tag.tag_id) : [],
+      },
+    });
+  };
 
   const fetchTasks = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const query = new URLSearchParams();
-    const delegatedTo = showAllTasks && isAuthorized ? null : user_id;
-    const updatedFilters = { ...filters, delegated_to: delegatedTo };
+    setLoading(true);
+    setError(null);
+    try {
+      const query = new URLSearchParams();
+      const delegatedTo = showAllTasks && isAuthorized ? null : user_id;
+      const updatedFilters = { ...filters, delegated_to: delegatedTo };
 
-    Object.entries(updatedFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
-        if (key !== 'priority' || value !== undefined) {
-          if (Array.isArray(value)) {
-            value.forEach(id => query.append(key, id));
-          } else {
-            query.append(key, value);
+      Object.entries(updatedFilters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
+          if (key !== 'priority' || value !== undefined) {
+            if (Array.isArray(value)) {
+              value.forEach(id => query.append(key, id));
+            } else {
+              query.append(key, value);
+            }
           }
         }
-      }
-    });
-
-    const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
-    let filteredTasks = await response.json();
-
-    const standardTasksResponse = await fetchWithAuth(
-      `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
-    );
-    let standardTasks = await standardTasksResponse.json();
-
-    // Fetch tags for all tasks
-    const tasksWithTags = await Promise.all(
-      [...filteredTasks, ...standardTasks].map(async (task) => {
-        const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
-        const tags = await tagResponse.json();
-        return { ...task, tags };
-      })
-    );
-
-    const uniqueTasks = tasksWithTags.reduce((acc, task) => {
-      if (!acc.some(t => t.task_id === task.task_id)) {
-        acc.push(task);
-      }
-      return acc;
-    }, []);
-
-    const sortedTasks = uniqueTasks
-      .filter(task => showContinuousTasks || !task.is_continuous)
-      .sort((a, b) => {
-        if (a.is_continuous && !b.is_continuous) return -1;
-        if (!a.is_continuous && b.is_continuous) return 1;
-        return 0;
       });
 
-    setTasks(sortedTasks);
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
+      let filteredTasks = await response.json();
+
+      const standardTasksResponse = await fetchWithAuth(
+        `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
+      );
+      let standardTasks = await standardTasksResponse.json();
+
+      const tasksWithTags = await Promise.all(
+        [...filteredTasks, ...standardTasks].map(async (task) => {
+          const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
+          const tags = await tagResponse.json();
+          return { ...task, tags };
+        })
+      );
+
+      const uniqueTasks = tasksWithTags.reduce((acc, task) => {
+        if (!acc.some(t => t.task_id === task.task_id)) {
+          acc.push(task);
+        }
+        return acc;
+      }, []);
+
+      const sortedTasks = uniqueTasks
+        .filter(task => showContinuousTasks || !task.is_continuous)
+        .sort((a, b) => {
+          if (a.is_continuous && !b.is_continuous) return -1;
+          if (!a.is_continuous && b.is_continuous) return 1;
+          return 0;
+        });
+
+      setTasks(sortedTasks);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchUsers = async () => {
     setUsersLoading(true);
@@ -172,32 +184,28 @@ const TaskList = () => {
   };
 
   const handleCheckInOut = async (task) => {
-  try {
-    const endpoint = isCheckedIn(task) ? "checkout" : "checkin";
-    const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+    try {
+      const endpoint = isCheckedIn(task) ? "checkout" : "checkin";
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-    // Force a refresh of the task list
-    await fetchTasks();
-
-    // Optional: Update local state directly if needed
-    setTasks(prevTasks =>
-      prevTasks.map(t =>
-        t.task_id === task.task_id
-          ? { ...t, active_users: isCheckedIn(task) ? [] : [{ user_id }] }
-          : t
-      )
-    );
-
-  } catch (error) {
-    console.error("Failed to update check-in status:", error);
-    Alert.alert("Error", error.message || "Failed to update check-in status.");
-  }
-};
+      fetchTasks();
+      setTasks(prevTasks =>
+        prevTasks.map(t =>
+          t.task_id === task.task_id
+            ? { ...t, active_users: isCheckedIn(task) ? [] : [{ user_id }] }
+            : t
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update check-in status:", error);
+      Alert.alert("Error", error.message || "Failed to update check-in status.");
+    }
+  };
 
   const isCheckedIn = (task) => {
     return task.active_users?.some((user) => String(user.user_id) === String(user_id));
@@ -420,17 +428,12 @@ const TaskList = () => {
                       <Text style={styles.buttonText}>Report Problem</Text>
                     </Pressable>
                     {canManageTask && (
-                      <ManageTask
-                        task={{
-                          ...item,
-                          tag_ids: item.tags ? item.tags.map(tag => tag.tag_id) : [], // Convert tags to tag_ids
-                        }}
-                        onUpdate={fetchTasks}
-                        onDelete={(taskId) => {
-                          setTasks(tasks.filter(t => t.task_id !== taskId));
-                          fetchTasks();
-                        }}
-                      />
+                      <Pressable
+                        style={styles.button}
+                        onPress={() => handleNavigateToManageTask(item)}
+                      >
+                        <Text style={styles.buttonText}>Manage</Text>
+                      </Pressable>
                     )}
                   </>
                 )}

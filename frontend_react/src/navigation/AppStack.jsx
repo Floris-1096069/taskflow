@@ -6,6 +6,7 @@ import AdminScreen from '../screens/AdminScreen';
 import TagScreen from "../screens/ManageTagScreen";
 import ProblemScreen from "../screens/ProblemScreen";
 import UndelegatedScreen from '../screens/UndelegatedScreen';
+import ManageTaskScreen from '../screens/ManageTaskScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -18,6 +19,12 @@ export default function AppStack() {
         name="TaskList"
         component={TaskListScreen}
         options={{ title: 'Tasks', headerShown: false }}
+    />
+
+    <Stack.Screen
+        name="ManageTask"
+        component={ManageTaskScreen}
+        options={{ title: 'Manage', headerShown: false }}
     />
 
     <Stack.Screen

@@ -20,7 +20,7 @@ export default function TaskListScreen({ navigation }) {
 
     <View style={[globalStyles.container, {width: '100%'}]}>
 
-      <TaskList></TaskList>
+      <TaskList navigation={navigation}></TaskList>
 
     </View>
     </View>
