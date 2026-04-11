@@ -26,7 +26,10 @@ def check_in_to_task(task_id):
     try:
         Task.check_in_user(task_id, user_id)
 
-        task = Task.get_filtered(task_id=task_id)[0]
+        tasks = Task.get_filtered(task_id=task_id)
+        if not tasks:
+            raise ValueError("Task not found")
+        task = tasks[0]
         return jsonify({
             "message": "Checked in successfully",
             "task": task.to_dict()
@@ -49,7 +52,10 @@ def check_out_of_task(task_id):
     try:
         Task.check_out_user(task_id, user_id)
 
-        task = Task.get_filtered(task_id=task_id)[0]
+        tasks = Task.get_filtered(task_id=task_id)
+        if not tasks:
+            raise ValueError("Task not found")
+        task = tasks[0]
         return jsonify({
             "message": "Checked out successfully",
             "task": task.to_dict()
@@ -264,7 +270,7 @@ def get_task_tags(task_id):
             return jsonify({"error": "Task not found"}), 404
         tags = Task.get_tags(task_id)  # Use the new model method
         return jsonify([tag.to_dict() for tag in tags] if tags else [])
-    
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
