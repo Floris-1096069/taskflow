@@ -46,7 +46,7 @@ const TaskList = ({ navigation }) => {
       useFocusEffect(
       React.useCallback(() => {
         fetchTasks();
-      }, [])
+      }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id])
     );
 
   const getStatusBackgroundColor = (statusId) => {
@@ -79,28 +79,38 @@ const TaskList = ({ navigation }) => {
   setLoading(true);
   setError(null);
   try {
-    const query = new URLSearchParams();
+    // 1. Fetch continuous tasks (if toggle is ON)
+    let continuousTasks = [];
+    if (showContinuousTasks) {
+      const continuousResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/continuous`);
+      continuousTasks = await continuousResponse.json();
+      // Fetch tags and active_users for continuous tasks
+      continuousTasks = await Promise.all(
+        continuousTasks.map(async (task) => {
+          const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
+          const tags = await tagResponse.json();
+          const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
+          const active_users = await checkinsResponse.json();
+          return { ...task, tags, active_users };
+        })
+      );
+    }
 
-    // For non-admins: Only show tasks delegated to them or continuous tasks
+    // 2. Fetch non-continuous tasks (always)
+    const query = new URLSearchParams();
     if (!isAuthorized) {
       query.append('delegated_to', user_id);
     } else {
-      // For admins: Handle showUndelegatedTasks
       if (showUndelegatedTasks) {
         query.append('delegated_to', 'null');
       } else {
         query.append('delegated_to', 'not_null');
       }
     }
-
-    if (showProblemTasks) {
-      query.append('status_id', 4);
-    }
-
-    // Apply other filters (priority, status_id, tag_ids, etc.)
+    if (showProblemTasks) query.append('status_id', 4);
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
-        if (key !== 'delegated_to') { // Skip delegated_to since we handle it above
+        if (key !== 'delegated_to') {
           if (Array.isArray(value)) {
             value.forEach(id => query.append(key, id));
           } else {
@@ -109,65 +119,19 @@ const TaskList = ({ navigation }) => {
         }
       }
     });
-
-    // Fetch filtered tasks
-    const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
-    let filteredTasks = await response.json();
-
-    // Fetch continuous tasks (if showContinuousTasks is true)
-    let standardTasks = [];
-    if (showContinuousTasks) {
-      const standardTasksResponse = await fetchWithAuth(
-        `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
-      );
-      standardTasks = await standardTasksResponse.json();
-    }
-
-    // Fetch tags AND active_users for all tasks
-    const tasksWithTagsAndUsers = await Promise.all(
-      [...filteredTasks, ...standardTasks].map(async (task) => {
+    const filteredResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
+    let filteredTasks = await filteredResponse.json();
+    // Fetch tags for non-continuous tasks
+    filteredTasks = await Promise.all(
+      filteredTasks.map(async (task) => {
         const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
         const tags = await tagResponse.json();
-
-        let active_users = [];
-        if (task.is_continuous) {
-          const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
-          active_users = await checkinsResponse.json();
-        }
-
-        return { ...task, tags, active_users };
+        return { ...task, tags, active_users: [] };
       })
     );
 
-    // Remove duplicates
-    const uniqueTasks = tasksWithTagsAndUsers.reduce((acc, task) => {
-      if (!acc.some(t => t.task_id === task.task_id)) {
-        acc.push(task);
-      }
-      return acc;
-    }, []);
-
-    // Filter tasks based on showContinuousTasks
-    const sortedTasks = uniqueTasks
-      .filter(task => {
-        if (!isAuthorized) {
-          // Non-admins: Show continuous tasks OR tasks delegated to them
-          return task.is_continuous || String(task.delegated_to) === String(user_id);
-        } else {
-          // Admins: Show all tasks (filtered by the toggles)
-          if (!showContinuousTasks && task.is_continuous) return false;
-          if (showUndelegatedTasks && task.delegated_to !== null) return false;
-          if (showProblemTasks && task.status_id !== 4) return false;
-          return true;
-        }
-      })
-      .sort((a, b) => {
-        if (a.is_continuous && !b.is_continuous) return -1;
-        if (!a.is_continuous && b.is_continuous) return 1;
-        return 0;
-      });
-
-    setTasks(sortedTasks);
+    // 3. Combine results
+    setTasks([...continuousTasks, ...filteredTasks]);
   } catch (err) {
     setError(err.message);
   } finally {

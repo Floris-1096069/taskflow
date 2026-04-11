@@ -58,9 +58,17 @@ class Task(Base):
             return db.query(cls).filter(cls.delegated_to == None).all()
 
     @classmethod
+    def get_continuous(cls):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).filter(cls.is_continuous == True).all()
+
+    @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
             query = db.query(cls).options(joinedload(cls.tags))
+
+            # --- FORCE: Exclude continuous tasks ---
+            query = query.filter(cls.is_continuous == False)  # <-- This is the key line
 
             # Default: Exclude tasks with status_id = 4 (Problem)
             if 'status_id' not in filters:

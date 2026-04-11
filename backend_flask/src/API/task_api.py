@@ -84,6 +84,9 @@ def get_filtered_tasks():
         # Parse all query parameters
         filters = {key: request.args.getlist(key) if key == 'tag_ids' else request.args.get(key) for key in request.args}
 
+        # Force is_continuous=False to exclude continuous tasks
+        filters['is_continuous'] = False
+
         # Handle the special case for 'delegated_to=null'
         if 'delegated_to' in filters and filters['delegated_to'] == 'null':
             filters['delegated_to'] = None  # Convert 'null' string to Python None
@@ -95,6 +98,18 @@ def get_filtered_tasks():
     except Exception as e:
         print(f"Error fetching tasks: {e}")
         return jsonify({"error": "Failed to fetch tasks"}), 500
+
+
+@task_api.get("/continuous")
+@cross_origin()
+@jwt_required()
+def get_continuous_tasks():
+    try:
+        tasks = Task.get_continuous()
+        return jsonify([task.to_dict() for task in tasks])
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @task_api.get("/problems")
