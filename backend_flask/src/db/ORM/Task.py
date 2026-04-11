@@ -40,11 +40,13 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(joinedload(cls.tags)).all()
 
+
     @classmethod
     def get_created_by(cls, task_id):
         with cls._db_manager.get_db() as db:
             task = db.query(cls).filter_by(task_id=task_id).one_or_none()
             return task.created_by if task else None
+
 
     @classmethod
     def get_by_id(cls, task_id: int):
@@ -57,15 +59,30 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(joinedload(cls.tags)).filter(cls.delegated_to == user_id).all()
 
+
     @classmethod
     def get_undelegated(cls):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.delegated_to == None).all()
 
+
     @classmethod
     def get_continuous(cls):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.is_continuous == True).all()
+
+
+    @classmethod
+    def get_continuous_by_id(cls, task_id: int):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)
+            ).filter(
+                cls.task_id == task_id,
+                cls.is_continuous == True
+            ).one_or_none()
+
 
     @classmethod
     def get_tags(cls, task_id: int):
@@ -75,42 +92,40 @@ class Task(Base):
                 return None
             return task.tags
 
+
     @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
             query = db.query(cls).options(joinedload(cls.tags))
 
-            # --- FORCE: Exclude continuous tasks ---
             query = query.filter(cls.is_continuous == False)
 
-            # Handle status_id filter
             if 'status_id' in filters:
                 if filters['status_id'] == '4':
-                    query = query.filter(cls.status_id == 4)  # Only problem tasks
+                    query = query.filter(cls.status_id == 4)
                 else:
-                    query = query.filter(cls.status_id == filters['status_id'])  # Specific status
+                    query = query.filter(cls.status_id == filters['status_id'])
             else:
-                query = query.filter(cls.status_id != 4)  # Exclude problem tasks by default
+                query = query.filter(cls.status_id != 4)
 
-            # Apply other filters
             if 'archived' in filters and filters['archived'] is not None:
                 query = query.filter(cls.archived == filters['archived'])
             if 'priority' in filters and filters['priority'] is not None:
                 query = query.filter(cls.priority == filters['priority'])
 
-            # Handle delegated_to filter
             if 'delegated_to' in filters:
                 if filters['delegated_to'] is None or filters['delegated_to'] == 'null':
-                    query = query.filter(cls.delegated_to.is_(None))  # Undelegated tasks
+                    query = query.filter(cls.delegated_to.is_(None))
                 elif filters['delegated_to'] == 'not_null':
-                    query = query.filter(cls.delegated_to.isnot(None))  # Only delegated tasks
+                    query = query.filter(cls.delegated_to.isnot(None))
                 else:
-                    query = query.filter(cls.delegated_to == filters['delegated_to'])  # Specific user
+                    query = query.filter(cls.delegated_to == filters['delegated_to'])
 
             if 'tag_ids' in filters and filters['tag_ids']:
                 query = query.join(cls.tags).filter(Tag.tag_id.in_(filters['tag_ids']))
 
             return query.all()
+
 
     @classmethod
     def is_standard_continuous_task(cls, task_id):
@@ -154,6 +169,7 @@ class Task(Base):
 
             return new_task
 
+
     @classmethod
     def delete(cls, task_id):
         with cls._db_manager.get_db() as db:
@@ -168,6 +184,7 @@ class Task(Base):
 
             db.delete(task)
             db.commit()
+
 
     @classmethod
     def update(cls, task_id, **kwargs):
@@ -192,53 +209,47 @@ class Task(Base):
             task.update_time = datetime.utcnow()
             db.commit()
 
-            # Return a fresh task object from the database
             updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
-            return updated_task  # Let Flask serialize it in the endpoint
+            return updated_task
+
 
     @classmethod
     def update_status(cls, task_id, status_id):
         with cls._db_manager.get_db() as db:
-            # Load the task WITH its tags to preserve them
             task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
             if not task:
                 raise ValueError("Task not found")
 
-            print(f"Before update - Task {task_id} tags: {task.tags}")
-            # Update ONLY the status_id
             task.status_id = status_id
             task.update_time = datetime.utcnow()
 
             db.commit()
 
-            # Return a fresh task object from the database
             updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
             print(f"After update - Task {task_id} tags: {updated_task.tags}")
             return updated_task
 
+
     @classmethod
     def check_in_user(cls, task_id, user_id):
         with cls._db_manager.get_db() as db:
-            # Check if the task is continuous
             task = db.query(cls).filter(cls.task_id == task_id, cls.is_continuous == True).one_or_none()
             if not task:
                 raise ValueError("Task not found or not continuous")
 
-            # Check if the user is already checked in
             existing = db.query(TaskUserCheckIn).filter_by(task_id=task_id, user_id=user_id).first()
             if existing:
                 raise ValueError("User already checked in")
 
-            # Add the check-in
             checkin = TaskUserCheckIn(task_id=task_id, user_id=user_id)
             db.add(checkin)
             db.commit()
             return checkin
 
+
     @classmethod
     def check_out_user(cls, task_id, user_id):
         with cls._db_manager.get_db() as db:
-            # Find and remove the check-in
             checkin = db.query(TaskUserCheckIn).filter_by(task_id=task_id, user_id=user_id).first()
             if not checkin:
                 raise ValueError("User not checked in")
@@ -247,10 +258,12 @@ class Task(Base):
             db.commit()
             return checkin
 
+
     @classmethod
     def get_checkins(cls, task_id):
         with cls._db_manager.get_db() as db:
             return db.query(TaskUserCheckIn).filter_by(task_id=task_id).all()
+
 
     def to_dict(self):
         try:
@@ -269,7 +282,7 @@ class Task(Base):
                 "created_by": self.created_by,
                 "updated_by": self.updated_by,
                 "is_continuous": self.is_continuous,
-                "active_users": active_users,  # Add this line
+                "active_users": active_users,
                 "tags": tags,
                 "tag_ids": [tag.tag_id for tag in self.tags] if self.tags else [],
             }

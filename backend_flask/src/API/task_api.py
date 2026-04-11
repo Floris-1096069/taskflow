@@ -26,10 +26,8 @@ def check_in_to_task(task_id):
     try:
         Task.check_in_user(task_id, user_id)
 
-        tasks = Task.get_filtered(task_id=task_id)
-        if not tasks:
-            raise ValueError("Task not found")
-        task = tasks[0]
+        task = Task.get_continuous_by_id(task_id=task_id)
+
         return jsonify({
             "message": "Checked in successfully",
             "task": task.to_dict()
@@ -52,10 +50,8 @@ def check_out_of_task(task_id):
     try:
         Task.check_out_user(task_id, user_id)
 
-        tasks = Task.get_filtered(task_id=task_id)
-        if not tasks:
-            raise ValueError("Task not found")
-        task = tasks[0]
+        task = Task.get_continuous_by_id(task_id)
+
         return jsonify({
             "message": "Checked out successfully",
             "task": task.to_dict()
@@ -87,17 +83,13 @@ def get_task_checkins(task_id):
 @jwt_required()
 def get_filtered_tasks():
     try:
-        # Parse all query parameters
         filters = {key: request.args.getlist(key) if key == 'tag_ids' else request.args.get(key) for key in request.args}
 
-        # Force is_continuous=False to exclude continuous tasks
         filters['is_continuous'] = False
 
-        # Handle the special case for 'delegated_to=null'
         if 'delegated_to' in filters and filters['delegated_to'] == 'null':
-            filters['delegated_to'] = None  # Convert 'null' string to Python None
+            filters['delegated_to'] = None
 
-        # Fetch tasks using the filters
         tasks = Task.get_filtered(**filters)
         return jsonify([task.to_dict() for task in tasks])
 
@@ -213,7 +205,6 @@ def create_task():
 def update_task(task_id):
     try:
         data = request.get_json()
-        # Filter out fields that don't exist in the Task model
         filtered_data = {
             k: v for k, v in data.items()
             if k in ['name', 'description', 'priority', 'status_id', 'delegated_to', 'tag_ids']
@@ -265,10 +256,10 @@ def get_all_tags():
 @jwt_required()
 def get_task_tags(task_id):
     try:
-        task = Task.get_by_id(task_id)  # Assuming you have a get_by_id method
+        task = Task.get_by_id(task_id)
         if not task:
             return jsonify({"error": "Task not found"}), 404
-        tags = Task.get_tags(task_id)  # Use the new model method
+        tags = Task.get_tags(task_id)
         return jsonify([tag.to_dict() for tag in tags] if tags else [])
 
     except Exception as e:

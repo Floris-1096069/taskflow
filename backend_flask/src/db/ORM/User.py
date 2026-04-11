@@ -58,7 +58,7 @@ class User(Base):
     @classmethod
     def get_user(cls, user_id: int = None, username: str = ""):
         with cls._db_manager.get_db() as db:
-            query = db.query(cls).options(joinedload(cls.role))  # Eager load role
+            query = db.query(cls).options(joinedload(cls.role))
             if user_id is not None:
                 return query.filter_by(user_id=user_id).one_or_none()
             elif username != "":

@@ -15,10 +15,12 @@ class Status(Base):
 
     _db_manager = DatabaseManager()
 
+
     @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
             return db.query(cls).all()
+
 
     def to_dict(self):
         return {

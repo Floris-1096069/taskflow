@@ -38,6 +38,7 @@ class Tag(Base):
             db.rollback()
             raise e
 
+
     @classmethod
     def delete(cls, tag_id):
         try:

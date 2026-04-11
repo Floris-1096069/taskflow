@@ -32,7 +32,7 @@ const TaskList = ({ navigation }) => {
   const [newProblem, setNewProblem] = useState("");
   const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
   const [showTagSelector, setShowTagSelector] = useState(false);
-  const [showContinuousTasks, setShowContinuousTasks] = useState(false);
+  const [showContinuousTasks, setShowContinuousTasks] = useState(true);
   const [showUndelegatedTasks, setShowUndelegatedTasks] = useState(false);
   const [showProblemTasks, setShowProblemTasks] = useState(false);
 
@@ -196,22 +196,26 @@ const TaskList = ({ navigation }) => {
     };
 
     const handleCheckInOut = async (task) => {
-    try {
-      const endpoint = isCheckedIn(task) ? "checkout" : "checkin";
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      // Just refresh the task list
-      await fetchTasks();
-    } catch (error) {
-      console.error("Failed to update check-in status:", error);
-      Alert.alert("Error", error.message || "Failed to update check-in status.");
-    }
-  };
+      try {
+        const isCurrentlyCheckedIn = isCheckedIn(task);
+        const endpoint = isCurrentlyCheckedIn ? "checkout" : "checkin";
+        const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        // Update the task in the local state directly
+        setTasks(prevTasks =>
+          prevTasks.map(t =>
+            t.task_id === task.task_id ? data.task : t
+          )
+        );
+      } catch (error) {
+        console.error("Failed to update check-in status:", error);
+        Alert.alert("Error", error.message || "Failed to update check-in status.");
+      }
+    };
 
   useEffect(() => {
     fetchTasks();

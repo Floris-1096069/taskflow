@@ -19,15 +19,18 @@ class TaskProblem(Base):
 
     _db_manager = DatabaseManager()
 
+
     @classmethod
     def get_by_task_id(cls, task_id: int):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.task_id == task_id).all()
 
+
     @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
             return db.query(cls).all()
+
 
     @classmethod
     def create(cls, task_id: int, user_id: int, content: str):
@@ -43,12 +46,12 @@ class TaskProblem(Base):
             )
             db.add(new_problem)
 
-            # Use Task.update_status to update the status (preserves tags)
             Task.update_status(task_id, 4)
 
             db.commit()
             db.refresh(new_problem)
             return new_problem
+
 
     @classmethod
     def delete(cls, problem_id: int):

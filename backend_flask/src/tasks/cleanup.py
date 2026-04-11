@@ -10,7 +10,3 @@ def cleanup_inactive_users():
             User.last_seen < five_minutes_ago,
         ).update({User.is_online: False}, synchronize_session=False)
         db.commit()
-
-
-#def archive_old_tasks():
-    #with User._db_manager.get_db() as db:
