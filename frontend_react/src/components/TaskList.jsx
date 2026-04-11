@@ -32,7 +32,7 @@ const TaskList = ({ navigation }) => {
   const [newProblem, setNewProblem] = useState("");
   const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
   const [showTagSelector, setShowTagSelector] = useState(false);
-  const [showContinuousTasks, setShowContinuousTasks] = useState(true);
+  const [showContinuousTasks, setShowContinuousTasks] = useState(false);
   const [showUndelegatedTasks, setShowUndelegatedTasks] = useState(false);
   const [showProblemTasks, setShowProblemTasks] = useState(false);
 
