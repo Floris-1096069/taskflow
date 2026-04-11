@@ -34,6 +34,7 @@ const TaskList = ({ navigation }) => {
   const [showTagSelector, setShowTagSelector] = useState(false);
   const [showContinuousTasks, setShowContinuousTasks] = useState(true);
   const [showUndelegatedTasks, setShowUndelegatedTasks] = useState(false);
+  const [showProblemTasks, setShowProblemTasks] = useState(false);
 
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
@@ -90,6 +91,10 @@ const TaskList = ({ navigation }) => {
       } else {
         query.append('delegated_to', 'not_null');
       }
+    }
+
+    if (showProblemTasks) {
+      query.append('status_id', 4);
     }
 
     // Apply other filters (priority, status_id, tag_ids, etc.)
@@ -152,6 +157,7 @@ const TaskList = ({ navigation }) => {
           // Admins: Show all tasks (filtered by the toggles)
           if (!showContinuousTasks && task.is_continuous) return false;
           if (showUndelegatedTasks && task.delegated_to !== null) return false;
+          if (showProblemTasks && task.status_id !== 4) return false;
           return true;
         }
       })
@@ -243,7 +249,7 @@ const TaskList = ({ navigation }) => {
     fetchTasks();
     fetchUsers();
     fetchStatuses();
-  }, [filters, showContinuousTasks, showUndelegatedTasks, isAuthorized, user_id]);
+  }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id]);
 
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
@@ -332,6 +338,16 @@ const TaskList = ({ navigation }) => {
               <Text>{showUndelegatedTasks ? "Only Undelegated" : "Already Delegated"}</Text>
             </View>
           )}
+        {isAuthorized && (
+            <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Problem Tasks Only:</Text>
+            <Switch
+              value={showProblemTasks}
+              onValueChange={setShowProblemTasks}
+            />
+            <Text>{showProblemTasks ? "Only Problematic Tasks" : "Only Non Problematic Tasks"}</Text>
+          </View>
+        )}
         <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Create New Task</Text>
         </Pressable>

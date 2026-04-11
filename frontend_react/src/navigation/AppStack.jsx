@@ -4,7 +4,6 @@ import TaskListScreen from '../screens/TaskListScreen';
 import RegisterScreen from "../screens/RegisterScreen";
 import AdminScreen from '../screens/AdminScreen';
 import TagScreen from "../screens/ManageTagScreen";
-import ProblemScreen from "../screens/ProblemScreen";
 import ManageTaskScreen from '../screens/ManageTaskScreen';
 
 
@@ -43,13 +42,8 @@ export default function AppStack() {
       component={TagScreen}
       options={{ title: 'Manage Tags', headerShown: false }}
     />
-
-    <Stack.Screen
-      name="ProblemScreen"
-      component={ProblemScreen}
-      options={{ title: 'Problem Tasklist', headerShown: false }}
-    />
       
+
     </Stack.Navigator>
   );
 }
