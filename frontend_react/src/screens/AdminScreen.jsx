@@ -35,13 +35,6 @@ export default function AdminScreen({ navigation }) {
     </Pressable>
 
     <Pressable
-        onPress={() => navigation.navigate('UndelegatedScreen')}
-        style={[globalStyles.button]}
-        >
-        <Text style={globalStyles.buttonText}>See Undelegated Tasks</Text>
-    </Pressable>
-
-    <Pressable
         onPress={() => navigation.navigate('ProblemScreen')}
         style={[globalStyles.button]}
         >

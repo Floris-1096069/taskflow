@@ -81,7 +81,14 @@ def get_task_checkins(task_id):
 @jwt_required()
 def get_filtered_tasks():
     try:
+        # Parse all query parameters
         filters = {key: request.args.getlist(key) if key == 'tag_ids' else request.args.get(key) for key in request.args}
+
+        # Handle the special case for 'delegated_to=null'
+        if 'delegated_to' in filters and filters['delegated_to'] == 'null':
+            filters['delegated_to'] = None  # Convert 'null' string to Python None
+
+        # Fetch tasks using the filters
         tasks = Task.get_filtered(**filters)
         return jsonify([task.to_dict() for task in tasks])
 

@@ -5,7 +5,6 @@ import RegisterScreen from "../screens/RegisterScreen";
 import AdminScreen from '../screens/AdminScreen';
 import TagScreen from "../screens/ManageTagScreen";
 import ProblemScreen from "../screens/ProblemScreen";
-import UndelegatedScreen from '../screens/UndelegatedScreen';
 import ManageTaskScreen from '../screens/ManageTaskScreen';
 
 
@@ -50,12 +49,7 @@ export default function AppStack() {
       component={ProblemScreen}
       options={{ title: 'Problem Tasklist', headerShown: false }}
     />
-
-    <Stack.Screen
-      name="UndelegatedScreen"
-      component={UndelegatedScreen}
-      options={{ title: 'Undelegated Tasks', headerShown: false }}
-    />
+      
     </Stack.Navigator>
   );
 }

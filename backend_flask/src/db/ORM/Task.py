@@ -62,17 +62,27 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             query = db.query(cls).options(joinedload(cls.tags))
 
+            # Default: Exclude tasks with status_id = 4 (Problem)
             if 'status_id' not in filters:
                 query = query.filter(cls.status_id != 4)
             elif filters['status_id'] != '4':
                 query = query.filter(cls.status_id == filters['status_id'])
 
+            # Apply other filters
             if 'archived' in filters and filters['archived'] is not None:
                 query = query.filter(cls.archived == filters['archived'])
             if 'priority' in filters and filters['priority'] is not None:
                 query = query.filter(cls.priority == filters['priority'])
-            if 'delegated_to' in filters and filters['delegated_to'] is not None:
-                query = query.filter(cls.delegated_to == filters['delegated_to'])
+
+            # Handle delegated_to filter
+            if 'delegated_to' in filters:
+                if filters['delegated_to'] is None or filters['delegated_to'] == 'null':
+                    query = query.filter(cls.delegated_to.is_(None))  # Undelegated tasks
+                elif filters['delegated_to'] == 'not_null':
+                    query = query.filter(cls.delegated_to.isnot(None))  # Only delegated tasks
+                else:
+                    query = query.filter(cls.delegated_to == filters['delegated_to'])  # Specific user
+
             if 'tag_ids' in filters and filters['tag_ids']:
                 query = query.join(cls.tags).filter(Tag.tag_id.in_(filters['tag_ids']))
 

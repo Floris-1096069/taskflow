@@ -31,9 +31,9 @@ const TaskList = ({ navigation }) => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [newProblem, setNewProblem] = useState("");
   const [isSubmittingProblem, setIsSubmittingProblem] = useState(false);
-  const [showAllTasks, setShowAllTasks] = useState(false);
   const [showTagSelector, setShowTagSelector] = useState(false);
   const [showContinuousTasks, setShowContinuousTasks] = useState(true);
+  const [showUndelegatedTasks, setShowUndelegatedTasks] = useState(false);
 
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
@@ -79,12 +79,23 @@ const TaskList = ({ navigation }) => {
   setError(null);
   try {
     const query = new URLSearchParams();
-    const delegatedTo = showAllTasks && isAuthorized ? null : user_id;
-    const updatedFilters = { ...filters, delegated_to: delegatedTo };
 
-    Object.entries(updatedFilters).forEach(([key, value]) => {
+    // For non-admins: Only show tasks delegated to them or continuous tasks
+    if (!isAuthorized) {
+      query.append('delegated_to', user_id);
+    } else {
+      // For admins: Handle showUndelegatedTasks
+      if (showUndelegatedTasks) {
+        query.append('delegated_to', 'null');
+      } else {
+        query.append('delegated_to', 'not_null');
+      }
+    }
+
+    // Apply other filters (priority, status_id, tag_ids, etc.)
+    Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
-        if (key !== 'priority' || value !== undefined) {
+        if (key !== 'delegated_to') { // Skip delegated_to since we handle it above
           if (Array.isArray(value)) {
             value.forEach(id => query.append(key, id));
           } else {
@@ -98,20 +109,21 @@ const TaskList = ({ navigation }) => {
     const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
     let filteredTasks = await response.json();
 
-    // Fetch continuous tasks
-    const standardTasksResponse = await fetchWithAuth(
-      `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
-    );
-    let standardTasks = await standardTasksResponse.json();
+    // Fetch continuous tasks (if showContinuousTasks is true)
+    let standardTasks = [];
+    if (showContinuousTasks) {
+      const standardTasksResponse = await fetchWithAuth(
+        `${Config.API_BASE_URL}/task/filtered?is_continuous=true`
+      );
+      standardTasks = await standardTasksResponse.json();
+    }
 
     // Fetch tags AND active_users for all tasks
     const tasksWithTagsAndUsers = await Promise.all(
       [...filteredTasks, ...standardTasks].map(async (task) => {
-        // Fetch tags
         const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
         const tags = await tagResponse.json();
 
-        // Fetch active_users for continuous tasks
         let active_users = [];
         if (task.is_continuous) {
           const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
@@ -122,6 +134,7 @@ const TaskList = ({ navigation }) => {
       })
     );
 
+    // Remove duplicates
     const uniqueTasks = tasksWithTagsAndUsers.reduce((acc, task) => {
       if (!acc.some(t => t.task_id === task.task_id)) {
         acc.push(task);
@@ -129,8 +142,19 @@ const TaskList = ({ navigation }) => {
       return acc;
     }, []);
 
+    // Filter tasks based on showContinuousTasks
     const sortedTasks = uniqueTasks
-      .filter(task => showContinuousTasks || !task.is_continuous)
+      .filter(task => {
+        if (!isAuthorized) {
+          // Non-admins: Show continuous tasks OR tasks delegated to them
+          return task.is_continuous || String(task.delegated_to) === String(user_id);
+        } else {
+          // Admins: Show all tasks (filtered by the toggles)
+          if (!showContinuousTasks && task.is_continuous) return false;
+          if (showUndelegatedTasks && task.delegated_to !== null) return false;
+          return true;
+        }
+      })
       .sort((a, b) => {
         if (a.is_continuous && !b.is_continuous) return -1;
         if (!a.is_continuous && b.is_continuous) return 1;
@@ -219,7 +243,7 @@ const TaskList = ({ navigation }) => {
     fetchTasks();
     fetchUsers();
     fetchStatuses();
-  }, [filters, showAllTasks, showContinuousTasks]);
+  }, [filters, showContinuousTasks, showUndelegatedTasks, isAuthorized, user_id]);
 
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
@@ -290,13 +314,6 @@ const TaskList = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.filterContainer}>
         <Text style={styles.title}>To Do List</Text>
-        {isAuthorized && (
-          <View style={styles.filterRow}>
-            <Text style={styles.filterLabel}>Show:</Text>
-            <Switch value={showAllTasks} onValueChange={setShowAllTasks} />
-            <Text>{showAllTasks ? "All Tasks" : "My Tasks"}</Text>
-          </View>
-        )}
         <View style={styles.filterRow}>
           <Text style={styles.filterLabel}>Continuous Tasks:</Text>
           <Switch
@@ -305,6 +322,16 @@ const TaskList = ({ navigation }) => {
           />
           <Text>{showContinuousTasks ? "Shown" : "Hidden"}</Text>
         </View>
+        {isAuthorized && (
+            <View style={styles.filterRow}>
+              <Text style={styles.filterLabel}>Undelegated Tasks:</Text>
+              <Switch
+                value={showUndelegatedTasks}
+                onValueChange={setShowUndelegatedTasks}
+              />
+              <Text>{showUndelegatedTasks ? "Only Undelegated" : "Already Delegated"}</Text>
+            </View>
+          )}
         <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Create New Task</Text>
         </Pressable>
