@@ -2,8 +2,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import TaskListScreen from '../screens/TaskListScreen';
 import RegisterScreen from "../screens/RegisterScreen";
-import AdminScreen from '../screens/AdminScreen';
-import TagScreen from "../screens/ManageTagScreen";
 import ManageTaskScreen from '../screens/ManageTaskScreen';
 
 
@@ -30,19 +28,6 @@ export default function AppStack() {
         component={RegisterScreen}
         options={{ title: 'Register', headerShown: false }}
     />
-
-    <Stack.Screen
-      name="AdminScreen"
-      component={AdminScreen}
-      options={{ title: 'Admin', headerShown: false }}
-    />
-
-    <Stack.Screen
-      name="TagScreen"
-      component={TagScreen}
-      options={{ title: 'Manage Tags', headerShown: false }}
-    />
-      
 
     </Stack.Navigator>
   );

@@ -68,13 +68,16 @@ class Task(Base):
             query = db.query(cls).options(joinedload(cls.tags))
 
             # --- FORCE: Exclude continuous tasks ---
-            query = query.filter(cls.is_continuous == False)  # <-- This is the key line
+            query = query.filter(cls.is_continuous == False)
 
-            # Default: Exclude tasks with status_id = 4 (Problem)
-            if 'status_id' not in filters:
-                query = query.filter(cls.status_id != 4)
-            elif filters['status_id'] != '4':
-                query = query.filter(cls.status_id == filters['status_id'])
+            # Handle status_id filter
+            if 'status_id' in filters:
+                if filters['status_id'] == '4':
+                    query = query.filter(cls.status_id == 4)  # Only problem tasks
+                else:
+                    query = query.filter(cls.status_id == filters['status_id'])  # Specific status
+            else:
+                query = query.filter(cls.status_id != 4)  # Exclude problem tasks by default
 
             # Apply other filters
             if 'archived' in filters and filters['archived'] is not None:

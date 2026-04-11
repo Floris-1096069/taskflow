@@ -38,11 +38,11 @@ const Header = ({ navigation, showBackButton = false, showAdminButton = true }) 
         </Text>
         {showAdminButton && isAuthorized && (
           <TouchableOpacity
-            onPress={() => navigation.navigate('AdminScreen')}
+            onPress={() => navigation.navigate('Register')}
             style={globalStyles.registerButton}
           >
             <Text style={[globalStyles.registerButtonText, { fontSize: isSmallScreen ? 14 : 16 }]}>
-              Administrative Tools  |
+              Manage Accounts  |
             </Text>
           </TouchableOpacity>
         )}
