@@ -312,7 +312,7 @@ const TaskList = ({ navigation }) => {
             <Text>{showProblemTasks ? "Only Problematic Tasks" : "Only Non Problematic Tasks"}</Text>
           </View>
         )}
-        <Pressable style={styles.button} onPress={() => setModalVisible(true)}>
+        <Pressable style={[styles.button]} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Create New Task</Text>
         </Pressable>
         <View style={styles.filterRow}>

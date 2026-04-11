@@ -357,7 +357,7 @@ export const getGlobalStyles = (colorScheme) => {
       alignItems: 'center',
       justifyContent: 'center',
       marginVertical: 4,
-      alignSelf: 'flex-start',
+      alignSelf: 'center',
     },
 
     deleteButton: {
