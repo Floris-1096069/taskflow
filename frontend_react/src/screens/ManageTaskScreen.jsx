@@ -21,7 +21,7 @@ import { Config } from '../config';
 const ManageTaskScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { task, onUpdate, onDelete } = route.params;
+  const { task } = route.params;
   const [editedTask, setEditedTask] = useState({
     ...task,
     tag_ids: Array.isArray(task.tag_ids) ? task.tag_ids : [],
@@ -84,9 +84,7 @@ const ManageTaskScreen = () => {
         body: JSON.stringify(taskData), // Send the same flat structure as before
       });
       if (!response.ok) throw new Error('Failed to update task');
-      const updatedTask = await response.json();
-      onUpdate(updatedTask);
-      navigation.goBack();
+      navigation.goBack({refresh: true});
     } catch (error) {
       console.error('Error updating task:', error);
       Alert.alert('Error', error.message);
@@ -106,8 +104,7 @@ const ManageTaskScreen = () => {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete task');
-      onDelete(task.task_id);
-      navigation.goBack();
+      navigation.goBack({ refresh: true });
     } catch (error) {
       console.error('Error deleting task:', error);
       Alert.alert('Error', error.message);
@@ -323,7 +320,7 @@ const ManageTaskScreen = () => {
 
         <Pressable
           style={[globalStyles.button, { marginTop: 10 }]}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.goBack({refresh: true})}
         >
           <Text style={globalStyles.buttonText}>Cancel</Text>
         </Pressable>
