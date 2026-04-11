@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, joinedload
 from backend_flask.src.db.base import Base
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.database_manager import DatabaseManager
@@ -43,12 +43,11 @@ class TaskProblem(Base):
             )
             db.add(new_problem)
 
-            task.status_id = 4
+            # Use Task.update_status to update the status (preserves tags)
+            Task.update_status(task_id, 4)
 
             db.commit()
-
             db.refresh(new_problem)
-
             return new_problem
 
     @classmethod

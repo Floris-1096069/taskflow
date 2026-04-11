@@ -67,13 +67,13 @@ const TaskList = ({ navigation }) => {
   };
 
   const handleNavigateToManageTask = (task) => {
-    navigation.navigate('ManageTask', {
-      task: {
-        ...task,
-        tag_ids: task.tags ? task.tags.map(tag => tag.tag_id) : [],
-      },
-    });
-  };
+  navigation.navigate('ManageTask', {
+    task: {
+      ...task,
+      tag_ids: (task.tags || []).map(tag => tag.tag_id), // Safeguard: Fallback to empty array
+    },
+  });
+};
 
   const fetchTasks = async () => {
   setLoading(true);
@@ -88,7 +88,9 @@ const TaskList = ({ navigation }) => {
       continuousTasks = await Promise.all(
         continuousTasks.map(async (task) => {
           const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
-          const tags = await tagResponse.json();
+          let tags = await tagResponse.json();
+          // Normalize tags to always be an array
+          if (!Array.isArray(tags)) tags = [];
           const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
           const active_users = await checkinsResponse.json();
           return { ...task, tags, active_users };
@@ -125,7 +127,9 @@ const TaskList = ({ navigation }) => {
     filteredTasks = await Promise.all(
       filteredTasks.map(async (task) => {
         const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
-        const tags = await tagResponse.json();
+        let tags = await tagResponse.json();
+        // Normalize tags to always be an array
+        if (!Array.isArray(tags)) tags = [];
         return { ...task, tags, active_users: [] };
       })
     );

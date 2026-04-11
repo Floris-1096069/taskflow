@@ -258,10 +258,15 @@ def get_all_tags():
 @cross_origin()
 @jwt_required()
 def get_task_tags(task_id):
-    task = Task.get_filtered(task_id=task_id)
-    if not task:
-        return jsonify({"error": "Task not found"}), 404
-    return jsonify([tag.to_dict() for tag in task[0].tags])
+    try:
+        task = Task.get_by_id(task_id)  # Assuming you have a get_by_id method
+        if not task:
+            return jsonify({"error": "Task not found"}), 404
+        tags = Task.get_tags(task_id)  # Use the new model method
+        return jsonify([tag.to_dict() for tag in tags] if tags else [])
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @task_api.post("/tags")

@@ -46,6 +46,11 @@ class Task(Base):
             task = db.query(cls).filter_by(task_id=task_id).one_or_none()
             return task.created_by if task else None
 
+    @classmethod
+    def get_by_id(cls, task_id: int):
+        with cls._db_manager.get_db() as db:
+            return db.query(cls).filter(cls.task_id == task_id).one_or_none()
+
 
     @classmethod
     def get_by_delegated_to(cls, user_id: int):
@@ -61,6 +66,14 @@ class Task(Base):
     def get_continuous(cls):
         with cls._db_manager.get_db() as db:
             return db.query(cls).filter(cls.is_continuous == True).all()
+
+    @classmethod
+    def get_tags(cls, task_id: int):
+        with cls._db_manager.get_db() as db:
+            task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
+            if not task:
+                return None
+            return task.tags
 
     @classmethod
     def get_filtered(cls, **filters):
@@ -182,6 +195,26 @@ class Task(Base):
             # Return a fresh task object from the database
             updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
             return updated_task  # Let Flask serialize it in the endpoint
+
+    @classmethod
+    def update_status(cls, task_id, status_id):
+        with cls._db_manager.get_db() as db:
+            # Load the task WITH its tags to preserve them
+            task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
+            if not task:
+                raise ValueError("Task not found")
+
+            print(f"Before update - Task {task_id} tags: {task.tags}")
+            # Update ONLY the status_id
+            task.status_id = status_id
+            task.update_time = datetime.utcnow()
+
+            db.commit()
+
+            # Return a fresh task object from the database
+            updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
+            print(f"After update - Task {task_id} tags: {updated_task.tags}")
+            return updated_task
 
     @classmethod
     def check_in_user(cls, task_id, user_id):
