@@ -84,7 +84,7 @@ const ManageTaskScreen = () => {
         body: JSON.stringify(taskData), // Send the same flat structure as before
       });
       if (!response.ok) throw new Error('Failed to update task');
-      navigation.goBack({refresh: true});
+      navigation.goBack();
     } catch (error) {
       console.error('Error updating task:', error);
       Alert.alert('Error', error.message);
@@ -104,7 +104,7 @@ const ManageTaskScreen = () => {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete task');
-      navigation.goBack({ refresh: true });
+      navigation.goBack();
     } catch (error) {
       console.error('Error deleting task:', error);
       Alert.alert('Error', error.message);
@@ -320,7 +320,7 @@ const ManageTaskScreen = () => {
 
         <Pressable
           style={[globalStyles.button, { marginTop: 10 }]}
-          onPress={() => navigation.goBack({refresh: true})}
+          onPress={() => navigation.goBack()}
         >
           <Text style={globalStyles.buttonText}>Cancel</Text>
         </Pressable>
