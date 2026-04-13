@@ -143,12 +143,12 @@ class DatabaseManager:
         from backend_flask.src.db.ORM.Task import Task
 
         standard_tasks = [
-            {"name": "Multi-Picken", "description": "Boven Multi Orderpicks Lopen", "priority": 2},
-            {"name": "Order-Picken", "description": "Boven Orderpicks Lopen", "priority": 2},
-            {"name": "Bij-Picken", "description": "Beneden Bijpicken", "priority": 2},
-            {"name": "Verzenden", "description": "Bakken Verzenden", "priority": 2},
-            {"name": "Binnenkomend", "description": "Producten binnenboeken", "priority": 2},
-            {"name": "Wegleg", "description": "Producten wegleggen", "priority": 2},
+            {"name": "Multi-Picken", "description": "Boven Multi Orderpicks Lopen", "priority": 2, "required_role": 6},
+            {"name": "Order-Picken", "description": "Boven Orderpicks Lopen", "priority": 2, "required_role": 6},
+            {"name": "Bij-Picken", "description": "Beneden Bijpicken", "priority": 2, "required_role": 6},
+            {"name": "Verzenden", "description": "Bakken Verzenden", "priority": 2, "required_role": 5},
+            {"name": "Binnenkomend", "description": "Producten binnenboeken", "priority": 2, "required_role": 3},
+            {"name": "Wegleg", "description": "Producten wegleggen", "priority": 2, "required_role": 5},
         ]
 
         with self.get_db() as db:

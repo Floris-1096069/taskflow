@@ -24,6 +24,7 @@ class Task(Base):
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     updated_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     is_continuous = Column(Boolean, default=False, nullable=False)
+    required_role = Column(Integer, default=False, nullable=True)
 
     status = relationship("Status", back_populates="tasks")
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_tasks")
