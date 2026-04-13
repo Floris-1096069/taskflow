@@ -35,6 +35,8 @@ const ManageTaskScreen = () => {
   const { fetchWithAuth, user_id, getRole } = useAuthContext();
   const globalStyles = getGlobalStyles();
 
+
+
   if (!task) {
     return <Text>Task not found</Text>;
   }
@@ -116,7 +118,7 @@ const ManageTaskScreen = () => {
   const handleAddProblem = async () => {
     if (!newProblemContent.trim()) return;
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/create`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,6 +202,8 @@ const ManageTaskScreen = () => {
           onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
           multiline
         />
+        {isAdminOrTeamleider &&(
+          <>
 
         <Text>Change Task Priority</Text>
         <Picker
@@ -222,6 +226,7 @@ const ManageTaskScreen = () => {
           <Picker.Item label="Problem" value={4} />
         </Picker>
 
+
         <Text>Change Delegated User</Text>
         <UserPicker
           onUserSelect={handleUserSelect}
@@ -237,14 +242,18 @@ const ManageTaskScreen = () => {
             />
           </View>
         </View>
+        </>
+      )}
 
-        <Text style={globalStyles.subtitle}>Problems:</Text>
+        <Text style={globalStyles.subtitle}>Reactions:</Text>
         <FlatList
           data={problems}
           keyExtractor={(item) => item.task_problem_id.toString()}
           renderItem={({ item }) => (
             <View style={globalStyles.problemItem}>
               <Text>{item.content}</Text>
+              {isAdminOrTeamleider &&(
+              <>
               <View style={[globalStyles.row, { marginTop: 5 }]}>
                 <Pressable
                   style={[globalStyles.smallButton, globalStyles.warningButton]}
@@ -258,14 +267,16 @@ const ManageTaskScreen = () => {
                 >
                   <Text style={globalStyles.buttonText}>Delete</Text>
                 </Pressable>
+
               </View>
+              </>)}
             </View>
           )}
         />
 
         <TextInput
           style={globalStyles.input}
-          placeholder="Add/Edit Problem"
+          placeholder="Add Reaction"
           value={newProblemContent}
           onChangeText={setNewProblemContent}
           multiline
@@ -295,7 +306,7 @@ const ManageTaskScreen = () => {
               style={[globalStyles.button, globalStyles.successButton, { flex: 1 }]}
               onPress={handleAddProblem}
             >
-              <Text style={globalStyles.buttonText}>Add Problem</Text>
+              <Text style={globalStyles.buttonText}>Add Reaction</Text>
             </Pressable>
           )}
         </View>
@@ -308,7 +319,7 @@ const ManageTaskScreen = () => {
           >
             <Text style={globalStyles.buttonText}>{isUpdating ? 'Updating...' : 'Update'}</Text>
           </Pressable>
-
+          {isAdminOrTeamleider &&(
           <Pressable
             style={[globalStyles.button, globalStyles.deleteButton, { flex: 1, marginLeft: 5 }]}
             onPress={handleDeleteTask}
@@ -316,6 +327,7 @@ const ManageTaskScreen = () => {
           >
             <Text style={globalStyles.buttonText}>Delete</Text>
           </Pressable>
+              )}
         </View>
 
         <Pressable

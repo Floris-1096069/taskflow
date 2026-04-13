@@ -7,6 +7,6 @@ def cleanup_inactive_users():
         three_minutes_ago = datetime.now() - timedelta(minutes=3)
         db.query(User).filter(
             User.is_online == True,
-            User.last_seen > three_minutes_ago,
+            User.last_seen < three_minutes_ago,
         ).update({User.is_online: False}, synchronize_session=False)
         db.commit()

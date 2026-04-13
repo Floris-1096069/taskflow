@@ -54,6 +54,26 @@ class TaskProblem(Base):
 
 
     @classmethod
+    def add(cls, task_id: int, user_id: int, content: str):
+        with cls._db_manager.get_db() as db:
+            task = db.query(Task).filter(Task.task_id == task_id).one_or_none()
+            if not task:
+                return None
+
+            new_problem = cls(
+                task_id=task_id,
+                user_id=user_id,
+                content=content
+            )
+            db.add(new_problem)
+            print(new_problem)
+
+            db.commit()
+            db.refresh(new_problem)
+            return new_problem
+
+
+    @classmethod
     def delete(cls, problem_id: int):
         with cls._db_manager.get_db() as db:
             problem = db.query(cls).filter(cls.task_problem_id == problem_id).one_or_none()

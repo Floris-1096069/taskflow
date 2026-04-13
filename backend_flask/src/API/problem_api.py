@@ -30,6 +30,20 @@ def create_task_problem():
 
     return jsonify(problem.to_dict()), 201
 
+@problem_api.post("/add")
+@jwt_required()
+def add_task_problem():
+    data = request.get_json()
+    user_id = get_jwt_identity()
+    task_id = data.get("task_id")
+    content = data.get("content")
+
+    if not task_id or not content:
+        return jsonify({"error": "task_id and content are required"}), 400
+
+    problem = TaskProblem.add(task_id, user_id, content)
+    return jsonify(problem.to_dict()), 201
+
 
 @problem_api.delete("/delete/<int:problem_id>")
 @jwt_required()
@@ -53,10 +67,6 @@ def delete_task_problem(problem_id):
 @jwt_required()
 def get_problems_by_task(task_id):
     user_id = get_jwt_identity()
-
-    if not User.is_authorized(user_id):
-        return jsonify({"error": "Unauthorized"}), 403
-
     problems = TaskProblem.get_by_task_id(task_id)
     return jsonify([problem.to_dict() for problem in problems])
 
