@@ -16,7 +16,6 @@ const TaskList = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [filters, setFilters] = useState({
-    archived: false,
     priority: undefined,
     delegated_to: null,
     status_id: null,
@@ -35,6 +34,7 @@ const TaskList = ({ navigation }) => {
   const [showContinuousTasks, setShowContinuousTasks] = useState(true);
   const [showUndelegatedTasks, setShowUndelegatedTasks] = useState(false);
   const [showProblemTasks, setShowProblemTasks] = useState(false);
+  const [showArchivedTasks, setShowArchivedTasks] = useState(false);
 
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
@@ -46,7 +46,7 @@ const TaskList = ({ navigation }) => {
       useFocusEffect(
       React.useCallback(() => {
         fetchTasks();
-      }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id])
+      }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks])
     );
 
   const getStatusBackgroundColor = (statusId) => {
@@ -60,6 +60,10 @@ const TaskList = ({ navigation }) => {
   };
 
   const getTaskBackgroundColor = (task) => {
+    if (task.archived) {
+      return colours.archivedBackground;
+    }
+
     if (isCheckedIn(task)) {
       return colours.inProgressBackground;
     }
@@ -110,6 +114,9 @@ const TaskList = ({ navigation }) => {
       }
     }
     if (showProblemTasks) query.append('status_id', 4);
+    if (!showArchivedTasks) {
+      query.append('archived', 'false');
+    }
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
         if (key !== 'delegated_to') {
@@ -191,6 +198,20 @@ const TaskList = ({ navigation }) => {
     }
   };
 
+  const handleArchiveTask = async (task) => {
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/archive/${task.task_id}`,{
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+          });
+      if (!response.ok) throw new Error('Failed to archive task');
+      fetchTasks();
+    } catch (error) {
+      console.error("Failed to archive task");
+      Alert.alert('Error', 'Failed to archive task');
+    }
+  };
+
     const isCheckedIn = (task) => {
       return task.active_users?.some((user) => String(user.user_id) === String(user_id));
     };
@@ -221,7 +242,7 @@ const TaskList = ({ navigation }) => {
     fetchTasks();
     fetchUsers();
     fetchStatuses();
-  }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id]);
+  }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks]);
 
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
@@ -318,6 +339,16 @@ const TaskList = ({ navigation }) => {
               onValueChange={setShowProblemTasks}
             />
             <Text>{showProblemTasks ? "Only Problematic Tasks" : "Only Non Problematic Tasks"}</Text>
+          </View>
+        )}
+        {isAuthorized && (
+            <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Archived Tasks Only:</Text>
+            <Switch
+              value={showArchivedTasks}
+              onValueChange={setShowArchivedTasks}
+            />
+            <Text>{showArchivedTasks ? "Only Archived Tasks" : "Only Non Archived Tasks"}</Text>
           </View>
         )}
         <Pressable style={[styles.button]} onPress={() => setModalVisible(true)}>
@@ -438,6 +469,14 @@ const TaskList = ({ navigation }) => {
                         <Text style={styles.buttonText}>
                           {item.status_id === 1 ? 'Start Task' : 'Mark as Done'}
                         </Text>
+                      </Pressable>
+                    )}
+                    {isDelegatee && item.status_id === 3 && (
+                      <Pressable
+                        style={[styles.button, { flex: 1, marginRight: 8 }]}
+                        onPress={() => handleArchiveTask(item)}
+                      >
+                        <Text style={styles.buttonText}>Archive</Text>
                       </Pressable>
                     )}
                     <Pressable

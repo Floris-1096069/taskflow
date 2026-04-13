@@ -19,6 +19,7 @@ const lightColors = {
   inProgressBackground: '#B3E5FC',
   doneBackground: '#C8E6C9',
   problemBackground: '#FFCDD2',
+  archivedBackground: '#444'
 };
 
 const darkColors = {
@@ -38,6 +39,7 @@ const darkColors = {
   inProgressBackground: '#0D47A1',
   doneBackground: '#2E7D32',
   problemBackground: '#C62828',
+  archivedBackground: '#444'
 };
 
 export const getGlobalStyles = (colorScheme) => {

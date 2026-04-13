@@ -199,6 +199,21 @@ def create_task():
         return jsonify({"error": "Failed to create task"}), 500
 
 
+@task_api.put("/archive/<int:task_id>")
+@cross_origin()
+@jwt_required()
+def archive_task(task_id):
+    try:
+        updated_task = Task.update(task_id, archived=True)
+        return jsonify({"message": "Task archived successfully", "task": updated_task.to_dict()}), 200
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+
+    except Exception as e:
+        return jsonify({"error": "An error occurred while archiving the task"}), 500
+
+
 @task_api.put("/update/<int:task_id>")
 @cross_origin()
 @jwt_required()
