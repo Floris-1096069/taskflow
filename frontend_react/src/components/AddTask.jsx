@@ -18,9 +18,11 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
   });
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const { fetchWithAuth } = useAuthContext();
+  const { fetchWithAuth, getRole } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);
+  const role = getRole();
+  const isAuthorized = String(role) === '1' || String(role) === '2';
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -105,15 +107,17 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
               <Picker.Item label="High" value={3} />
             </Picker>
 
-          {loadingUsers ? (
-            <ActivityIndicator size="small" />
-          ) : (
-            <UserPicker
-              users={users}
-              onUserSelect={(userId) => setNewTask({ ...newTask, delegated_to: userId })}
-              selectedUserId={newTask.delegated_to}
-            />
-          )}
+          {isAuthorized ? (
+              loadingUsers ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <UserPicker
+                  users={users}
+                  onUserSelect={(userId) => setNewTask({ ...newTask, delegated_to: userId })}
+                  selectedUserId={newTask.delegated_to}
+                />
+              )
+            ) : null}
 
           <TagSelector
             selectedTagIds={newTask.tag_ids}
