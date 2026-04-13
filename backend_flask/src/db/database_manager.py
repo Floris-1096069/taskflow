@@ -159,6 +159,7 @@ class DatabaseManager:
                         name=task_data["name"],
                         description=task_data["description"],
                         priority=task_data["priority"],
+                        required_role=task_data["required_role"],
                         status_id=1,
                         delegated_to=None,
                         created_by=1,

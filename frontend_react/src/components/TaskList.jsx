@@ -41,7 +41,7 @@ const TaskList = ({ navigation }) => {
   const { colours, ...styles } = getGlobalStyles(colorScheme);
 
   const role = getRole();
-  const isAuthorized = String(role) === '1' || String(role) === '2';
+  const isAuthorized = Number(role) === '1' || Number(role) === '2';
 
       useFocusEffect(
       React.useCallback(() => {
@@ -100,6 +100,15 @@ const TaskList = ({ navigation }) => {
           return { ...task, tags, active_users };
         })
       );
+      continuousTasks = continuousTasks.filter(task => {
+        if (task.required_role === null || task.required_role === undefined) {
+          return true; // Show if no role restriction
+        }
+        const requiredRole = Number(task.required_role);
+        console.log(task.required_role)
+        const userRole = Number(role);
+        return userRole <= requiredRole;
+});
     }
 
     // 2. Fetch non-continuous tasks (always)

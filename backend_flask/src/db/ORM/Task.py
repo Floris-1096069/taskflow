@@ -24,7 +24,7 @@ class Task(Base):
     created_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     updated_by = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     is_continuous = Column(Boolean, default=False, nullable=False)
-    required_role = Column(Integer, default=False, nullable=True)
+    required_role = Column(Integer, default=None, nullable=True)
 
     status = relationship("Status", back_populates="tasks")
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_tasks")
@@ -284,6 +284,7 @@ class Task(Base):
                 "updated_by": self.updated_by,
                 "is_continuous": self.is_continuous,
                 "active_users": active_users,
+                "required_role": self.required_role,
                 "tags": tags,
                 "tag_ids": [tag.tag_id for tag in self.tags] if self.tags else [],
             }
@@ -303,6 +304,7 @@ class Task(Base):
                 "updated_by": self.updated_by,
                 "is_continuous": self.is_continuous,
                 "active_users": [],
+                "required_role": self.required_role,
                 "tags": [],
                 "tag_ids": [],
             }
