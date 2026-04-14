@@ -15,6 +15,7 @@ from backend_flask.src.API.problem_api import problem_api
 from backend_flask.src.API.user_api import user_api
 from backend_flask.src.db.database_manager import DatabaseManager
 from backend_flask.src.tasks.cleanup import cleanup_inactive_users
+from backend_flask.src.tasks.delegation import delegate_tasks
 
 
 def create_app():
@@ -38,12 +39,22 @@ def create_app():
     #initialize extensions
     JWTManager(app)
     scheduler = BackgroundScheduler()
+
+    #add scheduled scripts
     scheduler.add_job(
         func=cleanup_inactive_users,
         trigger="interval",
         minutes=3,
         id="cleanup_inactive_users",
         name="Mark inactive users as offline",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        func=delegate_tasks,
+        trigger="interval",
+        minutes=3,
+        id="delegate_tasks",
+        name="Automatically delegate tasks",
         replace_existing=True,
     )
     scheduler.start()
