@@ -8,7 +8,7 @@ const UserPicker = ({ onUserSelect, selectedUserId, refetchTrigger }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showOnlyOnline, setShowOnlyOnline] = useState(false); // Toggle state
+  const [showOnlyOnline, setShowOnlyOnline] = useState(false);
   const { fetchWithAuth } = useAuthContext();
   const colorScheme = useColorScheme();
   const globalStyles = getGlobalStyles(colorScheme);

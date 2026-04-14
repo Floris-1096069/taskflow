@@ -41,7 +41,7 @@ def create_app():
     scheduler.add_job(
         func=cleanup_inactive_users,
         trigger="interval",
-        minutes=5,
+        minutes=3,
         id="cleanup_inactive_users",
         name="Mark inactive users as offline",
         replace_existing=True,

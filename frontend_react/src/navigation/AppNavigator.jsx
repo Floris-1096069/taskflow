@@ -3,7 +3,7 @@ import { ActivityIndicator } from "react-native-web";
 import { useAuthContext } from '../context/AuthContext';
 import AuthStack from './AuthStack';
 import AppStack from './AppStack';
-import Heartbeat from '../components/Heartbeat'; // Import your Heartbeat component
+import Heartbeat from '../components/Heartbeat';
 
 export default function AppNavigator() {
   const { isLoggedIn, loading } = useAuthContext();

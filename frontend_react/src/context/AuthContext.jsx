@@ -76,7 +76,6 @@ export const AuthProvider = ({ children }) => {
         setUserId(decodedToken.user_id || decodedToken.sub);
       } catch (error) {
         console.error('Failed to decode token:', error);
-        // Clear invalid token
         await AsyncStorage.removeItem('token');
         setToken(null);
         setIsLoggedIn(false);

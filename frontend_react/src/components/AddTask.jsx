@@ -62,7 +62,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
         name: '',
         description: '',
         priority: 1,
-        status_id: 1, // Reset to "Todo"
+        status_id: 1,
         delegated_to: null,
         tag_ids: [],
       });

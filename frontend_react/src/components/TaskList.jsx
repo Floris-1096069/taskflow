@@ -75,7 +75,7 @@ const TaskList = ({ navigation }) => {
   navigation.navigate('ManageTask', {
     task: {
       ...task,
-      tag_ids: (task.tags || []).map(tag => tag.tag_id), // Safeguard: Fallback to empty array
+      tag_ids: (task.tags || []).map(tag => tag.tag_id),
     },
   });
 };
@@ -84,17 +84,14 @@ const TaskList = ({ navigation }) => {
   setLoading(true);
   setError(null);
   try {
-    // 1. Fetch continuous tasks (if toggle is ON)
     let continuousTasks = [];
     if (showContinuousTasks) {
       const continuousResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/continuous`);
       continuousTasks = await continuousResponse.json();
-      // Fetch tags and active_users for continuous tasks
       continuousTasks = await Promise.all(
         continuousTasks.map(async (task) => {
           const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
           let tags = await tagResponse.json();
-          // Normalize tags to always be an array
           if (!Array.isArray(tags)) tags = [];
           const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
           const active_users = await checkinsResponse.json();
@@ -103,7 +100,7 @@ const TaskList = ({ navigation }) => {
       );
       continuousTasks = continuousTasks.filter(task => {
         if (task.required_role === null || task.required_role === undefined) {
-          return true; // Show if no role restriction
+          return true;
         }
         const requiredRole = Number(task.required_role);
         const userRole = Number(role);
@@ -111,7 +108,6 @@ const TaskList = ({ navigation }) => {
 });
     }
 
-    // 2. Fetch non-continuous tasks (always)
     const query = new URLSearchParams();
     if (!isAuthorized) {
       query.append('delegated_to', user_id);
@@ -139,18 +135,15 @@ const TaskList = ({ navigation }) => {
     });
     const filteredResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
     let filteredTasks = await filteredResponse.json();
-    // Fetch tags for non-continuous tasks
     filteredTasks = await Promise.all(
       filteredTasks.map(async (task) => {
         const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
         let tags = await tagResponse.json();
-        // Normalize tags to always be an array
         if (!Array.isArray(tags)) tags = [];
         return { ...task, tags, active_users: [] };
       })
     );
 
-    // 3. Combine results
     setTasks([...continuousTasks, ...filteredTasks]);
   } catch (err) {
     setError(err.message);
@@ -235,7 +228,6 @@ const TaskList = ({ navigation }) => {
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        // Update the task in the local state directly
         setTasks(prevTasks =>
           prevTasks.map(t =>
             t.task_id === task.task_id ? data.task : t

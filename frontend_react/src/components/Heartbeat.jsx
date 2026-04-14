@@ -12,9 +12,9 @@ const Heartbeat = () => {
       } catch (error) {
         console.error('Heartbeat failed:', error);
       }
-    }, 60000); // Every 60 seconds
+    }, 60000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return null;

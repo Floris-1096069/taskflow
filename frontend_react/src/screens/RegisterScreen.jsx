@@ -20,7 +20,7 @@ export default function RegisterScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('1'); // Default role
+  const [role, setRole] = useState('1');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -48,7 +48,7 @@ export default function RegisterScreen({ navigation }) {
         const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/${selectedUserId}`);
         const userData = await response.json();
         if (response.ok && userData.length > 0) {
-          const user = userData[0]; // Access the first element of the array
+          const user = userData[0];
           setUsername(user.username || '');
           setRole(user.role_id ? user.role_id.toString() : '1');
           setIsEditMode(true);

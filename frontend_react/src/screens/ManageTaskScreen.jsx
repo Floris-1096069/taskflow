@@ -83,7 +83,7 @@ const ManageTaskScreen = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(taskData), // Send the same flat structure as before
+        body: JSON.stringify(taskData),
       });
       if (!response.ok) throw new Error('Failed to update task');
       navigation.goBack();
