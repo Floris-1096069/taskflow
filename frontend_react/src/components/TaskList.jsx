@@ -106,7 +106,6 @@ const TaskList = ({ navigation }) => {
           return true; // Show if no role restriction
         }
         const requiredRole = Number(task.required_role);
-        console.log(task.required_role)
         const userRole = Number(role);
         return userRole <= requiredRole;
 });

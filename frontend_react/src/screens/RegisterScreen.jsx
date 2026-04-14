@@ -47,9 +47,10 @@ export default function RegisterScreen({ navigation }) {
       try {
         const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/${selectedUserId}`);
         const userData = await response.json();
-        if (response.ok) {
-          setUsername(userData.username || '');
-          setRole(userData.role_id ? userData.role_id.toString() : '1');
+        if (response.ok && userData.length > 0) {
+          const user = userData[0]; // Access the first element of the array
+          setUsername(user.username || '');
+          setRole(user.role_id ? user.role_id.toString() : '1');
           setIsEditMode(true);
         }
       } catch (error) {
