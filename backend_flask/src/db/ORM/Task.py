@@ -114,6 +114,12 @@ class Task(Base):
             if 'priority' in filters and filters['priority'] is not None:
                 query = query.filter(cls.priority == filters['priority'])
 
+            if 'created_by' in filters:
+                if filters['created_by'] is None or filters['created_by'] == 'null':
+                    query = query.filter(cls.created_by.is_(None))
+                else:
+                    query = query.filter(cls.created_by == filters['created_by'])
+
             if 'delegated_to' in filters:
                 if filters['delegated_to'] is None or filters['delegated_to'] == 'null':
                     query = query.filter(cls.delegated_to.is_(None))

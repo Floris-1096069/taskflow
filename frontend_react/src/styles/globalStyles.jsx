@@ -378,8 +378,8 @@ export const getGlobalStyles = (colorScheme) => {
 
     deleteButton: {
       backgroundColor: colours.error,
-      paddingVertical: 4,
-      paddingHorizontal: 8,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
       borderRadius: 4,
       alignItems: 'center',
       justifyContent: 'center',

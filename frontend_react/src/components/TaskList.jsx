@@ -36,6 +36,7 @@ const TaskList = ({ navigation }) => {
   const [showProblemTasks, setShowProblemTasks] = useState(false);
   const [showArchivedTasks, setShowArchivedTasks] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCreatedByMe, setShowCreatedByMe] = useState(false);
 
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
@@ -47,7 +48,7 @@ const TaskList = ({ navigation }) => {
       useFocusEffect(
       React.useCallback(() => {
         fetchTasks();
-      }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks])
+      }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks, showCreatedByMe])
     );
 
   const getStatusBackgroundColor = (statusId) => {
@@ -109,7 +110,10 @@ const TaskList = ({ navigation }) => {
     }
 
     const query = new URLSearchParams();
-    if (!isAuthorized) {
+    if (showCreatedByMe) {
+      query.append('created_by', user_id);
+    }
+    else if (!isAuthorized) {
       query.append('delegated_to', user_id);
     } else {
       if (showUndelegatedTasks) {
@@ -243,7 +247,7 @@ const TaskList = ({ navigation }) => {
     fetchTasks();
     fetchUsers();
     fetchStatuses();
-  }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks]);
+  }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks, showCreatedByMe]);
 
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
@@ -328,6 +332,13 @@ const TaskList = ({ navigation }) => {
           />
           <Text>{showContinuousTasks ? "Shown" : "Hidden"}</Text>
         </View>
+          <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Show Tasks Created By Me:</Text>
+            <Switch
+              value={showCreatedByMe}
+              onValueChange={setShowCreatedByMe}
+            />
+          </View>
         {isAuthorized && (
             <View style={styles.filterRow}>
               <Text style={styles.filterLabel}>Undelegated Tasks:</Text>
@@ -501,12 +512,19 @@ const TaskList = ({ navigation }) => {
                     >
                       <Text style={styles.buttonText}>Report Problem</Text>
                     </Pressable>
-                    {canManageTask && (
+                    {isAuthorized ? (
                       <Pressable
                         style={styles.button}
                         onPress={() => handleNavigateToManageTask(item)}
                       >
                         <Text style={styles.buttonText}>Manage</Text>
+                      </Pressable>
+                    ) : (
+                      <Pressable
+                        style={styles.button}
+                        onPress={() => handleNavigateToManageTask(item)}
+                      >
+                        <Text style={styles.buttonText}>Reactions</Text>
                       </Pressable>
                     )}
                   </>

@@ -85,6 +85,9 @@ def get_filtered_tasks():
     try:
         filters = {key: request.args.getlist(key) if key == 'tag_ids' else request.args.get(key) for key in request.args}
 
+        if 'created_by' in filters and filters['created_by'] == 'null':
+            filters['created_by'] = None
+
         filters['is_continuous'] = False
 
         if 'delegated_to' in filters and filters['delegated_to'] == 'null':

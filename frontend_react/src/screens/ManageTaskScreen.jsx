@@ -186,6 +186,8 @@ const ManageTaskScreen = () => {
       style={{ flex: 1 }}
     >
       <ScrollView contentContainerStyle={{ padding: 20 }}>
+        {isAdminOrTeamleider &&(
+          <>
         <Text style={globalStyles.modalTitle}>Edit Task</Text>
 
         <TextInput
@@ -202,8 +204,6 @@ const ManageTaskScreen = () => {
           onChangeText={(text) => setEditedTask({ ...editedTask, description: text })}
           multiline
         />
-        {isAdminOrTeamleider &&(
-          <>
 
         <Text>Change Task Priority</Text>
         <Picker
@@ -310,7 +310,8 @@ const ManageTaskScreen = () => {
             </Pressable>
           )}
         </View>
-
+        {isAdminOrTeamleider &&(
+              <>
         <View style={[globalStyles.row, { marginTop: 20, justifyContent: 'space-between' }]}>
           <Pressable
             style={[globalStyles.button, { flex: 1, marginRight: 5 }]}
@@ -319,7 +320,6 @@ const ManageTaskScreen = () => {
           >
             <Text style={globalStyles.buttonText}>{isUpdating ? 'Updating...' : 'Update'}</Text>
           </Pressable>
-          {isAdminOrTeamleider &&(
           <Pressable
             style={[globalStyles.button, globalStyles.deleteButton, { flex: 1, marginLeft: 5 }]}
             onPress={handleDeleteTask}
@@ -327,8 +327,10 @@ const ManageTaskScreen = () => {
           >
             <Text style={globalStyles.buttonText}>Delete</Text>
           </Pressable>
-              )}
+
         </View>
+        </>
+              )}
 
         <Pressable
           style={[globalStyles.button, { marginTop: 10 }]}
