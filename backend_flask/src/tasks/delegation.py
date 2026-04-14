@@ -23,27 +23,34 @@ def delegate_tasks():
         delegation_rules = {
             "Teamleider" : {
                 "tags": [
+                    "Crediteren", "Binnenkomend", "Missend Product", "Kreekweg", "In de Wacht", "Probleem met Bak", "Hoge Prio",
+                    "Bijvullen", "Meten", "PGS", "Wegleg", "Tellen", "Inventariseren", "Verzenden", "Orderpick", "Multiorder",
+                    "Bijpick", "Opboeken","Afboeken", "Band", "Afval", "Schoonmaak", "Dozen", "Ophalen", "Beneden", "Boven", "Wegbrengen"
 
                 ]
             },
             "Binnenkomend" : {
                 "tags": [
-
+                    "Binnenkomend", "Missend Product", "Kreekweg", "In de Wacht", "Probleem met Bak", "Hoge Prio",
+                    "Bijvullen", "PGS", "Wegleg", "Inventariseren", "Opboeken","Afboeken", "Ophalen", "Beneden", "Boven", "Wegbrengen"
                 ]
             },
             "Zelfstandigscanmedewerker": {
                 "tags": [
-
+                    "In de Wacht", "Probleem met Bak", "Hoge Prio", "Bijvullen", "Meten", "PGS",
+                    "Wegleg", "Tellen", "Inventariseren", "Verzenden", "Orderpick", "Multiorder", "Bijpick", "Opboeken",
+                    "Afboeken", "Band", "Afval", "Schoonmaak", "Dozen", "Ophalen", "Beneden", "Boven", "Wegbrengen"
                 ]
             },
             "Scanmedewerkerplus": {
                 "tags": [
-
+                    "Wegleg", "Tellen", "Inventariseren", "Verzenden", "Orderpick", "Multiorder", "Bijpick", "Opboeken",
+                    "Afboeken", "Band", "Afval", "Schoonmaak", "Dozen", "Ophalen", "Beneden", "Boven", "Wegbrengen"
                 ]
             },
             "Scanmedewerker": {
                 "tags": [
-
+                    "Band", "Afval", "Schoonmaak", "Dozen", "Ophalen", "Beneden", "Boven", "Wegbrengen"
                 ]
             }
         }
@@ -70,8 +77,8 @@ def delegate_tasks():
                 print(
                     f"Delegated task {task.task_id} (priority {task.priority}) to {best_user.username} (current tasks: {min_tasks + 1})")
 
-            db.commit()
-            print(f"Delegated {len(tasks)} tasks.")
+        db.commit()
+        print(f"Delegated {len(tasks)} tasks.")
 
 if __name__ == "__main__":
     delegate_tasks()
