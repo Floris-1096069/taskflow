@@ -1,3 +1,4 @@
+from backend_flask.src.db.ORM import Task
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Role import Role
@@ -16,7 +17,12 @@ def delegate_tasks(task_id = None):
 
         # Fetch either a single task or all undelegated tasks
         if task_id is not None:
-            tasks = [db.query(Task).filter(Task.task_id == task_id, Task.delegated_to == None).first()]
+            tasks = [db.query(Task).filter(
+                Task.task_id == task_id,
+                Task.delegated_to == None,
+                Task.is_continuous == False  # Exclude continuous tasks
+            ).first()]
+
         else:
             tasks = db.query(Task).filter(Task.delegated_to == None).all()
 
