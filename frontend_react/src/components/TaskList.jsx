@@ -37,6 +37,7 @@ const TaskList = ({ navigation }) => {
   const [showArchivedTasks, setShowArchivedTasks] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreatedByMe, setShowCreatedByMe] = useState(false);
+  const [showAllFilters, setShowAllFilters] = useState(false);
 
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
@@ -324,21 +325,33 @@ const TaskList = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.filterContainer}>
         <Text style={styles.title}>To Do List</Text>
-        <View style={styles.filterRow}>
-          <Text style={styles.filterLabel}>Continuous Tasks:</Text>
-          <Switch
-            value={showContinuousTasks}
-            onValueChange={setShowContinuousTasks}
-          />
-          <Text>{showContinuousTasks ? "Shown" : "Hidden"}</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.tagFilterToggle}
+          onPress={() => setShowAllFilters(!showAllFilters)}
+        >
+          <Text style={styles.tagFilterToggleText}>
+            {showAllFilters ? "Hide Filters" : "Show Filters"}
+          </Text>
+        </TouchableOpacity>
+      {showAllFilters && (
+        <>
+          <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Continuous Tasks:</Text>
+            <Switch
+              value={showContinuousTasks}
+              onValueChange={setShowContinuousTasks}
+            />
+
+            <Text>{showContinuousTasks ? "Shown" : "Hidden"}</Text>
+          </View>
           <View style={styles.filterRow}>
             <Text style={styles.filterLabel}>Show Tasks Created By Me:</Text>
-            <Switch
-              value={showCreatedByMe}
-              onValueChange={setShowCreatedByMe}
-            />
+              <Switch
+                value={showCreatedByMe}
+                onValueChange={setShowCreatedByMe}
+              />
           </View>
+
         {isAuthorized && (
             <View style={styles.filterRow}>
               <Text style={styles.filterLabel}>Undelegated Tasks:</Text>
@@ -349,29 +362,29 @@ const TaskList = ({ navigation }) => {
               <Text>{showUndelegatedTasks ? "Only Undelegated" : "Already Delegated"}</Text>
             </View>
           )}
+
         {isAuthorized && (
             <View style={styles.filterRow}>
-            <Text style={styles.filterLabel}>Problem Tasks Only:</Text>
-            <Switch
-              value={showProblemTasks}
-              onValueChange={setShowProblemTasks}
-            />
-            <Text>{showProblemTasks ? "Only Problematic Tasks" : "Only Non Problematic Tasks"}</Text>
+              <Text style={styles.filterLabel}>Problem Tasks Only:</Text>
+              <Switch
+               value={showProblemTasks}
+                onValueChange={setShowProblemTasks}
+              />
+              <Text>{showProblemTasks ? "Only Problematic Tasks" : "Only Non Problematic Tasks"}</Text>
           </View>
         )}
+
         {isAuthorized && (
             <View style={styles.filterRow}>
-            <Text style={styles.filterLabel}>Archived Tasks Only:</Text>
-            <Switch
-              value={showArchivedTasks}
-              onValueChange={setShowArchivedTasks}
-            />
-            <Text>{showArchivedTasks ? "Only Archived Tasks" : "Only Non Archived Tasks"}</Text>
-          </View>
+              <Text style={styles.filterLabel}>Archived Tasks Only:</Text>
+              <Switch
+                value={showArchivedTasks}
+                onValueChange={setShowArchivedTasks}
+              />
+              <Text>{showArchivedTasks ? "Only Archived Tasks" : "Only Non Archived Tasks"}</Text>
+            </View>
         )}
-        <Pressable style={[styles.button]} onPress={() => setModalVisible(true)}>
-          <Text style={styles.buttonText}>Create New Task</Text>
-        </Pressable>
+
         <View style={styles.filterRow}>
           <Text style={styles.filterLabel}>Filter Priorities:</Text>
           <Picker
@@ -388,12 +401,14 @@ const TaskList = ({ navigation }) => {
             <Picker.Item label="High" value={3} />
           </Picker>
         </View>
+
         <View>
           <TouchableOpacity style={styles.tagFilterToggle} onPress={() => setShowTagSelector(!showTagSelector)}>
             <Text style={styles.tagFilterToggleText}>
               {showTagSelector ? "Hide Tag Filter" : "Show Tag Filter"}
             </Text>
           </TouchableOpacity>
+
           {showTagSelector && (
             <View style={[styles.tagPickerContainer]}>
               <TagSelector
@@ -402,17 +417,24 @@ const TaskList = ({ navigation }) => {
               />
             </View>
           )}
-          <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search tasks..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          clearButtonMode="while-editing"
-        />
-      </View>
+          </View>
+        </>
+        )}
+
+          <View style={[styles.searchContainer, {width: "80%"}]}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search tasks..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              clearButtonMode="while-editing"
+            />
+          </View>
         </View>
-      </View>
+
+      <Pressable style={[styles.button]} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Create New Task</Text>
+        </Pressable>
 
       <AddTask visible={modalVisible} onClose={() => setModalVisible(false)} onTaskCreated={fetchTasks} />
 
@@ -441,6 +463,14 @@ const TaskList = ({ navigation }) => {
                 <Text style={styles.taskName}>{item.name}</Text>
                 <Text style={styles.bodyText}>Description: {item.description}</Text>
               </View>
+              {item.is_continuous && (
+                <View style={styles.userCounterContainer}>
+                  <Text style={styles.userCounterText}>
+                    {item.active_users?.length || 0} {item.active_users?.length === 1 ? 'person' : 'people'} checked in
+                  </Text>
+                </View>
+              )}
+
               {!item.is_continuous && (
                 <>
                   <View style={styles.taskInfoRow}>
@@ -450,18 +480,7 @@ const TaskList = ({ navigation }) => {
                     <Text style={styles.bodyText}>Created by: {getUsername(item.created_by)}</Text>
                     <Text style={styles.bodyText}>Creation time: {new Date(item.creation_time).toLocaleString()}</Text>
                   </View>
-                  {item.is_continuous && (
-                    <View style={styles.activeUsersContainer}>
-                      <Text style={styles.activeUsersTitle}>Active Users:</Text>
-                      <View style={styles.activeUsersList}>
-                        {item.active_users?.map((user) => (
-                          <Text key={user.user_id} style={styles.activeUser}>
-                            {getUsername(user.user_id)}
-                          </Text>
-                        ))}
-                      </View>
-                    </View>
-                  )}
+
                   <View style={styles.tagsContainer}>
                     <Text>Tags: </Text>
                     {item.tags && item.tags.length > 0 ? (
