@@ -34,6 +34,7 @@ class Tag(Base):
                 db.commit()
                 db.refresh(new_tag)
                 return new_tag
+
         except Exception as e:
             db.rollback()
             raise e
@@ -49,6 +50,7 @@ class Tag(Base):
 
                 db.delete(tag)
                 db.commit()
+
         except Exception as e:
             db.rollback()
             raise e

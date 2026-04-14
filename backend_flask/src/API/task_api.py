@@ -196,7 +196,8 @@ def create_task():
             created_by=get_jwt_identity(),
             tag_ids=data.get('tag_ids')
         )
-        return jsonify(new_task.to_dict()), 201
+        return jsonify(new_task.to_dict()), 200
+
     except Exception as e:
         print(f"Error creating task: {e}")
         return jsonify({"error": "Failed to create task"}), 500
@@ -229,8 +230,10 @@ def update_task(task_id):
         }
         updated_task = Task.update(task_id, **filtered_data)
         return jsonify(updated_task.to_dict()), 200
+
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
+
     except Exception as e:
         print(f"Error updating task: {e}")
         import traceback
@@ -284,45 +287,9 @@ def get_task_tags(task_id):
         return jsonify({"error": str(e)}), 500
 
 
-@task_api.post("/tags")
-@cross_origin()
-@jwt_required()
-def create_tag():
-    user_id = get_jwt_identity()
-    if not User.is_authorized(user_id):
-        return jsonify({"error": "Unauthorized"}), 403
-
-    data = request.get_json()
-    if not data or 'name' not in data:
-        return jsonify({"error": "Tag name is required"}), 400
-
-    try:
-        new_tag = Tag.create(name=data['name'])
-        return jsonify(new_tag.to_dict()), 201
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-
-    except Exception as e:
-        return jsonify({"error": "Failed to create tag"}), 500
-
-
 @task_api.get("/status")
 @cross_origin()
 @jwt_required()
 def get_all_statuses():
     statuses = Status.get_all()
     return jsonify([status.to_dict() for status in statuses])
-
-
-@task_api.delete("/tags/<int:tag_id>")
-@cross_origin()
-@jwt_required()
-def delete_tag(tag_id):
-    try:
-        Tag.delete(tag_id)
-        return jsonify({"message": "Tag deleted successfully"})
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
-    except Exception as e:
-        return jsonify({"error": "Failed to delete tag"}), 500
