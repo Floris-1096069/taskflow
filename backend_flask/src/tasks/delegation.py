@@ -6,7 +6,7 @@ from backend_flask.src.db.database_manager import DatabaseManager
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-def delegate_tasks():
+def delegate_tasks(task_id = None):
     """Delegate tasks based on priority, tags, and user workload."""
     db_manager = DatabaseManager()
     with db_manager.get_db() as db:
@@ -14,7 +14,14 @@ def delegate_tasks():
         users_by_role = {role.name: db.query(User).filter(User.role_id == role.role_id, User.is_online == True).all()
                          for role in roles}
 
-        tasks = db.query(Task).filter(Task.delegated_to == None).all()
+        # Fetch either a single task or all undelegated tasks
+        if task_id is not None:
+            tasks = [db.query(Task).filter(Task.task_id == task_id, Task.delegated_to == None).first()]
+        else:
+            tasks = db.query(Task).filter(Task.delegated_to == None).all()
+
+        if not tasks or (task_id is not None and not tasks[0]):
+            return {"success": False, "message": "Task not found or already delegated"}
 
         user_task_counts = defaultdict(int)
         for user_id, in db.query(Task.delegated_to).filter(Task.delegated_to.isnot(None)).distinct():
@@ -56,9 +63,12 @@ def delegate_tasks():
         }
 
         for task in tasks:
+            if not task:
+                continue
+
             eligible_roles = []
             for role_name, rule in delegation_rules.items():
-                if any(tag in rule["tags"] for tag in task.tags):
+                if any(tag in rule["tags"] for tag in [t.tag for t in task.tags]):
                     eligible_roles.append(role_name)
 
             best_user = None
@@ -72,13 +82,19 @@ def delegate_tasks():
 
             if best_user:
                 task.delegated_to = best_user.user_id
-                task.updated_by = 1
-                user_task_counts[best_user.user_id] += 1
-                print(
-                    f"Delegated task {task.task_id} (priority {task.priority}) to {best_user.username} (current tasks: {min_tasks + 1})")
+                task.updated_by = 1  # Admin
+                db.commit()
+                if task_id is not None:
+                    return {"success": True, "message": f"Task delegated to {best_user.username}",
+                            "user": best_user.username}
+                else:
+                    print(f"Delegated task {task.task_id} to {best_user.username}")
 
-        db.commit()
-        print(f"Delegated {len(tasks)} tasks.")
+        if task_id is None:
+            print(f"Delegated {len(tasks)} tasks.")
+            return {"success": True, "message": f"Delegated {len(tasks)} tasks"}
+
+        return {"success": False, "message": "No suitable user found"}
 
 if __name__ == "__main__":
     delegate_tasks()

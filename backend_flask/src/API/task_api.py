@@ -8,6 +8,7 @@ from backend_flask.src.db.ORM.Tag import Tag
 from backend_flask.src.db.ORM.Status import Status
 from backend_flask.src.db.ORM.TaskProblem import TaskProblem
 from backend_flask.src.db.database_manager import DatabaseManager
+from backend_flask.src.tasks.delegation import delegate_tasks
 
 
 task_api = Blueprint(
@@ -216,6 +217,15 @@ def archive_task(task_id):
 
     except Exception as e:
         return jsonify({"error": "An error occurred while archiving the task"}), 500
+
+
+task_api.post('delegate/<int:task_id>')
+def delegate_single_task(task_id):
+    result = delegate_tasks(task_id=task_id)
+    if result["success"]:
+        return jsonify(result), 200
+    else:
+        return jsonify(result), 400
 
 
 @task_api.put("/update/<int:task_id>")
