@@ -70,6 +70,7 @@ const TaskList = ({ navigation }) => {
     if (isCheckedIn(task)) {
       return colours.inProgressBackground;
     }
+
     return getStatusBackgroundColor(task.status_id);
   };
 
@@ -78,28 +79,36 @@ const TaskList = ({ navigation }) => {
     task: {
       ...task,
       tag_ids: (task.tags || []).map(tag => tag.tag_id),
-    },
-  });
-};
+        },
+      });
+    };
 
   const fetchTasks = async () => {
   setLoading(true);
+
   setError(null);
+
   try {
     let continuousTasks = [];
+
     if (showContinuousTasks) {
       const continuousResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/continuous`);
+
       continuousTasks = await continuousResponse.json();
+
       continuousTasks = await Promise.all(
         continuousTasks.map(async (task) => {
           const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
+
           let tags = await tagResponse.json();
           if (!Array.isArray(tags)) tags = [];
+
           const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
           const active_users = await checkinsResponse.json();
           return { ...task, tags, active_users };
         })
       );
+
       continuousTasks = continuousTasks.filter(task => {
         if (task.required_role === null || task.required_role === undefined) {
           return true;
@@ -107,7 +116,7 @@ const TaskList = ({ navigation }) => {
         const requiredRole = Number(task.required_role);
         const userRole = Number(role);
         return userRole <= requiredRole;
-});
+      });
     }
 
     const query = new URLSearchParams();
@@ -121,12 +130,14 @@ const TaskList = ({ navigation }) => {
         query.append('delegated_to', 'null');
       } else {
         query.append('delegated_to', 'not_null');
+        }
       }
-    }
     if (showProblemTasks) query.append('status_id', 4);
+
     if (!showArchivedTasks) {
       query.append('archived', 'false');
     }
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '' && (!Array.isArray(value) || value.length > 0)) {
         if (key !== 'delegated_to') {
@@ -138,8 +149,10 @@ const TaskList = ({ navigation }) => {
         }
       }
     });
+
     const filteredResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
     let filteredTasks = await filteredResponse.json();
+
     filteredTasks = await Promise.all(
       filteredTasks.map(async (task) => {
         const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
@@ -163,6 +176,7 @@ const TaskList = ({ navigation }) => {
       const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/all`);
       const data = await response.json();
       setUsers(data);
+
     } catch (err) {
       console.error('Error fetching users:', err);
     } finally {
@@ -202,7 +216,7 @@ const TaskList = ({ navigation }) => {
     } catch (error) {
       console.error("Failed to update task status:", error);
       Alert.alert('Error', 'Failed to update task status.');
-    }
+      }
   };
 
   const handleArchiveTask = async (task) => {
@@ -211,6 +225,7 @@ const TaskList = ({ navigation }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
           });
+
       if (!response.ok) throw new Error('Failed to archive task');
       fetchTasks();
     } catch (error) {
@@ -231,6 +246,7 @@ const TaskList = ({ navigation }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         setTasks(prevTasks =>
@@ -289,7 +305,7 @@ const TaskList = ({ navigation }) => {
       } else {
         const errorData = await response.json();
         alert(errorData.error || "Failed to report problem.");
-      }
+        }
     } catch (error) {
       console.error("Failed to report problem:", error);
     } finally {
@@ -341,9 +357,9 @@ const TaskList = ({ navigation }) => {
               value={showContinuousTasks}
               onValueChange={setShowContinuousTasks}
             />
-
             <Text>{showContinuousTasks ? "Shown" : "Hidden"}</Text>
           </View>
+
           <View style={styles.filterRow}>
             <Text style={styles.filterLabel}>Show Tasks Created By Me:</Text>
               <Switch
@@ -409,7 +425,7 @@ const TaskList = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
 
-          {showTagSelector && (
+        {showTagSelector && (
             <View style={[styles.tagPickerContainer]}>
               <TagSelector
                 selectedTagIds={filters.tag_ids}
@@ -434,7 +450,7 @@ const TaskList = ({ navigation }) => {
 
       <Pressable style={[styles.button]} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Create New Task</Text>
-        </Pressable>
+      </Pressable>
 
       <AddTask visible={modalVisible} onClose={() => setModalVisible(false)} onTaskCreated={fetchTasks} />
 
@@ -459,10 +475,12 @@ const TaskList = ({ navigation }) => {
                   <Text style={styles.continuousBadgeText}>Continuous</Text>
                 </View>
               )}
+
               <View style={styles.taskInfoContainer}>
                 <Text style={styles.taskName}>{item.name}</Text>
                 <Text style={styles.bodyText}>Description: {item.description}</Text>
               </View>
+
               {item.is_continuous && (
                 <View style={styles.userCounterContainer}>
                   <Text style={styles.userCounterText}>
@@ -495,6 +513,7 @@ const TaskList = ({ navigation }) => {
                   </View>
                 </>
               )}
+
               <View style={styles.taskActionsContainer}>
                 {item.is_continuous ? (
                   <Pressable
@@ -517,6 +536,7 @@ const TaskList = ({ navigation }) => {
                         </Text>
                       </Pressable>
                     )}
+
                     {isDelegatee && item.status_id === 3 && (
                       <Pressable
                         style={[styles.button, { flex: 1, marginRight: 8 }]}
@@ -531,6 +551,7 @@ const TaskList = ({ navigation }) => {
                     >
                       <Text style={styles.buttonText}>Report Problem</Text>
                     </Pressable>
+
                     {isAuthorized ? (
                       <Pressable
                         style={styles.button}
@@ -552,6 +573,7 @@ const TaskList = ({ navigation }) => {
             </View>
           );
         }}
+
         contentContainerStyle={{ padding: 10, width: '100%' }}
         ListEmptyComponent={
           !loading ? (
@@ -570,13 +592,13 @@ const TaskList = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Report Problem</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Describe the problem..."
-            value={newProblem}
-            onChangeText={setNewProblem}
-            multiline
-          />
+            <TextInput
+              style={styles.input}
+              placeholder="Describe the problem..."
+              value={newProblem}
+              onChangeText={setNewProblem}
+              multiline
+            />
           <Pressable
             style={styles.button}
             disabled={isSubmittingProblem || !newProblem.trim()}
