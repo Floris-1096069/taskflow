@@ -219,7 +219,9 @@ def archive_task(task_id):
         return jsonify({"error": "An error occurred while archiving the task"}), 500
 
 
-task_api.post('delegate/<int:task_id>')
+@task_api.post('/delegate/<int:task_id>')
+@cross_origin()
+@jwt_required()
 def delegate_single_task(task_id):
     result = delegate_tasks(task_id=task_id)
     if result["success"]:

@@ -166,6 +166,27 @@ const ManageTaskScreen = () => {
     }
   };
 
+  const handleAutoDelegate = async () => {
+    if (!canManageTask) {
+      Alert.alert('Error', 'You are not authorized to delegate this task.');
+      return;
+    }
+    try {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/delegate/${task.task_id}`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (data.success) {
+        Alert.alert('Success', data.message);
+      } else {
+        Alert.alert('Error', data.message);
+      }
+    } catch (error) {
+      console.error('Error auto-delegating task:', error);
+      Alert.alert('Error', 'Failed to auto-delegate task.');
+    }
+  };
+
   const handleDeleteProblem = async (problemId) => {
     try {
       const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/delete/${problemId}`, {
@@ -320,6 +341,15 @@ const ManageTaskScreen = () => {
           >
             <Text style={globalStyles.buttonText}>{isUpdating ? 'Updating...' : 'Update'}</Text>
           </Pressable>
+
+          <Pressable
+            style={[globalStyles.button, { flex: 1, marginRight: 5 }]}
+            onPress={handleAutoDelegate}
+            disabled={isUpdating || !canManageTask}
+          >
+            <Text style={globalStyles.buttonText}>{isUpdating ? 'Delegating...' : 'Delegate'}</Text>
+          </Pressable>
+
           <Pressable
             style={[globalStyles.button, globalStyles.deleteButton, { flex: 1, marginLeft: 5 }]}
             onPress={handleDeleteTask}
