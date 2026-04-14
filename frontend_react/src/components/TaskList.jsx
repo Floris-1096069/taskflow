@@ -3,7 +3,7 @@ import {
   View, Text, FlatList, Picker, Pressable, ActivityIndicator, useColorScheme, Modal, TextInput, Switch, Alert,
   TouchableOpacity
 } from 'react-native';
-import { useRoute, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import getGlobalStyles from "../styles/globalStyles";
 import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
@@ -11,7 +11,6 @@ import TagSelector from './TagSelector';
 import { Config } from '../config';
 
 const TaskList = ({ navigation }) => {
-  const route = useRoute();
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [statuses, setStatuses] = useState([]);
