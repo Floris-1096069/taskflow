@@ -148,6 +148,20 @@ export const getGlobalStyles = (colorScheme) => {
       backgroundColor: colours.white,
     },
 
+    searchContainer: {
+      width: '100%',
+    },
+
+    searchInput: {
+      height: 40,
+      borderColor: colours.border,
+      borderWidth: 1,
+      borderRadius: 5,
+      paddingHorizontal: 10,
+      backgroundColor: colours.background,
+      color: colours.text,
+    },
+
     tagListWrapper: {
       borderWidth: 1,
       borderColor: '#ddd',

@@ -35,13 +35,14 @@ const TaskList = ({ navigation }) => {
   const [showUndelegatedTasks, setShowUndelegatedTasks] = useState(false);
   const [showProblemTasks, setShowProblemTasks] = useState(false);
   const [showArchivedTasks, setShowArchivedTasks] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
   const { colours, ...styles } = getGlobalStyles(colorScheme);
 
   const role = getRole();
-  const isAuthorized = Number(role) === '1' || Number(role) === '2';
+  const isAuthorized = role === 1 || role === 2;
 
       useFocusEffect(
       React.useCallback(() => {
@@ -300,6 +301,12 @@ const TaskList = ({ navigation }) => {
     }
   };
 
+  const filteredTasks = tasks.filter(task =>
+    task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (task.tags && task.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase())))
+  );
+
   if (loading && tasks.length === 0) {
     return (
       <View style={styles.loadingContainer}>
@@ -393,6 +400,15 @@ const TaskList = ({ navigation }) => {
               />
             </View>
           )}
+          <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          clearButtonMode="while-editing"
+        />
+      </View>
         </View>
       </View>
 
@@ -403,7 +419,7 @@ const TaskList = ({ navigation }) => {
       ) : null}
 
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item) => item.task_id.toString()}
         renderItem={({ item }) => {
           const taskCreatorId = typeof item.created_by === 'object' ? item.created_by.user_id : item.created_by;
