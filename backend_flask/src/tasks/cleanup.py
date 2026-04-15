@@ -10,3 +10,4 @@ def cleanup_inactive_users():
             User.last_seen < three_minutes_ago,
         ).update({User.is_online: False}, synchronize_session=False)
         db.commit()
+        print("Cleaned up inactive accounts")
