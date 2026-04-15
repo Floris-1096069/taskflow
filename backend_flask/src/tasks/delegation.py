@@ -23,7 +23,7 @@ def delegate_tasks(task_id = None):
             ).first()]
 
         else:
-            tasks = db.query(Task).filter(Task.delegated_to == None).all()
+            tasks = db.query(Task).filter(Task.delegated_to == None, Task.is_continuous == False).all()
 
         if not tasks or (task_id is not None and not tasks[0]):
             print("Task not found or user already delegated")
