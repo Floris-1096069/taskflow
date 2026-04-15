@@ -15,18 +15,18 @@ def delegate_tasks(task_id = None):
         users_by_role = {role.name: db.query(User).filter(User.role_id == role.role_id, User.is_online == True).all()
                          for role in roles}
 
-        # Fetch either a single task or all undelegated tasks
         if task_id is not None:
             tasks = [db.query(Task).filter(
                 Task.task_id == task_id,
                 Task.delegated_to == None,
-                Task.is_continuous == False  # Exclude continuous tasks
+                Task.is_continuous == False
             ).first()]
 
         else:
             tasks = db.query(Task).filter(Task.delegated_to == None).all()
 
         if not tasks or (task_id is not None and not tasks[0]):
+            print("Task not found or user already delegated")
             return {"success": False, "message": "Task not found or already delegated"}
 
         user_task_counts = defaultdict(int)
@@ -88,9 +88,10 @@ def delegate_tasks(task_id = None):
 
             if best_user:
                 task.delegated_to = best_user.user_id
-                task.updated_by = 1  # Admin
+                task.updated_by = 1  #admin
                 db.commit()
                 if task_id is not None:
+                    print(f"Task delegated to {best_user.username}")
                     return {"success": True, "message": f"Task delegated to {best_user.username}",
                             "user": best_user.username}
                 else:
