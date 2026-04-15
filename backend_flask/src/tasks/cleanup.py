@@ -3,6 +3,7 @@ from backend_flask.src.db.ORM.User import User
 
 
 def cleanup_inactive_users():
+    """Set accounts that haven't sent a heartbeat for 3 minutes as offline"""
     with User._db_manager.get_db() as db:
         three_minutes_ago = datetime.now() - timedelta(minutes=3)
         result = db.query(User).filter(

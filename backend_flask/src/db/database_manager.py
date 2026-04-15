@@ -29,6 +29,7 @@ class DatabaseManager:
 
 
     def drop_db(self):
+        """Self explainatory"""
         print('Dropping Database...')
         with self.engine.connect() as conn:
             conn.execute(text("DROP TABLE IF EXISTS taskproblems CASCADE;"))
@@ -43,6 +44,7 @@ class DatabaseManager:
 
 
     def init_roles(self):
+        """Importing inside function to avoid circular imports"""
         from backend_flask.src.db.ORM.Role import Role
 
         with self.get_db() as db:
@@ -69,6 +71,7 @@ class DatabaseManager:
 
 
     def init_tags(self):
+        """Importing inside function to avoid circular imports"""
         from backend_flask.src.db.ORM.Tag import Tag
 
         with self.get_db() as db:
@@ -116,6 +119,7 @@ class DatabaseManager:
 
 
     def init_statuses(self):
+        """Importing inside function to avoid circular imports"""
         from backend_flask.src.db.ORM.Status import Status
 
         with self.get_db() as db:
@@ -140,6 +144,7 @@ class DatabaseManager:
 
 
     def init_continuous_tasks(self):
+        """Importing inside function to avoid circular imports"""
         from backend_flask.src.db.ORM.Task import Task
 
         standard_tasks = [
@@ -175,6 +180,7 @@ class DatabaseManager:
 
 
     def ensure_admin_user(self):
+        """Importing inside function to avoid circular imports"""
         from backend_flask.src.db.ORM.User import User
         from backend_flask.src.db.ORM.Role import Role
         from werkzeug.security import generate_password_hash
@@ -200,6 +206,7 @@ class DatabaseManager:
 
 
     def create_all(self):
+        """Init order is important! Changing the order will break relations!"""
         Base.metadata.create_all(bind=self.engine)
         self.init_roles()
         self.init_statuses()

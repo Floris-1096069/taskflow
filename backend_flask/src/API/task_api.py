@@ -18,6 +18,9 @@ task_api = Blueprint(
 )
 _db_manager = DatabaseManager()
 
+"""This is the main API for anything that has to do with tasks"""
+"""This means: Tags, Status, Checkin/out, Task filtering, Continuous tasks"""
+"""and Problematic tasks (not the problem reactions themselves"""
 
 @task_api.post("/checkin/<int:task_id>")
 @cross_origin()

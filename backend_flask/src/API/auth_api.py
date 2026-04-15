@@ -16,6 +16,7 @@ _db_manager = DatabaseManager()
 
 
 @auth_api.post("/login")
+@cross_origin()
 def login():
     data = request.get_json()
     username = data.get('username')
@@ -53,11 +54,17 @@ def heartbeat():
 
 @auth_api.post("/register")
 @cross_origin()
+@jwt_required()
 def register():
+    """Since registering should only be dont from within the app by teamleiders, I added User.is_authorized"""
     data = request.get_json()
+    user_id = get_jwt_identity()
     username = data.get('username')
     password = data.get('password')
     role_id = data.get('role_id')
+
+    if not User.is_authorized(user_id):
+        return jsonify({"message": "User not authorized"}), 403
 
     if not username or not password or not role_id:
         return jsonify({"message": "Missing username, password or role"}), 400

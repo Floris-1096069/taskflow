@@ -45,6 +45,7 @@ class User(Base):
             query = db.query(cls)
             if online_only:
                 query = query.filter(cls.is_online == True)
+
             query = query.options(joinedload(cls.role))
             return query.all()
 
@@ -61,8 +62,10 @@ class User(Base):
             query = db.query(cls).options(joinedload(cls.role))
             if user_id is not None:
                 return query.filter_by(user_id=user_id).one_or_none()
+
             elif username != "":
                 return query.filter_by(username=username).one_or_none()
+
             else:
                 return None
 
@@ -105,6 +108,7 @@ class User(Base):
             user = db.query(cls).options(joinedload(cls.role)).filter_by(user_id=user_id).one_or_none()
             if not user:
                 return None
+
             user.username = username
             user.role_id = role_id
             db.commit()
@@ -115,6 +119,7 @@ class User(Base):
     def set_last_online(cls, user_id: int):
         with cls._db_manager.get_db() as db:
             user = db.query(cls).filter(cls.user_id == user_id).one_or_none()
+
             if user:
                 user.is_online = True
                 user.last_seen = datetime.now()

@@ -8,7 +8,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 def delegate_tasks(task_id = None):
-    """Delegate tasks based on priority, tags, and user workload."""
+    """Delegate tasks based on tags, and user workload."""
     db_manager = DatabaseManager()
     with db_manager.get_db() as db:
         roles = db.query(Role).filter(Role.name != "Admin").all()

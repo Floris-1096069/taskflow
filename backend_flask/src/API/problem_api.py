@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from backend_flask.src.db.ORM.TaskProblem import TaskProblem
@@ -13,6 +14,7 @@ problem_api = Blueprint(
 
 
 @problem_api.post("/create")
+@cross_origin()
 @jwt_required()
 def create_task_problem():
     data = request.get_json()
@@ -31,6 +33,7 @@ def create_task_problem():
     return jsonify(problem.to_dict()), 201
 
 @problem_api.post("/add")
+@cross_origin()
 @jwt_required()
 def add_task_problem():
     data = request.get_json()
@@ -46,6 +49,7 @@ def add_task_problem():
 
 
 @problem_api.delete("/delete/<int:problem_id>")
+@cross_origin()
 @jwt_required()
 def delete_task_problem(problem_id):
     user_id = get_jwt_identity()
@@ -64,14 +68,15 @@ def delete_task_problem(problem_id):
 
 
 @problem_api.get("/task/<int:task_id>")
+@cross_origin()
 @jwt_required()
 def get_problems_by_task(task_id):
-    user_id = get_jwt_identity()
     problems = TaskProblem.get_by_task_id(task_id)
     return jsonify([problem.to_dict() for problem in problems])
 
 
 @problem_api.get("/all")
+@cross_origin()
 @jwt_required()
 def get_all_problems():
     user_id = get_jwt_identity()
