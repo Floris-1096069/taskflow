@@ -21,7 +21,7 @@ const TaskProblem = ({ taskId, taskStatusId }) => {
         return;
       }
       try {
-        const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/task/${taskId}`);
+        const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/task/${taskId}`);
         const data = await response.json();
         setProblems(data);
       } catch (error) {
@@ -38,7 +38,7 @@ const TaskProblem = ({ taskId, taskStatusId }) => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/create`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/create`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ const TaskProblem = ({ taskId, taskStatusId }) => {
       });
       if (response.ok) {
         setNewProblem("");
-        const updatedResponse = await fetchWithAuth(`${Config.API_BASE_URL}/problem/task/${taskId}`);
+        const updatedResponse = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/task/${taskId}`);
         const updatedData = await updatedResponse.json();
         setProblems(updatedData);
       } else {

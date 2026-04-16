@@ -16,7 +16,7 @@ const UserPicker = ({ onUserSelect, selectedUserId, refetchTrigger }) => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/all`);
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/user/all`);
       const data = await response.json();
       setUsers(data);
     } catch (error) {

@@ -45,7 +45,7 @@ export default function RegisterScreen({ navigation }) {
 
       setIsLoading(true);
       try {
-        const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/${selectedUserId}`);
+        const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/user/${selectedUserId}`);
         const userData = await response.json();
         if (response.ok && userData.length > 0) {
           const user = userData[0];
@@ -85,8 +85,8 @@ export default function RegisterScreen({ navigation }) {
 
     try {
       const url = isEditMode
-        ? `${Config.API_BASE_URL}/user/${selectedUserId}`
-        : `${Config.API_BASE_URL}/auth/register`;
+        ? `${Config.API_BASE_URL}/api/user/${selectedUserId}`
+        : `${Config.API_BASE_URL}/api/auth/register`;
       const method = isEditMode ? 'PUT' : 'POST';
 
       const body = isEditMode

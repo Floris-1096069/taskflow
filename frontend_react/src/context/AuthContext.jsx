@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async (navigation) => {
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/auth/logout`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
       });
 

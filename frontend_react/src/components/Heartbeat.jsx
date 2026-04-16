@@ -8,7 +8,7 @@ const Heartbeat = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        await fetchWithAuth(`${Config.API_BASE_URL}/auth/heartbeat`, { method: 'POST' });
+        await fetchWithAuth(`${Config.API_BASE_URL}/api/auth/heartbeat`, { method: 'POST' });
       } catch (error) {
         console.error('Heartbeat failed:', error);
       }

@@ -12,7 +12,7 @@ export const TagProvider = ({ children }) => {
   const fetchTags = async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags`);
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/tags`);
       const data = await response.json();
       setTags(data);
     } catch (error) {

@@ -49,7 +49,7 @@ const ManageTaskScreen = () => {
 
   const fetchProblems = async () => {
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/task/${task.task_id}`);
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/task/${task.task_id}`);
       const data = await response.json();
       setProblems(data);
     } catch (error) {
@@ -78,7 +78,7 @@ const ManageTaskScreen = () => {
     setIsUpdating(true);
     try {
       const { task_id, ...taskData } = editedTask;
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${task_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/update/${task_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ const ManageTaskScreen = () => {
     }
     setIsDeleting(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/delete/${task.task_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/delete/${task.task_id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete task');
@@ -118,7 +118,7 @@ const ManageTaskScreen = () => {
   const handleAddProblem = async () => {
     if (!newProblemContent.trim()) return;
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/add`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ const ManageTaskScreen = () => {
   const handleUpdateProblem = async () => {
     if (!editingProblem || !newProblemContent.trim()) return;
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/update/${editingProblem.task_problem_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/update/${editingProblem.task_problem_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ const ManageTaskScreen = () => {
       return;
     }
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/delegate/${task.task_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/delegate/${task.task_id}`, {
         method: 'POST',
       });
       const data = await response.json();
@@ -189,7 +189,7 @@ const ManageTaskScreen = () => {
 
   const handleDeleteProblem = async (problemId) => {
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/delete/${problemId}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/delete/${problemId}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete problem');

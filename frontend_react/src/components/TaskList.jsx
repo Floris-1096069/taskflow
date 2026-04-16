@@ -91,18 +91,18 @@ const TaskList = ({ navigation }) => {
     let continuousTasks = [];
 
     if (showContinuousTasks) {
-      const continuousResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/continuous`);
+      const continuousResponse = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/continuous`);
 
       continuousTasks = await continuousResponse.json();
 
       continuousTasks = await Promise.all(
         continuousTasks.map(async (task) => {
-          const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
+          const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/tags/${task.task_id}`);
 
           let tags = await tagResponse.json();
           if (!Array.isArray(tags)) tags = [];
 
-          const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/checkins/${task.task_id}`);
+          const checkinsResponse = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/checkins/${task.task_id}`);
           const active_users = await checkinsResponse.json();
           return { ...task, tags, active_users };
         })
@@ -149,12 +149,12 @@ const TaskList = ({ navigation }) => {
       }
     });
 
-    const filteredResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/filtered?${query.toString()}`);
+    const filteredResponse = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/filtered?${query.toString()}`);
     let filteredTasks = await filteredResponse.json();
 
     filteredTasks = await Promise.all(
       filteredTasks.map(async (task) => {
-        const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/task/tags/${task.task_id}`);
+        const tagResponse = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/tags/${task.task_id}`);
         let tags = await tagResponse.json();
         if (!Array.isArray(tags)) tags = [];
         return { ...task, tags, active_users: [] };
@@ -172,7 +172,7 @@ const TaskList = ({ navigation }) => {
   const fetchUsers = async () => {
     setUsersLoading(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/user/all`);
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/user/all`);
       const data = await response.json();
       setUsers(data);
 
@@ -186,7 +186,7 @@ const TaskList = ({ navigation }) => {
   const fetchStatuses = async () => {
     setStatusesLoading(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/status`);
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/status`);
       const data = await response.json();
       setStatuses(data);
     } catch (err) {
@@ -205,7 +205,7 @@ const TaskList = ({ navigation }) => {
   const handleAdvanceStatus = async (task) => {
     const nextStatusId = getNextStatus(task.status_id);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/update/${task.task_id}`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/update/${task.task_id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status_id: nextStatusId }),
@@ -220,7 +220,7 @@ const TaskList = ({ navigation }) => {
 
   const handleArchiveTask = async (task) => {
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/archive/${task.task_id}`,{
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/archive/${task.task_id}`,{
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
           });
@@ -241,7 +241,7 @@ const TaskList = ({ navigation }) => {
       try {
         const isCurrentlyCheckedIn = isCheckedIn(task);
         const endpoint = isCurrentlyCheckedIn ? "checkout" : "checkin";
-        const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/${endpoint}/${task.task_id}`, {
+        const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/${endpoint}/${task.task_id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });
@@ -290,7 +290,7 @@ const TaskList = ({ navigation }) => {
 
     setIsSubmittingProblem(true);
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/problem/create`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/problem/create`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task_id: selectedTask.task_id, content: newProblem }),

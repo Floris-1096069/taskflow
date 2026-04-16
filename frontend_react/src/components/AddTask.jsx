@@ -47,7 +47,7 @@ const AddTask = ({ visible, onClose, onTaskCreated }) => {
 
   const handleCreateTask = async () => {
     try {
-      const response = await fetchWithAuth(`${Config.API_BASE_URL}/task/create`, {
+      const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
