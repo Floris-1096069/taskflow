@@ -44,6 +44,7 @@ const TaskList = ({ navigation }) => {
 
   const role = getRole();
   const isAuthorized = role === 1 || role === 2;
+  const canCreate = role !== 6;
 
       useFocusEffect(
       React.useCallback(() => {
@@ -439,7 +440,7 @@ const TaskList = ({ navigation }) => {
           <View style={[styles.searchContainer, {width: "80%"}]}>
             <TextInput
               style={styles.searchInput}
-              placeholder="Search tasks..."
+              placeholder="Search task names..."
               value={searchQuery}
               onChangeText={setSearchQuery}
               clearButtonMode="while-editing"
@@ -447,9 +448,11 @@ const TaskList = ({ navigation }) => {
           </View>
         </View>
 
+      {canCreate && (
       <Pressable style={[styles.button]} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Create New Task</Text>
       </Pressable>
+      )}
 
       <AddTask visible={modalVisible} onClose={() => setModalVisible(false)} onTaskCreated={fetchTasks} />
 

@@ -42,3 +42,36 @@ export const WebSocketProvider = ({ children }) => {
       setError('WebSocket connection error. Retrying...');
       setTimeout(() => newSocket.connect(), 5000);
     });
+
+    newSocket.on('notification', (data) => {
+      console.log('New notification:', data);
+    });
+
+    newSocket.on('task_updated', (updatedTask) => {
+      console.log('Task updated:', updatedTask);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [token]);
+
+  const emitEvent = (event, data) => {
+    if (socket) {
+      socket.emit(event, data);
+    }
+  };
+
+  return (
+    <WebSocketContext.Provider
+      value={{
+        socket,
+        isConnected,
+        error,
+        emitEvent,
+      }}
+    >
+      {children}
+    </WebSocketContext.Provider>
+  );
+};

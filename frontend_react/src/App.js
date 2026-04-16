@@ -2,9 +2,7 @@ import { useEffect } from 'react';
 
 import AppNavigator from './navigation/AppNavigator';
 import { AuthProvider } from './context/AuthContext';
-import {TagProvider} from './context/TagContext';
 
-import Heartbeat from './components/Heartbeat';
 
 
 export default function App() {
@@ -20,9 +18,7 @@ export default function App() {
 
   return (
       <AuthProvider>
-        <TagProvider>
-            <AppNavigator/>
-        </TagProvider>
+        <AppNavigator/>
       </AuthProvider>
   );
 }
