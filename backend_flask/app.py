@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_socketio import SocketIO
 from jwt import InsecureKeyLengthWarning
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -18,6 +19,7 @@ from backend_flask.src.tasks.cleanup import cleanup_inactive_users
 from backend_flask.src.tasks.delegation import delegate_tasks
 
 
+socketio = SocketIO()
 def create_app():
     app = Flask(__name__)
 
@@ -37,6 +39,7 @@ def create_app():
     CORS(app, supports_credentials=True, origins = "*")
 
     #initialize extensions
+    socketio.init_app(app, cors_allowed_origins="*")
     JWTManager(app)
     scheduler = BackgroundScheduler()
 
@@ -72,8 +75,17 @@ def create_app():
         #db_manager.drop_db()
         db_manager.create_all()
 
-    return app
+    return app, socketio
+
+#websocket handlers
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected via WebSocket")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Client disconnected via WebSocket")
 
 if __name__ == '__main__':
-    app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app, socketio = create_app()
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
