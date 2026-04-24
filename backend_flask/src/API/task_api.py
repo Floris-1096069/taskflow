@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
+from flask_socketio import emit
 
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
@@ -9,6 +10,7 @@ from backend_flask.src.db.ORM.Status import Status
 from backend_flask.src.db.ORM.TaskProblem import TaskProblem
 from backend_flask.src.db.database_manager import DatabaseManager
 from backend_flask.src.tasks.delegation import delegate_tasks
+
 
 
 task_api = Blueprint(
@@ -243,12 +245,21 @@ def update_task(task_id):
             k: v for k, v in data.items()
             if k in ['name', 'description', 'priority', 'status_id', 'delegated_to', 'tag_ids']
         }
+        current_task = Task.get_by_id(task_id)
+        if not current_task:
+            return jsonify({"error": "Task not found"}), 404
+
+        if 'delegated_to' in filtered_data and filtered_data['delegated_to'] != current_task.delegated_to:
+            new_user_id = filtered_data['delegated_to']
+            # Use task_api.socketio instead of importing
+            task_api.socketio.emit("notification", {
+                "message": f"You've been assigned task {task_id}!",
+                "task_id": task_id,
+                "type": "task_assigned"
+            }, room=str(new_user_id))
+
         updated_task = Task.update(task_id, **filtered_data)
         return jsonify(updated_task.to_dict()), 200
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 404
-
     except Exception as e:
         print(f"Error updating task: {e}")
         import traceback

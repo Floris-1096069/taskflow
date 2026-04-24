@@ -23,8 +23,13 @@ export const WebSocketProvider = ({ children }) => {
     }
 
     const newSocket = io(`${Config.API_BASE_URL}:5000`, {
+      auth: {
+        token: token,
+      },
       transports: ['websocket'],
-      query: { token: token },
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     setSocket(newSocket);
@@ -44,6 +49,7 @@ export const WebSocketProvider = ({ children }) => {
     });
 
     newSocket.on('notification', (data) => {
+      setNotifications(prev => [...prev, data]);
       console.log('New notification:', data);
     });
 
@@ -52,7 +58,9 @@ export const WebSocketProvider = ({ children }) => {
     });
 
     return () => {
-      newSocket.disconnect();
+      if (newSocket) {
+        newSocket.disconnect();
+      }
     };
   }, [token]);
 

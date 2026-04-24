@@ -3,13 +3,13 @@ import warnings
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
-from flask_socketio import SocketIO
+from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
+from flask_socketio import SocketIO, join_room, leave_room, disconnect
 from jwt import InsecureKeyLengthWarning
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
-
+from backend_flask.src.websocket.handlers import init_socketio_handlers
 from backend_flask.src.API.auth_api import auth_api
 from backend_flask.src.API.task_api import task_api
 from backend_flask.src.API.problem_api import problem_api
@@ -20,6 +20,7 @@ from backend_flask.src.tasks.delegation import delegate_tasks
 
 
 socketio = SocketIO()
+
 def create_app():
     app = Flask(__name__)
 
@@ -40,6 +41,7 @@ def create_app():
 
     #initialize extensions
     socketio.init_app(app, cors_allowed_origins="*")
+    init_socketio_handlers(socketio)
     JWTManager(app)
     scheduler = BackgroundScheduler()
 
@@ -75,17 +77,10 @@ def create_app():
         #db_manager.drop_db()
         db_manager.create_all()
 
-    return app, socketio
+    return app
 
-#websocket handlers
-@socketio.on("connect")
-def handle_connect():
-    print("Client connected via WebSocket")
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    print("Client disconnected via WebSocket")
 
 if __name__ == '__main__':
-    app, socketio = create_app()
+    app = create_app()
+    task_api.socketio = socketio
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
