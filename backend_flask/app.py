@@ -1,13 +1,15 @@
 import os
 import warnings
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
 from flask_socketio import SocketIO, join_room, leave_room, disconnect
 from jwt import InsecureKeyLengthWarning
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
+
+import logging
 
 from backend_flask.src.websocket.handlers import init_socketio_handlers
 from backend_flask.src.API.auth_api import auth_api
@@ -37,10 +39,18 @@ def create_app():
 
     #CORS configuration
     #SET UP ORIGINS FROM ENV IN PROD!
-    CORS(app, supports_credentials=True, origins = "*")
+    CORS(app, supports_credentials=True, resources={
+        r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}
+    })
 
     #initialize extensions
-    socketio.init_app(app, cors_allowed_origins="*")
+    socketio.init_app(
+        app,
+        cors_allowed_origins="*",
+        protocol_version='4',
+        async_mode='gevent'
+    )
+
     init_socketio_handlers(socketio)
     JWTManager(app)
     scheduler = BackgroundScheduler()
@@ -77,10 +87,15 @@ def create_app():
         #db_manager.drop_db()
         db_manager.create_all()
 
+
+    #set up logging
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger('engineio.server')
+    logger.setLevel(logging.DEBUG)
+
     return app
 
 
 if __name__ == '__main__':
     app = create_app()
-    task_api.socketio = socketio
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
