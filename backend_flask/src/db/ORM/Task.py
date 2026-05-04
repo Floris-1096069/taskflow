@@ -37,9 +37,13 @@ class Task(Base):
 
 
     @classmethod
+    @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).options(joinedload(cls.tags)).all()
+            return db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)  # <-- Add this
+            ).all()
 
 
     @classmethod
@@ -52,25 +56,37 @@ class Task(Base):
     @classmethod
     def get_by_id(cls, task_id: int):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).filter(cls.task_id == task_id).one_or_none()
+            return db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)  # <-- Add this
+            ).filter(cls.task_id == task_id).one_or_none()
 
 
     @classmethod
     def get_by_delegated_to(cls, user_id: int):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).options(joinedload(cls.tags)).filter(cls.delegated_to == user_id).all()
+            return db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)  # <-- Add this
+            ).filter(cls.delegated_to == user_id).all()
 
 
     @classmethod
     def get_undelegated(cls):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).filter(cls.delegated_to == None).all()
+            return db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)  # <-- Add this
+            ).filter(cls.delegated_to == None).all()
 
 
     @classmethod
     def get_continuous(cls):
         with cls._db_manager.get_db() as db:
-            return db.query(cls).filter(cls.is_continuous == True).all()
+            return db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)  # <-- Add this
+            ).filter(cls.is_continuous == True).all()
 
 
     @classmethod
@@ -97,7 +113,7 @@ class Task(Base):
     @classmethod
     def get_filtered(cls, **filters):
         with cls._db_manager.get_db() as db:
-            query = db.query(cls).options(joinedload(cls.tags))
+            query = db.query(cls).options(joinedload(cls.tags), joinedload(cls.checkins))
 
             query = query.filter(cls.is_continuous == False)
 
@@ -133,20 +149,14 @@ class Task(Base):
 
             return query.all()
 
-
     @classmethod
     def is_standard_continuous_task(cls, task_id):
-        standard_task_names = [
-            "Multi-Picken",
-            "Order-Picken",
-            "Bij-Picken",
-            "Verzenden",
-            "Binnenkomend",
-            "Wegleg",
-        ]
-
+        standard_task_names = ["Multi-Picken", "Order-Picken", "Bij-Picken", "Verzenden", "Binnenkomend", "Wegleg"]
         with cls._db_manager.get_db() as db:
-            task = db.query(cls).filter(cls.task_id == task_id).one_or_none()
+            task = db.query(cls).options(
+                joinedload(cls.tags),
+                joinedload(cls.checkins)  # <-- Add this
+            ).filter(cls.task_id == task_id).one_or_none()
             return task and task.is_continuous and task.name in standard_task_names
 
 
@@ -196,7 +206,7 @@ class Task(Base):
     @classmethod
     def update(cls, task_id, **kwargs):
         with cls._db_manager.get_db() as db:
-            task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
+            task = db.query(cls).options(joinedload(cls.tags), joinedload(cls.checkins)).filter(cls.task_id == task_id).one_or_none()
             if not task:
                 raise ValueError("Task not found")
 
@@ -216,14 +226,14 @@ class Task(Base):
             task.update_time = datetime.utcnow()
             db.commit()
 
-            updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
+            updated_task = db.query(cls).options(joinedload(cls.tags), joinedload(cls.checkins)).filter(cls.task_id == task_id).one()
             return updated_task
 
 
     @classmethod
     def update_status(cls, task_id, status_id):
         with cls._db_manager.get_db() as db:
-            task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one_or_none()
+            task = db.query(cls).options(joinedload(cls.tags), joinedload(cls.checkins)).filter(cls.task_id == task_id).one_or_none()
             if not task:
                 raise ValueError("Task not found")
 
@@ -232,7 +242,7 @@ class Task(Base):
 
             db.commit()
 
-            updated_task = db.query(cls).options(joinedload(cls.tags)).filter(cls.task_id == task_id).one()
+            updated_task = db.query(cls).options(joinedload(cls.tags), joinedload(cls.checkins)).filter(cls.task_id == task_id).one()
             print(f"After update - Task {task_id} tags: {updated_task.tags}")
             return updated_task
 

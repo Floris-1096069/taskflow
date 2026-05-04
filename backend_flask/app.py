@@ -34,6 +34,7 @@ def create_app():
     app.config['FRONTEND_URL'] = frontend_url
     warnings.filterwarnings("ignore", category=InsecureKeyLengthWarning)
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 
     #CORS configuration
     #SET UP ORIGINS FROM ENV IN PROD!

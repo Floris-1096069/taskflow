@@ -39,9 +39,9 @@ def init_socketio_handlers(socketio_instance):
 
 
     @socketio_instance.on("disconnect")
-    def handle_disconnect():
+    def handle_disconnect(reason):
         try:
-            print(f"Client {request.sid} disconnected")
+            print(f"Client {request.sid} disconnected for {reason}")
 
         except Exception as e:
             print(f"Error during WebSocket disconnect: {e}")
@@ -57,7 +57,7 @@ def init_socketio_handlers(socketio_instance):
         except Exception as e:
             print(f"Error handling custom event: {e}")
 
-    
+
     @socketio_instance.on_error_default
     def default_error_handler(e):
         print(f"WebSocket error: {e}")
