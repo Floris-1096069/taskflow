@@ -46,7 +46,7 @@ def create_app():
         app,
         cors_allowed_origins="*",
         protocol_version='4',
-        async_mode='gevent'
+        async_mode='threading'
     )
 
     init_socketio_handlers(socketio)
@@ -62,15 +62,31 @@ def create_app():
         name="Mark inactive users as offline",
         replace_existing=True,
     )
+    def run_delegate_tasks():
+        with app.app_context():  # <-- Critical: Provide Flask app context
+            try:
+                print("🔄 Running delegate_tasks job...")  # Debug log
+                delegate_tasks()
+            except Exception as e:
+                print(f"❌ Error in delegate_tasks: {e}")
+                import traceback
+                traceback.print_exc()
+
     scheduler.add_job(
-        func=delegate_tasks,
+        func=run_delegate_tasks,
         trigger="interval",
-        minutes=3,
+        minutes=1,
         id="delegate_tasks",
         name="Automatically delegate tasks",
         replace_existing=True,
+        misfire_grace_time=300,
+        max_instances=1,
+        coalesce=False,
     )
     scheduler.start()
+    print("Scheduler started. Jobs:")
+    for job in scheduler.get_jobs():
+        print(f" - {job.name} (ID: {job.id}, Next run: {job.next_run_time})")
 
     #register blueprints
     app.register_blueprint(auth_api)
@@ -96,4 +112,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

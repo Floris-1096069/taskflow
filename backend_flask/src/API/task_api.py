@@ -252,13 +252,17 @@ def update_task(task_id):
 
         if 'delegated_to' in filtered_data and filtered_data['delegated_to'] != current_task.delegated_to:
             new_user_id = filtered_data['delegated_to']
-            # Use task_api.socketio instead of importing
             print(f"Emitting notification to user {new_user_id} for task {task_id}")
-            socketio.emit("notification", {
-                "message": f"You've been assigned task {task_id}!",
-                "task_id": task_id,
-                "type": "task_assigned"
-            }, room=str(new_user_id))
+            socketio.emit(
+                "notification",
+                {
+                    "message": f"You've been assigned task {task_id}: {current_task.name}!",
+                    "task_id": task_id,
+                    "task_name": current_task.name,
+                    "type": "task_assigned"
+                },
+                room=str(new_user_id)
+            )
 
         updated_task = Task.update(task_id, **filtered_data)
         return jsonify(updated_task.to_dict()), 200
@@ -319,8 +323,8 @@ def get_task_tags(task_id):
 @task_api.route('/test/notification', methods=['GET'])
 def test_notification():
 
-    user_id = "1"
-    print(f"emitting notification to {user_id}")
+    user_id = "3"
+    print(f"emitting notification to {user_id}")    
     # Emit a test notification to the user's room
     socketio.emit('notification', {
         'title': 'Test Notification',
