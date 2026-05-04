@@ -324,8 +324,7 @@ def get_task_tags(task_id):
 def test_notification():
 
     user_id = "3"
-    print(f"emitting notification to {user_id}")    
-    # Emit a test notification to the user's room
+    print(f"emitting notification to {user_id}")
     socketio.emit('notification', {
         'title': 'Test Notification',
         'message': 'This is a test notification from the backend!'

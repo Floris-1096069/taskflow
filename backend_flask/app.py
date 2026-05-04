@@ -64,10 +64,11 @@ def create_app():
         replace_existing=True,
     )
     def run_delegate_tasks():
-        with app.app_context():  # <-- Critical: Provide Flask app context
+        with app.app_context():
             try:
-                print("🔄 Running delegate_tasks job...")  # Debug log
+                print("🔄 Running delegate_tasks job...")
                 delegate_tasks()
+
             except Exception as e:
                 print(f"❌ Error in delegate_tasks: {e}")
                 import traceback

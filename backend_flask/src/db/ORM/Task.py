@@ -37,12 +37,11 @@ class Task(Base):
 
 
     @classmethod
-    @classmethod
     def get_all(cls):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(
                 joinedload(cls.tags),
-                joinedload(cls.checkins)  # <-- Add this
+                joinedload(cls.checkins)
             ).all()
 
 
@@ -58,7 +57,7 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(
                 joinedload(cls.tags),
-                joinedload(cls.checkins)  # <-- Add this
+                joinedload(cls.checkins)
             ).filter(cls.task_id == task_id).one_or_none()
 
 
@@ -67,7 +66,7 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(
                 joinedload(cls.tags),
-                joinedload(cls.checkins)  # <-- Add this
+                joinedload(cls.checkins)
             ).filter(cls.delegated_to == user_id).all()
 
 
@@ -76,7 +75,7 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(
                 joinedload(cls.tags),
-                joinedload(cls.checkins)  # <-- Add this
+                joinedload(cls.checkins)
             ).filter(cls.delegated_to == None).all()
 
 
@@ -85,7 +84,7 @@ class Task(Base):
         with cls._db_manager.get_db() as db:
             return db.query(cls).options(
                 joinedload(cls.tags),
-                joinedload(cls.checkins)  # <-- Add this
+                joinedload(cls.checkins)
             ).filter(cls.is_continuous == True).all()
 
 
@@ -149,13 +148,14 @@ class Task(Base):
 
             return query.all()
 
+
     @classmethod
     def is_standard_continuous_task(cls, task_id):
         standard_task_names = ["Multi-Picken", "Order-Picken", "Bij-Picken", "Verzenden", "Binnenkomend", "Wegleg"]
         with cls._db_manager.get_db() as db:
             task = db.query(cls).options(
                 joinedload(cls.tags),
-                joinedload(cls.checkins)  # <-- Add this
+                joinedload(cls.checkins)
             ).filter(cls.task_id == task_id).one_or_none()
             return task and task.is_continuous and task.name in standard_task_names
 

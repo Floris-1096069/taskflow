@@ -52,7 +52,6 @@ def init_socketio_handlers(socketio_instance):
         try:
             user_id = request.sid
             print(f"User {user_id} sent: {data}")
-            # Example: Broadcast to the user's room
             emit("notification", {"title": "Event Received", "message": f"You sent: {data}"}, room=user_id)
         except Exception as e:
             print(f"Error handling custom event: {e}")
