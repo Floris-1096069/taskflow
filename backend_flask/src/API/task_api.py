@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import cross_origin
 from flask_socketio import emit
 
+from backend_flask.src.websocket.socketio import socketio
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
 from backend_flask.src.db.ORM.Tag import Tag
@@ -313,6 +314,19 @@ def get_task_tags(task_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@task_api.route('/test/notification', methods=['GET'])
+def test_notification():
+
+    user_id = "1"
+    print(f"emitting notification to {user_id}")
+    # Emit a test notification to the user's room
+    socketio.emit('notification', {
+        'title': 'Test Notification',
+        'message': 'This is a test notification from the backend!'
+    }, room=str(user_id))
+    return jsonify({'status': 'notification sent'})
 
 
 @task_api.get("/status")

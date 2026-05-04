@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
-from flask_socketio import SocketIO, join_room, leave_room, disconnect
 from jwt import InsecureKeyLengthWarning
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import logging
 
+from backend_flask.src.websocket.socketio import socketio
 from backend_flask.src.websocket.handlers import init_socketio_handlers
 from backend_flask.src.API.auth_api import auth_api
 from backend_flask.src.API.task_api import task_api
@@ -20,8 +20,6 @@ from backend_flask.src.db.database_manager import DatabaseManager
 from backend_flask.src.tasks.cleanup import cleanup_inactive_users
 from backend_flask.src.tasks.delegation import delegate_tasks
 
-
-socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)

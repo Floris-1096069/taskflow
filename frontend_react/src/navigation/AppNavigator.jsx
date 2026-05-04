@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator } from "react-native-web";
 import { useAuthContext } from '../context/AuthContext';
+import Toast from 'react-native-toast-message';
 
 import AuthStack from './AuthStack';
 import AppStack from './AppStack';
@@ -23,6 +24,7 @@ export default function AppNavigator() {
           <TagProvider>
             <WebSocketProvider>
               <AppStack />
+              <Toast />
             </WebSocketProvider>
           </TagProvider>
         </>
