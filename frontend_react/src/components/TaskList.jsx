@@ -9,6 +9,7 @@ import { useAuthContext } from "../context/AuthContext";
 import AddTask from './AddTask';
 import TagSelector from './TagSelector';
 import { Config } from '../config';
+import {useWebSocket} from '../context/WebSocketContext';
 
 const TaskList = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
@@ -41,6 +42,8 @@ const TaskList = ({ navigation }) => {
   const { fetchWithAuth, getRole, user_id } = useAuthContext();
   const colorScheme = useColorScheme();
   const { colours, ...styles } = getGlobalStyles(colorScheme);
+
+  const { socket } = useWebSocket();
 
   const role = getRole();
   const isAuthorized = role === 1 || role === 2;
@@ -265,6 +268,18 @@ const TaskList = ({ navigation }) => {
     fetchUsers();
     fetchStatuses();
   }, [filters, showContinuousTasks, showUndelegatedTasks, showProblemTasks, isAuthorized, user_id, showArchivedTasks, showCreatedByMe]);
+
+  useEffect(() => {
+      if (!socket) return;
+
+        const handleNotification = (data) => {
+          if (data.type === "task_assigned") {
+            fetchTasks();
+          }
+        };
+    socket.on("notification", handleNotification);
+    return () => socket.off("notification", handleNotification);
+  }, [fetchTasks]);
 
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
