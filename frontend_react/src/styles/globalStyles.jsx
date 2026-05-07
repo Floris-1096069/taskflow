@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
 
 const isWeb = () => typeof window !== 'undefined';
 
@@ -137,6 +137,8 @@ export const getGlobalStyles = (colorScheme) => {
       alignItems: 'center',
       justifyContent: 'center',
       flex: 1,
+      alignSelf: 'flex-start',
+      maxWidth: 120,
     },
 
     problemItem: {
@@ -183,6 +185,14 @@ export const getGlobalStyles = (colorScheme) => {
     container: {
       flex: 1,
       backgroundColor: colours.background,
+    ...(Platform.OS === 'web' ? {
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
+        flexBasis: 'auto',
+        flexShrink: 1,
+        flexGrow: 1,
+      } : {}),
     },
 
     headerContainer: {
@@ -232,8 +242,9 @@ export const getGlobalStyles = (colorScheme) => {
     continuousBadge: {
       padding: 4,
       borderRadius: 4,
-      alignSelf: 'center',
-      marginBottom: 8,
+      alignSelf: 'flex-start',
+      marginBottom: 0,
+      marginRight: 8,
       backgroundColor: '#FF5722'
     },
 
@@ -444,10 +455,11 @@ export const getGlobalStyles = (colorScheme) => {
       elevation: 2,
       width: '100%',
       alignSelf: 'center',
-      alignItems: 'flex-start', // Allow content to flow naturally
-      flexDirection: 'row', // Arrange children in a row
-      flexWrap: 'wrap', // Allow wrapping if needed
-      gap: 8, // Add space between items
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 8,
+      minWidth: 0,
     },
 
     taskInfoRow: {
@@ -459,7 +471,7 @@ export const getGlobalStyles = (colorScheme) => {
     },
     taskInfoContainer: {
       flex: 1,
-      minWidth: 200, // Adjust as needed
+      minWidth: 200,
     },
 
     taskName: {
@@ -538,26 +550,5 @@ export const getGlobalStyles = (colorScheme) => {
   return { ...styles, colours };
 };
 
-if (isWeb()) {
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .container, .taskItem, .webContainer {
-      width: 100% !important;
-      max-width: 100% !important;
-      min-width: 0 !important;
-      flex-basis: auto !important;
-      flex-shrink: 1 !important;
-      flex-grow: 1 !important;
-    }
-    .taskItem {
-      width: 100% !important;
-      min-width: 0 !important;
-    }
-    .FlatList {
-      width: 100% !important;
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 export default getGlobalStyles;

@@ -1,5 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { ActivityIndicator } from "react-native-web";
+import { ActivityIndicator } from "react-native";
 import { useAuthContext } from '../context/AuthContext';
 import Toast from 'react-native-toast-message';
 
