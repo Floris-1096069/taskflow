@@ -11,17 +11,31 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "web": {
-      "favicon": "./public/favicon.png",
-      "name": "frontend_react",
-      "shortName": "Taskflow",
-      "startUrl": "/",
-      "scope": "/",
-      "display": "fullscreen",
-      "themeColor": "#ffffff",
-      "backgroundColor": "#ffffff",
-      "description": "Warehouse ticketing and to do list.",
-      "offline": true
+
+  "web": {
+    "favicon": "./assets/favicon.png",
+    "pwa": {
+      "enabled": true,
+      "manifest": {
+        "name": "TaskFlow",
+        "short_name": "TaskFlow",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#121212",
+        "theme_color": "#3498db",
+        "icons": [
+          {
+            "src": "./assets/icon.png",
+            "sizes": [72, 96, 128, 144, 152, 192, 384, 512],
+            "type": "image/png"
+          }
+        ]
+      },
+      "serviceWorker": {
+        "enabled": true,
+        "registrationOptions": { "scope": "/" }
+      }
     }
   }
+}
 }
