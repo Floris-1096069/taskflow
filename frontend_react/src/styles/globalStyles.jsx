@@ -147,7 +147,7 @@ export const getGlobalStyles = (colorScheme) => {
       borderColor: colours.border,
       borderRadius: 5,
       marginVertical: 5,
-      backgroundColor: colours.white,
+      backgroundColor: colours.black,
     },
 
     searchContainer: {

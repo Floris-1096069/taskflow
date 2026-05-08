@@ -307,13 +307,13 @@ const ManageTaskScreen = () => {
           {editingProblem ? (
             <>
               <Pressable
-                style={[globalStyles.button, globalStyles.successButton, { flex: 1, marginRight: 5 }]}
+                style={[globalStyles.button, globalStyles.button, { flex: 1, marginRight: 5 }]}
                 onPress={handleUpdateProblem}
               >
                 <Text style={globalStyles.buttonText}>Update Problem</Text>
               </Pressable>
               <Pressable
-                style={[globalStyles.button, globalStyles.grayButton, { flex: 1, marginLeft: 5 }]}
+                style={[globalStyles.button, globalStyles.button, { flex: 1, marginLeft: 5 }]}
                 onPress={() => {
                   setEditingProblem(null);
                   setNewProblemContent("");
@@ -324,7 +324,7 @@ const ManageTaskScreen = () => {
             </>
           ) : (
             <Pressable
-              style={[globalStyles.button, globalStyles.successButton, { flex: 1 }]}
+              style={[globalStyles.button, globalStyles.button, { flex: 1 }]}
               onPress={handleAddProblem}
             >
               <Text style={globalStyles.buttonText}>Add Reaction</Text>
