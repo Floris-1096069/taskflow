@@ -401,7 +401,7 @@ const TaskList = ({ navigation }) => {
                value={showProblemTasks}
                 onValueChange={setShowProblemTasks}
               />
-              <Text>{showProblemTasks ? "Only Problematic Tasks" : "Only Non Problematic Tasks"}</Text>
+              <Text>{showProblemTasks ? "Problematic Tasks" : "Non Problematic Tasks"}</Text>
           </View>
         )}
 

@@ -203,6 +203,17 @@ def create_task():
             created_by=get_jwt_identity(),
             tag_ids=data.get('tag_ids')
         )
+        if new_task.delegated_to is not None:
+            socketio.emit(
+                "notification",
+                {
+                    "message": f"You've been assigned task {new_task.task_id}: {new_task.name}!",
+                    "task_id": new_task.task_id,
+                    "task_name": new_task.name,
+                    "type": "task_assigned"
+                },
+                room=str(new_task.delegated_to)
+            )
         return jsonify(new_task.to_dict()), 200
 
     except Exception as e:

@@ -77,7 +77,7 @@ def create_app():
     scheduler.add_job(
         func=run_delegate_tasks,
         trigger="interval",
-        minutes=1,
+        minutes=3,
         id="delegate_tasks",
         name="Automatically delegate tasks",
         replace_existing=True,
