@@ -4,17 +4,16 @@
   "main": "public/index.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
-    "@react-native-picker/picker": "^2.11.4",
+    "@react-native-picker/picker": "^2.11.1",
     "@react-navigation/native": "^7.1.28",
     "@react-navigation/native-stack": "^7.12.0",
-    "expo": "~54.0.33",
-    "expo-pwa": "^0.0.127",
+    "expo": "^55.0.23",
     "expo-status-bar": "~3.0.9",
     "jwt-decode": "^4.0.0",
     "react": "19.1.0",

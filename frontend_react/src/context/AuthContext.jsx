@@ -5,6 +5,27 @@ import {Config} from "../config";
 
 const AuthContext = createContext();
 
+const storage = {
+  getItem: async (key) => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+    return AsyncStorage.getItem(key);
+  },
+  setItem: async (key, value) => {
+    if (typeof window !== 'undefined') {
+      return localStorage.setItem(key, value);
+    }
+    return AsyncStorage.setItem(key, value);
+  },
+  removeItem: async (key) => {
+    if (typeof window !== 'undefined') {
+      return localStorage.removeItem(key);
+    }
+    return AsyncStorage.removeItem(key);
+  }
+};
+
 export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -54,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const fetchWithAuth = async (url, options = {}) => {
-    const currentToken = await AsyncStorage.getItem('token');
+    const currentToken = await storage.getItem('token');
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -67,7 +88,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (newToken) => {
     try {
-      await AsyncStorage.setItem('token', newToken);
+      await storage.setItem('token', newToken);
       setToken(newToken);
       setIsLoggedIn(true);
       try {
@@ -95,7 +116,7 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Logout failed on the server');
       }
 
-      await AsyncStorage.removeItem('token');
+      await storage.removeItem('token');
       setToken(null);
       setIsLoggedIn(false);
       setUsername(null);

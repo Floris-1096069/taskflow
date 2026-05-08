@@ -6,10 +6,12 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+
+  "android": {
+      "package": "com.taskflow.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.taskflow.app"
     },
 
   "web": {
