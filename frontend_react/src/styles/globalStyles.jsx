@@ -70,8 +70,8 @@ export const getGlobalStyles = (colorScheme) => {
       color: colours.text,
       lineHeight: 20,
       marginBottom: 4,
-      minWidth: 'auto', // Allow text to be as wide as needed
-      flexShrink: 1, // Allow text to shrink if needed
+      minWidth: 'auto',
+      flexShrink: 1,
     },
 
     modalTitle: {

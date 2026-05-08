@@ -21,13 +21,12 @@ export const WebSocketProvider = ({ children }) => {
       return;
     }
 
-    // Initialize socket with corrected config
     const newSocket = io(
-      `${Config.API_BASE_URL.replace('http', 'ws')}`,  // Use ws:// instead of http://
+      `${Config.API_BASE_URL.replace('http', 'ws')}`,
       {
-        query: { token: token },  // Pass token via query string
-        protocolVersion: 4,       // Force Socket.IO v4 protocol
-        transports: ['websocket', 'polling'],  // Allow fallback to polling
+        query: { token: token },
+        protocolVersion: 4,
+        transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionAttempts: 5,
         autoConnect: false,
@@ -36,7 +35,6 @@ export const WebSocketProvider = ({ children }) => {
 
     setSocket(newSocket);
 
-    // Event handlers
     newSocket.on('connecting', () => {
       console.log('🔄 Connecting to WebSocket...');
     });
