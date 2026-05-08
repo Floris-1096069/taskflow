@@ -16,13 +16,10 @@ def delegate_tasks(task_id=None):
     try:
         db_manager = DatabaseManager()
         with db_manager.get_db() as db:
-            # --- Fetch roles (excluding Admin) ---
             roles = db.query(Role).filter(Role.name != "Admin").all()
             if not roles:
-                print("⚠️ No non-Admin roles found in the database.")
                 return {"success": False, "message": "No roles found"}
 
-            # --- Fetch online users by role ---
             users_by_role = {}
             for role in roles:
                 online_users = db.query(User).filter(
@@ -30,9 +27,7 @@ def delegate_tasks(task_id=None):
                     User.is_online == True
                 ).all()
                 users_by_role[role.name] = online_users
-                print(f"👥 Found {len(online_users)} online users for role: {role.name}")
 
-            # --- Fetch tasks to delegate ---
             if task_id is not None:
                 task = db.query(Task).filter(
                     Task.task_id == task_id,
@@ -40,19 +35,16 @@ def delegate_tasks(task_id=None):
                     Task.is_continuous == False
                 ).first()
                 tasks = [task] if task else []
-                print(f"🔍 Processing single task: {task_id}")
+
             else:
                 tasks = db.query(Task).filter(
                     Task.delegated_to == None,
                     Task.is_continuous == False
                 ).all()
-                print(f"📋 Found {len(tasks)} undelegated tasks to process.")
 
             if not tasks:
-                print("⚠️ No undelegated tasks found.")
                 return {"success": False, "message": "No undelegated tasks found"}
 
-            # --- Count current tasks per user ---
             user_task_counts = defaultdict(int)
             for user_id, in db.query(Task.delegated_to).filter(
                 Task.delegated_to.isnot(None)
@@ -61,7 +53,6 @@ def delegate_tasks(task_id=None):
                     Task.delegated_to == user_id
                 ).count()
 
-            # --- Delegation rules ---
             delegation_rules = {
                 "Teamleider": {
                     "tags": [
@@ -109,9 +100,7 @@ def delegate_tasks(task_id=None):
                 if not task:
                     continue
 
-                print(f"🔍 Processing task {task.task_id}: {task.name}")
 
-                # --- Find eligible roles for this task ---
                 eligible_roles = []
                 task_tags = [t.tag for t in task.tags]
                 for role_name, rule in delegation_rules.items():
@@ -119,12 +108,9 @@ def delegate_tasks(task_id=None):
                         eligible_roles.append(role_name)
 
                 if not eligible_roles:
-                    print(f"⚠️ No eligible roles for task {task.task_id} (tags: {task_tags})")
                     continue
 
-                print(f"✅ Eligible roles for task {task.task_id}: {eligible_roles}")
 
-                # --- Find the least busy user in eligible roles ---
                 best_user = None
                 min_tasks = float('inf')
                 for role_name in eligible_roles:
@@ -135,12 +121,10 @@ def delegate_tasks(task_id=None):
                             best_user = user
 
                 if best_user:
-                    print(f"🎯 Delegating task {task.task_id} to {best_user.username} (current tasks: {min_tasks})")
                     task.delegated_to = best_user.user_id
-                    task.updated_by = 1  # admin
+                    task.updated_by = 1  #admin
                     db.commit()
 
-                    # --- Emit notification ---
                     try:
                         socketio.emit(
                             "notification",
@@ -152,15 +136,13 @@ def delegate_tasks(task_id=None):
                             },
                             room=str(best_user.user_id)
                         )
-                        print(f"📢 Notification sent to user {best_user.user_id} for task {task.task_id}")
+
                     except Exception as emit_error:
-                        print(f"⚠️ Failed to emit notification to {best_user.user_id}: {emit_error}")
                         db.rollback()
 
                     delegated_count += 1
 
                     if task_id is not None:
-                        print(f"✅ Task {task.task_id} delegated to {best_user.username}")
                         return {
                             "success": True,
                             "message": f"Task {task.task_id} delegated to {best_user.username}",
@@ -170,9 +152,8 @@ def delegate_tasks(task_id=None):
                 else:
                     print(f"⚠️ No suitable user found for task {task.task_id}")
 
-            # --- Batch delegation result ---
             if task_id is None:
-                print(f"✅ Delegated {delegated_count} tasks.")
+                print(f"Delegated {delegated_count} tasks.")
                 return {
                     "success": True,
                     "message": f"Delegated {delegated_count} tasks",
@@ -182,7 +163,7 @@ def delegate_tasks(task_id=None):
             return {"success": False, "message": "No suitable user found"}
 
     except Exception as e:
-        print(f"❌ Critical error in delegate_tasks: {e}")
+        print(f"Critical error in delegate_tasks: {e}")
         traceback.print_exc()
         return {"success": False, "message": f"Critical error: {str(e)}"}
 

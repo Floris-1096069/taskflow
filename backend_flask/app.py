@@ -66,11 +66,11 @@ def create_app():
     def run_delegate_tasks():
         with app.app_context():
             try:
-                print("🔄 Running delegate_tasks job...")
+                print("Running delegate_tasks job...")
                 delegate_tasks()
 
             except Exception as e:
-                print(f"❌ Error in delegate_tasks: {e}")
+                print(f"Error in delegate_tasks: {e}")
                 import traceback
                 traceback.print_exc()
 
@@ -100,7 +100,7 @@ def create_app():
     db_manager = DatabaseManager()
     with app.app_context():
         #uncomment drop_db() to drop database before creating entries
-        #db_manager.drop_db()
+        db_manager.drop_db()
         db_manager.create_all()
 
 
