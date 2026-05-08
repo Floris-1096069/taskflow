@@ -1,5 +1,6 @@
 import os
 import warnings
+import logging
 from dotenv import load_dotenv
 from flask import Flask, request
 from flask_cors import CORS
@@ -8,7 +9,6 @@ from jwt import InsecureKeyLengthWarning
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
-import logging
 
 from backend_flask.src.websocket.socketio import socketio
 from backend_flask.src.websocket.handlers import init_socketio_handlers
@@ -105,9 +105,9 @@ def create_app():
 
 
     #set up logging
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger('engineio.server')
-    logger.setLevel(logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
+    #logger = logging.getLogger('engineio.server')
+    #logger.setLevel(logging.DEBUG)
 
     return app
 

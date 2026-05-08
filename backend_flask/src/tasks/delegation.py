@@ -1,3 +1,6 @@
+import traceback
+from collections import defaultdict
+
 from backend_flask.src.db.ORM import Task
 from backend_flask.src.db.ORM.Task import Task
 from backend_flask.src.db.ORM.User import User
@@ -5,8 +8,7 @@ from backend_flask.src.db.ORM.Role import Role
 from backend_flask.src.db.ORM.Tag import Tag
 from backend_flask.src.websocket.socketio import socketio
 from backend_flask.src.db.database_manager import DatabaseManager
-from collections import defaultdict
-import traceback
+
 
 def delegate_tasks(task_id=None):
     """
