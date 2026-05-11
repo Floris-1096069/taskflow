@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import io from 'socket.io-client';
 import { Config } from '../config';
 import { useAuthContext } from './AuthContext';
@@ -14,6 +14,7 @@ export const WebSocketProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState(null);
   const { token } = useAuthContext();
+  const [onTaskCheckInUpdate, setOnTaskCheckInUpdate] = useState(null);
 
   useEffect(() => {
     if (!token) {
@@ -100,9 +101,9 @@ export const WebSocketProvider = ({ children }) => {
       console.log('🧹 Cleaning up WebSocket...');
       newSocket.disconnect();
     };
-  }, [token]);
+  }, [token, onTaskCheckInUpdate]);
 
-  const emitEvent = (event, data) => {
+  const emitEvent = useCallback((event, data) => {
     if (socket && isConnected) {
       socket.emit(event, data);
     } else {
@@ -114,7 +115,7 @@ export const WebSocketProvider = ({ children }) => {
         position: 'top',
       });
     }
-  };
+  }, [socket, isConnected]);
 
   return (
     <WebSocketContext.Provider
@@ -124,6 +125,8 @@ export const WebSocketProvider = ({ children }) => {
         error,
         emitEvent,
         notifications,
+        setOnTaskCheckInUpdate,
+        onTaskCheckInUpdate
       }}
     >
       {children}

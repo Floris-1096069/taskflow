@@ -281,6 +281,18 @@ const TaskList = ({ navigation }) => {
     return () => socket.off("notification", handleNotification);
   }, [fetchTasks]);
 
+  useEffect(() => {
+  if (!socket) return;
+
+  const handleCheckInUpdate = (data) => {
+    console.log("Check-in/out update received for task:", data.task_id);
+    fetchTasks();
+  };
+
+  socket.on("task_checkin_updated", handleCheckInUpdate);
+  return () => socket.off("task_checkin_updated", handleCheckInUpdate);
+}, [fetchTasks]);
+
   const getUsername = (userId) => {
     const user = users.find(u => u.user_id === userId);
     return user ? user.username : 'Unknown';

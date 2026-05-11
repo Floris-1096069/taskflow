@@ -2,7 +2,7 @@ import {Platform, StyleSheet} from 'react-native';
 
 const isWeb = () => typeof window !== 'undefined';
 
-const lightColors = {
+const darkColors = {
   primary: '#3498db',
   secondary: '#2ecc71',
   background: '#f5f5f5',
@@ -22,7 +22,7 @@ const lightColors = {
   archivedBackground: '#444'
 };
 
-const darkColors = {
+const lightColors = {
   primary: '#3498db',
   secondary: '#2ecc71',
   background: '#121212',

@@ -35,6 +35,8 @@ def check_in_to_task(task_id):
 
         task = Task.get_continuous_by_id(task_id=task_id)
 
+        socketio.emit("task_checkin_updated", {"task_id": task_id}, namespace='/', include_self=True)
+
         return jsonify({
             "message": "Checked in successfully",
             "task": task.to_dict()
@@ -58,6 +60,8 @@ def check_out_of_task(task_id):
         Task.check_out_user(task_id, user_id)
 
         task = Task.get_continuous_by_id(task_id)
+
+        socketio.emit("task_checkin_updated", {"task_id": task_id}, namespace='/', include_self=True)
 
         return jsonify({
             "message": "Checked out successfully",
