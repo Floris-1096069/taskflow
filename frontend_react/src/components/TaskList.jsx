@@ -241,8 +241,12 @@ const TaskList = ({ navigation }) => {
       return task.active_users?.some((user) => String(user.user_id) === String(user_id));
     };
 
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const handleCheckInOut = async (task) => {
+      if (isButtonDisabled) return;
+
       try {
+        setIsButtonDisabled(true);
         const isCurrentlyCheckedIn = isCheckedIn(task);
         const endpoint = isCurrentlyCheckedIn ? "checkout" : "checkin";
         const response = await fetchWithAuth(`${Config.API_BASE_URL}/api/task/${endpoint}/${task.task_id}`, {
@@ -260,8 +264,10 @@ const TaskList = ({ navigation }) => {
       } catch (error) {
         console.error("Failed to update check-in status:", error);
         Alert.alert("Error", error.message || "Failed to update check-in status.");
-      }
-    };
+      } finally {
+        setTimeout(() => setIsButtonDisabled(false), 2000);
+  }
+};
 
   useEffect(() => {
     fetchTasks();

@@ -2,9 +2,9 @@ import os
 import warnings
 import logging
 from dotenv import load_dotenv
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
+from flask_jwt_extended import JWTManager
 from jwt import InsecureKeyLengthWarning
 from datetime import timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -43,6 +43,7 @@ def create_app():
     })
 
     #initialize extensions
+    #SET UP ORIGINS FROM ENV IN PROD!
     socketio.init_app(
         app,
         cors_allowed_origins="*",
@@ -54,7 +55,7 @@ def create_app():
     JWTManager(app)
     scheduler = BackgroundScheduler()
 
-    #add scheduled scripts
+    #add scheduled jobs
     scheduler.add_job(
         func=cleanup_inactive_users,
         trigger="interval",
@@ -63,6 +64,8 @@ def create_app():
         name="Mark inactive users as offline",
         replace_existing=True,
     )
+
+    #helper function that fixed bug with delegate task only running once
     def run_delegate_tasks():
         with app.app_context():
             try:
@@ -85,6 +88,7 @@ def create_app():
         max_instances=1,
         coalesce=False,
     )
+
     scheduler.start()
     print("Scheduler started. Jobs:")
     for job in scheduler.get_jobs():
@@ -114,4 +118,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=True)

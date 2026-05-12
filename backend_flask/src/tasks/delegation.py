@@ -48,6 +48,7 @@ def delegate_tasks(task_id=None):
                 return {"success": False, "message": "No undelegated tasks found"}
 
             user_task_counts = defaultdict(int)
+
             for user_id, in db.query(Task.delegated_to).filter(
                 Task.delegated_to.isnot(None)
             ).distinct():
@@ -124,7 +125,7 @@ def delegate_tasks(task_id=None):
 
                 if best_user:
                     task.delegated_to = best_user.user_id
-                    task.updated_by = 1  #admin
+                    task.updated_by = 1  #admin user_id is always 1
                     db.commit()
 
                     try:
@@ -152,7 +153,7 @@ def delegate_tasks(task_id=None):
                             "task_id": task.task_id
                         }
                 else:
-                    print(f"⚠️ No suitable user found for task {task.task_id}")
+                    print(f"No suitable user found for task {task.task_id}")
 
             if task_id is None:
                 print(f"Delegated {delegated_count} tasks.")

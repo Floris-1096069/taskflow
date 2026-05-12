@@ -12,12 +12,14 @@ const storage = {
     }
     return AsyncStorage.getItem(key);
   },
+
   setItem: async (key, value) => {
     if (typeof window !== 'undefined') {
       return localStorage.setItem(key, value);
     }
     return AsyncStorage.setItem(key, value);
   },
+
   removeItem: async (key) => {
     if (typeof window !== 'undefined') {
       return localStorage.removeItem(key);
